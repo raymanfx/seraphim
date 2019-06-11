@@ -27,9 +27,9 @@ set_target_properties(${MODULE_NAME} PROPERTIES SOVERSION
 target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # OpenCV dependency
-find_package(OpenCV COMPONENTS opencv_core REQUIRED)
+find_package(OpenCV COMPONENTS opencv_core opencv_imgproc REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
-target_link_libraries(${MODULE_NAME} PUBLIC opencv_core)
+target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_imgproc)
 
 target_link_libraries(${MODULE_NAME} PUBLIC seraphim_core)
 
