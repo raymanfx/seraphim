@@ -19,22 +19,15 @@ set(HEADERS
     include/seraphim/ipc/shm_transport.h
     include/seraphim/ipc/tcp_transport.h)
 
-add_library(${MODULE_NAME} OBJECT ${SOURCES} ${HEADERS})
-
-# shared libraries need PIC
-set_property(TARGET ${MODULE_NAME} PROPERTY POSITION_INDEPENDENT_CODE 1)
-
-# shared and static libraries built from the same object files
-add_library(${MODULE_NAME}_shared SHARED $<TARGET_OBJECTS:${MODULE_NAME}>)
-#add_library(${MODULE_NAME}_static STATIC $<TARGET_OBJECTS:${MODULE_NAME}>)
+add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})
 
 # set the shared lib name
-set_target_properties(${MODULE_NAME}_shared PROPERTIES OUTPUT_NAME ${MODULE_NAME})
+set_target_properties(${MODULE_NAME} PROPERTIES OUTPUT_NAME ${MODULE_NAME})
 
 # set the shared lib version
-set_target_properties(${MODULE_NAME}_shared PROPERTIES VERSION
+set_target_properties(${MODULE_NAME} PROPERTIES VERSION
                       ${MODULE_VERSION_MAJOR}.${MODULE_VERSION_MINOR}.${MODULE_VERSION_PATCH})
-set_target_properties(${MODULE_NAME}_shared PROPERTIES SOVERSION
+set_target_properties(${MODULE_NAME} PROPERTIES SOVERSION
                       ${MODULE_VERSION_MAJOR})
 
 # Linux requires POSIX realtime extensions for threads
@@ -42,7 +35,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   target_link_libraries(${MODULE_NAME} PRIVATE rt)
 endif ()
 
-target_link_libraries(${MODULE_NAME} PRIVATE seraphim_messages)
+target_link_libraries(${MODULE_NAME} PUBLIC seraphim_messages)
 
 # Make sure the compiler can find include files for our library
 # when other libraries or executables link to it
@@ -50,4 +43,4 @@ target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/inc
 
 # install shared lib and headers
 install(FILES ${HEADERS} DESTINATION include/seraphim/ipc)
-install(TARGETS ${MODULE_NAME}_shared DESTINATION lib)
+install(TARGETS ${MODULE_NAME} DESTINATION lib)

@@ -26,3 +26,6 @@ target_link_libraries(${COMPONENT_NAME} ${PROTOBUF_LIBRARY})
 
 # Expose message header
 target_include_directories(${COMPONENT_NAME} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+
+# shared libraries need PIC
+set_property(TARGET ${COMPONENT_NAME} PROPERTY POSITION_INDEPENDENT_CODE 1)
