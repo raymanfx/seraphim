@@ -19,7 +19,8 @@ namespace face {
 
 class RecognizerService : public sph::backend::Service {
 public:
-    explicit RecognizerService(sph::face::LBPDetector *detector, sph::face::IRecognizer *recognizer);
+    explicit RecognizerService(sph::face::LBPDetector *detector,
+                               sph::face::IRecognizer *recognizer);
     ~RecognizerService() override;
 
     bool handle_request(const Seraphim::Request &req, Seraphim::Response &res) override;

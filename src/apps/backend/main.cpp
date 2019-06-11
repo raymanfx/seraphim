@@ -224,15 +224,19 @@ int main(int argc, char **argv) {
         }
 
         std::cout << "Creating SHM server on /seraphim" << std::endl;
-        SharedMemoryServer *server = new SharedMemoryServer;
-        server->init(val, 1024 * 1000 * 10 /* 10 MB */);
-        server->on_message(callback);
-        std::cout << "Starting SHM server" << std::endl;
-        if (!server->run()) {
+        SharedMemoryServer *server = new SharedMemoryServer();
+        if (!server->init(val, 1024 * 1000 * 10 /* 10 MB */)) {
             std::cout << "Failed to create SHM segment: " << strerror(errno) << std::endl;
             delete server;
         } else {
-            servers.push_back(std::unique_ptr<Server>(server));
+            server->on_message(callback);
+            std::cout << "Starting SHM server" << std::endl;
+            if (!server->run()) {
+                std::cout << "Failed to run SHM server: " << strerror(errno) << std::endl;
+                delete server;
+            } else {
+                servers.push_back(std::unique_ptr<Server>(server));
+            }
         }
     }
 
@@ -254,14 +258,18 @@ int main(int argc, char **argv) {
 
         std::cout << "Creating TCP server on port: " << port << std::endl;
         TCPServer *server = new TCPServer(AF_INET);
-        server->init(port);
-        server->on_message(callback);
-        std::cout << "Starting TCP server" << std::endl;
-        if (!server->run()) {
+        if (!server->init(port)) {
             std::cout << "Failed to create TCP segment: " << strerror(errno) << std::endl;
             delete server;
         } else {
-            servers.push_back(std::unique_ptr<Server>(server));
+            server->on_message(callback);
+            std::cout << "Starting TCP server" << std::endl;
+            if (!server->run()) {
+                std::cout << "Failed to run TCP server: " << strerror(errno) << std::endl;
+                delete server;
+            } else {
+                servers.push_back(std::unique_ptr<Server>(server));
+            }
         }
     }
 
