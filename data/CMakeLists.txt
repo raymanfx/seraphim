@@ -1,5 +1,9 @@
 set(COMPONENT_NAME seraphim_messages)
 
+# compile protobuf code as C++11
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # find the protobuf compiler and libraries
 find_package(Protobuf REQUIRED)
 
@@ -11,6 +15,13 @@ set(Protobuf_IMPORT_DIRS
 file(GLOB PROTO_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/*.proto)
 message("PROTO_FILES = ${PROTO_FILES}")
+
+# macOS relies on homebrew to satisfy dependencies.
+# Some headers like protobuf "port_def.inc" are not properly exposes at the
+# moment, so we have to include them manually for the project.
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  include_directories("/usr/local/opt/protobuf/include")
+endif ()
 
 # Generate the .h and .cxx files
 PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS ${PROTO_FILES})
