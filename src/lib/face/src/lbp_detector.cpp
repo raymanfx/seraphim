@@ -110,12 +110,6 @@ bool LBPDetector::detect_facemarks(cv::InputArray img, cv::InputArray faces,
         return false;
     }
 
-    if (img.channels() > 1) {
-        std::cout << "[ERROR] face_detector::" << __func__ << ": Input image must have one channel"
-                  << std::endl;
-        return false;
-    }
-
     return m_impl->fit(img, faces, facemarks);
 }
 
