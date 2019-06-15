@@ -11,6 +11,8 @@ using namespace sph::face;
 
 LBPRecognizer::LBPRecognizer() {
     m_impl = cv::face::LBPHFaceRecognizer::create();
+
+    m_target = TARGET_CPU;
 }
 
 LBPRecognizer::~LBPRecognizer() {
@@ -97,20 +99,26 @@ bool LBPRecognizer::predict(cv::InputArray img, std::vector<Prediction> &preds) 
     cv::Mat gray;
     cv::UMat gray_umat;
 
-    // respect input mat type: separate codepaths for mat/umat
-    if (img.isUMat()) {
-        // convert to 8-bit single channel if necessary
-        if (img.channels() > 1) {
-            cv::cvtColor(img, gray_umat, cv::COLOR_BGR2GRAY);
-        } else {
-            gray_umat = img.getUMat(cv::ACCESS_READ);
-        }
-    } else {
+    // preprocessing stage: create the appropriate input buffer
+    // convert to 8-bit single channel if necessary
+    switch (m_target) {
+    case TARGET_CPU:
         if (img.channels() > 1) {
             cv::cvtColor(img, gray, cv::COLOR_BGR2GRAY);
         } else {
             gray = img.getMat(cv::ACCESS_READ);
         }
+        break;
+    case TARGET_OPENCL:
+        if (img.channels() > 1) {
+            cv::cvtColor(img, gray_umat, cv::COLOR_BGR2GRAY);
+        } else {
+            gray_umat = img.getUMat(cv::ACCESS_READ | cv::ACCESS_FAST);
+        }
+        break;
+    default:
+        /* unsupported */
+        return false;
     }
 
     preds.clear();
@@ -120,14 +128,35 @@ bool LBPRecognizer::predict(cv::InputArray img, std::vector<Prediction> &preds) 
         return false;
     }
 
-    if (img.isUMat()) {
-        m_impl->predict(gray_umat, pred.label, pred.confidence);
-    } else {
+    // main stage: predict the faces using local binary pattern matching
+    switch (m_target) {
+    case TARGET_CPU:
         m_impl->predict(gray, pred.label, pred.confidence);
+        break;
+    case TARGET_OPENCL:
+        m_impl->predict(gray_umat, pred.label, pred.confidence);
+        break;
+    default:
+        /* unsupported */
+        return false;
     }
 
     if (pred.label != -1) {
         preds.push_back(pred);
+    }
+
+    return true;
+}
+
+bool LBPRecognizer::set_target(const target_t &target) {
+    switch (target) {
+    case TARGET_CPU:
+    case TARGET_OPENCL:
+        m_target = target;
+        break;
+    default:
+        /* unsupported */
+        return false;
     }
 
     return true;

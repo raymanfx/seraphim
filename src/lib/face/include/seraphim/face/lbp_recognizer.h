@@ -11,12 +11,13 @@
 #include "recognizer.h"
 #include <opencv2/face.hpp>
 #include <opencv2/opencv.hpp>
+#include <seraphim/core/computable.h>
 #include <vector>
 
 namespace sph {
 namespace face {
 
-class LBPRecognizer : public IRecognizer {
+class LBPRecognizer : public IRecognizer, sph::core::IComputable {
 public:
     LBPRecognizer();
     ~LBPRecognizer() override;
@@ -32,11 +33,15 @@ public:
     void update(cv::InputArrayOfArrays imgs, const std::vector<int> &labels,
                 bool invalidate = false) override;
 
+    bool set_target(const target_t &target) override;
+
 private:
     cv::Ptr<cv::face::FaceRecognizer> m_impl;
 
     // internal database
     std::map<int, std::vector<cv::Mat>> m_faces;
+
+    target_t m_target;
 };
 
 } // namespace face
