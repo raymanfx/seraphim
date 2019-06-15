@@ -36,6 +36,8 @@ find_package(OpenCV COMPONENTS opencv_core opencv_face opencv_imgproc REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_face opencv_imgproc)
 
+target_link_libraries(${MODULE_NAME} PUBLIC seraphim_core)
+
 # install shared lib and headers
 install(FILES ${HEADERS} DESTINATION include/seraphim/face)
 install(TARGETS ${MODULE_NAME} DESTINATION lib)

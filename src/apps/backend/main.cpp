@@ -212,6 +212,39 @@ int main(int argc, char **argv) {
         }
     }
 
+    val = ConfigStore::Instance().get_value("compute_target");
+    if (val.empty()) {
+        std::cout << "[WARN] Missing conf key: compute_target, fallback to CPU" << std::endl;
+        lane_detector.set_target(sph::core::IComputable::TARGET_CPU);
+        face_detector.set_target(sph::core::IComputable::TARGET_CPU);
+        face_recognizer.set_target(sph::core::IComputable::TARGET_CPU);
+        object_classifier.set_target(sph::core::IComputable::TARGET_CPU);
+    } else {
+        sph::core::IComputable::target_t target = sph::core::IComputable::TARGET_CPU;
+        if (val == "CPU") {
+            target = sph::core::IComputable::TARGET_CPU;
+        } else if (val == "OPENCL") {
+            target = sph::core::IComputable::TARGET_OPENCL;
+        } else if (val == "OPENCLFP16") {
+            target = sph::core::IComputable::TARGET_OPENCL_FP16;
+        } else {
+            std::cout << "[WARN] Invalid compute target, fallback to CPU" << std::endl;
+        }
+
+        if (!lane_detector.set_target(target)) {
+            std::cout << "[WARN] Failed to set Lane Detector target to: " << val << std::endl;
+        }
+        if (!face_detector.set_target(target)) {
+            std::cout << "[WARN] Failed to set Face Detector target to: " << val << std::endl;
+        }
+        if (!face_recognizer.set_target(target)) {
+            std::cout << "[WARN] Failed to set Face Recognizer target to: " << val << std::endl;
+        }
+        if (!object_classifier.set_target(target)) {
+            std::cout << "[WARN] Failed to set Object Classifier target to: " << val << std::endl;
+        }
+    }
+
     // start servers
     server_running = true;
 
