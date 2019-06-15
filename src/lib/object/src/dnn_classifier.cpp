@@ -46,6 +46,8 @@ std::vector<std::string> DNNClassifier::get_unconnected_out_layer_names() {
 }
 
 bool DNNClassifier::set_target(const target_t &target) {
+    std::unique_lock<std::mutex> lock(m_target_mutex);
+
     switch (target) {
     case TARGET_CPU:
         m_net.setPreferableTarget(cv::dnn::Target::DNN_TARGET_CPU);
@@ -73,6 +75,7 @@ bool DNNClassifier::predict(cv::InputArray img, std::vector<Prediction> &preds) 
     std::vector<int> class_ids;
     std::vector<float> confidences;
     std::vector<cv::Rect> boxes;
+    std::unique_lock<std::mutex> lock(m_target_mutex);
 
     preds.clear();
 

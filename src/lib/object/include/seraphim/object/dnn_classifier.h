@@ -9,6 +9,7 @@
 #define SPH_OBJECT_CLASSIFIER_DNN_H
 
 #include "classifier.h"
+#include <mutex>
 #include <opencv2/dnn.hpp>
 #include <opencv2/opencv.hpp>
 #include <seraphim/core/computable.h>
@@ -66,6 +67,8 @@ private:
     cv::dnn::Net m_net;
     /// Layer names have to be refreshed after \ref read_net was called.
     bool m_refresh_layer_names;
+
+    std::mutex m_target_mutex;
 };
 
 } // namespace object

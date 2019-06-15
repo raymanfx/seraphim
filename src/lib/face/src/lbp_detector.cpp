@@ -34,6 +34,7 @@ bool LBPDetector::face_cascade_impl(cv::InputArray img, cv::OutputArray ROIs) {
     cv::Mat gray;
     cv::UMat gray_umat;
     std::vector<cv::Rect> faces;
+    std::unique_lock<std::mutex> lock(m_target_mutex);
 
     // preprocessing stage: create the appropriate input buffer
     // convert to 8-bit single channel if necessary
@@ -168,6 +169,8 @@ bool LBPDetector::find_eyes(const std::vector<cv::Point2f> &facemarks,
 }
 
 bool LBPDetector::set_target(const target_t &target) {
+    std::unique_lock<std::mutex> lock(m_target_mutex);
+
     switch (target) {
     case TARGET_CPU:
     case TARGET_OPENCL:

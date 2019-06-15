@@ -9,6 +9,7 @@
 #define SPH_FACE_DETECTOR_LBF_H
 
 #include "detector.h"
+#include <mutex>
 #include <opencv2/face.hpp>
 #include <opencv2/opencv.hpp>
 #include <seraphim/core/computable.h>
@@ -87,6 +88,7 @@ private:
     bool m_facemark_model_loaded;
 
     target_t m_target;
+    std::mutex m_target_mutex;
 };
 
 } // namespace face

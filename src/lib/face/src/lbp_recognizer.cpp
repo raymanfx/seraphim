@@ -98,6 +98,7 @@ bool LBPRecognizer::predict(cv::InputArray img, std::vector<Prediction> &preds) 
     Prediction pred = {};
     cv::Mat gray;
     cv::UMat gray_umat;
+    std::unique_lock<std::mutex> lock(m_target_mutex);
 
     // preprocessing stage: create the appropriate input buffer
     // convert to 8-bit single channel if necessary
@@ -149,6 +150,8 @@ bool LBPRecognizer::predict(cv::InputArray img, std::vector<Prediction> &preds) 
 }
 
 bool LBPRecognizer::set_target(const target_t &target) {
+    std::unique_lock<std::mutex> lock(m_target_mutex);
+
     switch (target) {
     case TARGET_CPU:
     case TARGET_OPENCL:

@@ -9,6 +9,7 @@
 #define SPH_FACE_RECOGNIZER_LBPH_H
 
 #include "recognizer.h"
+#include <mutex>
 #include <opencv2/face.hpp>
 #include <opencv2/opencv.hpp>
 #include <seraphim/core/computable.h>
@@ -42,6 +43,7 @@ private:
     std::map<int, std::vector<cv::Mat>> m_faces;
 
     target_t m_target;
+    std::mutex m_target_mutex;
 };
 
 } // namespace face

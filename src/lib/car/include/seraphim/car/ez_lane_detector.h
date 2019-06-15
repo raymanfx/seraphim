@@ -9,6 +9,7 @@
 #define SPH_CAR_LANE_DETECTOR_EZ_H
 
 #include "lane_detector.h"
+#include <mutex>
 #include <opencv2/opencv.hpp>
 #include <seraphim/core/computable.h>
 #include <vector>
@@ -101,6 +102,7 @@ private:
     cv::Mat m_mat_buf;
     cv::UMat m_umat_buf;
     target_t m_target;
+    std::mutex m_target_mutex;
 };
 
 } // namespace car

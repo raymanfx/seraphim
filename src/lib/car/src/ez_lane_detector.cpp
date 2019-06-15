@@ -69,6 +69,8 @@ void EZLaneDetector::detect_lines(cv::InputArray img, cv::OutputArray &lines) {
 }
 
 bool EZLaneDetector::set_target(const target_t &target) {
+    std::unique_lock<std::mutex> lock(m_target_mutex);
+
     switch (target) {
     case TARGET_CPU:
     case TARGET_OPENCL:
@@ -89,6 +91,7 @@ bool EZLaneDetector::detect(cv::InputArray img, std::vector<Lane> &lanes) {
     cv::Vec4d left_line_params;
     cv::Vec4d right_line_params;
     double slope_thresh = 0.3;
+    std::unique_lock<std::mutex> lock(m_target_mutex);
 
     switch (m_target) {
     case TARGET_CPU:
