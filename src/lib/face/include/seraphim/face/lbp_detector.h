@@ -11,6 +11,7 @@
 #include "detector.h"
 #include <opencv2/face.hpp>
 #include <opencv2/opencv.hpp>
+#include <seraphim/core/computable.h>
 #include <vector>
 
 namespace sph {
@@ -26,7 +27,7 @@ static const std::pair<size_t, size_t> facemark_LUT[] = {
     { 48, 67 }  // FACEMARK_MOUTH
 };
 
-class LBPDetector : public IDetector {
+class LBPDetector : public IDetector, sph::core::IComputable {
 public:
     explicit LBPDetector();
     ~LBPDetector() override;
@@ -72,6 +73,8 @@ public:
      */
     void set_parameters(const Parameters &params) { m_params = params; }
 
+    bool set_target(const target_t &target) override;
+
 private:
     cv::Ptr<cv::face::FacemarkTrain> m_impl;
 
@@ -82,6 +85,8 @@ private:
     cv::face::FacemarkLBF::Params m_facemark_params;
 
     bool m_facemark_model_loaded;
+
+    target_t m_target;
 };
 
 } // namespace face

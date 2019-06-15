@@ -22,6 +22,8 @@ LBPDetector::LBPDetector() {
     m_params.cascade_min_neighbours = 3;
     m_params.cascade_flags = cv::CASCADE_SCALE_IMAGE;
     m_params.cascade_min_size = cv::Size(30, 30);
+
+    m_target = TARGET_CPU;
 }
 
 LBPDetector::~LBPDetector() {
@@ -33,33 +35,45 @@ bool LBPDetector::face_cascade_impl(cv::InputArray img, cv::OutputArray ROIs) {
     cv::UMat gray_umat;
     std::vector<cv::Rect> faces;
 
-    // respect input mat type: separate codepaths for mat/umat
-    if (img.isUMat()) {
-        // convert to 8-bit single channel if necessary
-        if (img.channels() > 1) {
-            cv::cvtColor(img, gray_umat, cv::COLOR_BGR2GRAY);
-            cv::equalizeHist(gray_umat, gray_umat);
-        } else {
-            cv::equalizeHist(img, gray_umat);
-        }
-    } else {
+    // preprocessing stage: create the appropriate input buffer
+    // convert to 8-bit single channel if necessary
+    switch (m_target) {
+    case TARGET_CPU:
         if (img.channels() > 1) {
             cv::cvtColor(img, gray, cv::COLOR_BGR2GRAY);
             cv::equalizeHist(gray, gray);
         } else {
             cv::equalizeHist(img, gray);
         }
+        break;
+    case TARGET_OPENCL:
+        if (img.channels() > 1) {
+            cv::cvtColor(img, gray_umat, cv::COLOR_BGR2GRAY);
+            cv::equalizeHist(gray_umat, gray_umat);
+        } else {
+            cv::equalizeHist(img, gray_umat);
+        }
+        break;
+    default:
+        /* unsupported */
+        return false;
     }
 
-    // detect faces
-    if (img.isUMat()) {
-        m_face_cascade->detectMultiScale(gray_umat, faces, m_params.cascade_scale_factor,
-                                         m_params.cascade_min_neighbours, m_params.cascade_flags,
-                                         m_params.cascade_min_size);
-    } else {
+    // main stage: run the cascade classifier to detect faces
+    switch (m_target) {
+    case TARGET_CPU:
         m_face_cascade->detectMultiScale(gray, faces, m_params.cascade_scale_factor,
                                          m_params.cascade_min_neighbours, m_params.cascade_flags,
                                          m_params.cascade_min_size);
+        break;
+    case TARGET_OPENCL:
+        m_face_cascade->detectMultiScale(gray_umat, faces, m_params.cascade_scale_factor,
+                                         m_params.cascade_min_neighbours, m_params.cascade_flags,
+                                         m_params.cascade_min_size);
+        break;
+    default:
+        /* unsupported */
+        return false;
     }
 
     cv::Mat(faces).copyTo(ROIs);
@@ -150,5 +164,19 @@ bool LBPDetector::find_eyes(const std::vector<cv::Point2f> &facemarks,
 
     eyes.push_back(leftEye);
     eyes.push_back(rightEye);
+    return true;
+}
+
+bool LBPDetector::set_target(const target_t &target) {
+    switch (target) {
+    case TARGET_CPU:
+    case TARGET_OPENCL:
+        m_target = target;
+        break;
+    default:
+        /* unsupported */
+        return false;
+    }
+
     return true;
 }
