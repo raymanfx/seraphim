@@ -1,10 +1,10 @@
-set(MODULE_NAME car_service)
+set(MODULE_NAME backend_common)
 
 set(SOURCES
-    lane_detector_service.cpp)
+    utils.cpp)
 
 set(HEADERS
-    lane_detector_service.h)
+    utils.h)
 
 add_library(${MODULE_NAME} STATIC ${SOURCES} ${HEADERS})
 
@@ -12,6 +12,9 @@ add_library(${MODULE_NAME} STATIC ${SOURCES} ${HEADERS})
 # when other libraries or executables link to it
 target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(${MODULE_NAME} PUBLIC backend_common)
 target_link_libraries(${MODULE_NAME} PUBLIC seraphim_messages)
-target_link_libraries(${MODULE_NAME} PUBLIC seraphim_car)
+
+# OpenCV dep
+find_package(OpenCV COMPONENTS opencv_core opencv_imgproc opencv_imgcodecs REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_imgproc opencv_imgcodecs)

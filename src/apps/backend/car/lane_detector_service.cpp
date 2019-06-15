@@ -5,6 +5,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include <utils.h>
+
 #include "lane_detector_service.h"
 
 using namespace sph::car;
@@ -34,8 +36,9 @@ bool LaneDetectorService::handle_detection_request(
     cv::Rect2i roi;
     std::vector<sph::car::ILaneDetector::Lane> lanes;
 
-    image = cv::Mat(req.image().rows(), req.image().cols(), req.image().type(),
-                    const_cast<char *>(req.image().data().c_str()));
+    if (!sph::backend::Image2DtoMat(req.image(), image)) {
+        return false;
+    }
 
     roi = cv::Rect2i(0, 0, image.cols, image.rows);
 

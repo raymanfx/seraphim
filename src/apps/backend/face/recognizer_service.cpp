@@ -6,6 +6,7 @@
  */
 
 #include <seraphim/face/utils.h>
+#include <utils.h>
 
 #include "recognizer_service.h"
 
@@ -46,8 +47,9 @@ bool RecognizerService::handle_training_request(
     std::vector<cv::Mat> images;
     std::vector<int> labels;
 
-    image = cv::Mat(req.image().rows(), req.image().cols(), req.image().type(),
-                    const_cast<char *>(req.image().data().c_str()));
+    if (!sph::backend::Image2DtoMat(req.image(), image)) {
+        return false;
+    }
 
     labels.push_back(req.label());
 
@@ -103,8 +105,9 @@ bool RecognizerService::handle_recognition_request(
     cv::Rect2i roi;
     std::vector<sph::face::IRecognizer::Prediction> preds;
 
-    image = cv::Mat(req.image().rows(), req.image().cols(), req.image().type(),
-                    const_cast<char *>(req.image().data().c_str()));
+    if (!sph::backend::Image2DtoMat(req.image(), image)) {
+        return false;
+    }
 
     roi = cv::Rect2i(0, 0, image.cols, image.rows);
 

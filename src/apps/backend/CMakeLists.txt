@@ -12,6 +12,7 @@ set(HEADERS
     )
 
 add_subdirectory(car)
+add_subdirectory(common)
 add_subdirectory(face)
 add_subdirectory(object)
 
@@ -21,10 +22,10 @@ add_library(${COMPONENT_NAME} STATIC ${SOURCES} ${HEADERS})
 # when other libraries or executables link to it
 target_include_directories(${COMPONENT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(${COMPONENT_NAME} PRIVATE car_service)
-target_link_libraries(${COMPONENT_NAME} PRIVATE face_service)
-target_link_libraries(${COMPONENT_NAME} PRIVATE object_service)
-target_link_libraries(${COMPONENT_NAME} PRIVATE seraphim_messages)
+target_link_libraries(${COMPONENT_NAME} PUBLIC car_service)
+target_link_libraries(${COMPONENT_NAME} PUBLIC face_service)
+target_link_libraries(${COMPONENT_NAME} PUBLIC object_service)
+target_link_libraries(${COMPONENT_NAME} PUBLIC seraphim_messages)
 
 set(COMPONENT_NAME seraphim-server)
 
@@ -45,14 +46,9 @@ add_executable(${COMPONENT_NAME} ${SOURCES} ${HEADERS})
 
 # Include threads
 find_package(Threads REQUIRED)
-target_link_libraries(${COMPONENT_NAME} PRIVATE Threads::Threads)
+target_link_libraries(${COMPONENT_NAME} Threads::Threads)
 
-target_link_libraries(${COMPONENT_NAME} PRIVATE seraphim_core)
-target_link_libraries(${COMPONENT_NAME} PRIVATE seraphim_car)
-target_link_libraries(${COMPONENT_NAME} PRIVATE seraphim_face)
-target_link_libraries(${COMPONENT_NAME} PRIVATE seraphim_ipc)
-target_link_libraries(${COMPONENT_NAME} PRIVATE seraphim_messages)
-target_link_libraries(${COMPONENT_NAME} PRIVATE seraphim_object)
-target_link_libraries(${COMPONENT_NAME} PRIVATE seraphim_services)
+target_link_libraries(${COMPONENT_NAME} seraphim_ipc)
+target_link_libraries(${COMPONENT_NAME} seraphim_services)
 
 install(TARGETS ${COMPONENT_NAME} DESTINATION bin)

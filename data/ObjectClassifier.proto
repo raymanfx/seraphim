@@ -11,7 +11,7 @@ import "Types.proto";
  */
 
 message ClassificationRequest {
-  Types.MatImage image = 1;
+  Types.Image2D image = 1;
   Types.Region2D roi = 2;
   float confidence = 3;
 }

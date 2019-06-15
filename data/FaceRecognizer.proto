@@ -11,13 +11,13 @@ import "Types.proto";
  */
 
 message TrainingRequest {
-  Types.MatImage image = 1;
+  Types.Image2D image = 1;
   int32 label = 2;
   bool invalidate = 3;
 }
 
 message RecognitionRequest {
-  Types.MatImage image = 1;
+  Types.Image2D image = 1;
   double confidence = 2;
   Types.Region2D roi = 3;
 }

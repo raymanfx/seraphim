@@ -5,6 +5,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include <utils.h>
+
 #include "detector_lbp_service.h"
 
 using namespace sph::face;
@@ -35,8 +37,9 @@ bool LBPDetectorService::handle_detection_request(
     std::vector<std::vector<cv::Point2f>> facemarks;
     cv::Rect2i roi;
 
-    image = cv::Mat(req.image().rows(), req.image().cols(), req.image().type(),
-                    const_cast<char *>(req.image().data().c_str()));
+    if (!sph::backend::Image2DtoMat(req.image(), image)) {
+        return false;
+    }
 
     roi = cv::Rect2i(0, 0, image.cols, image.rows);
 

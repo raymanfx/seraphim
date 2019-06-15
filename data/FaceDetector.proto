@@ -28,7 +28,7 @@ message Facemarks {
  */
 
 message DetectionRequest {
-  Types.MatImage image = 1;
+  Types.Image2D image = 1;
   Types.Region2D roi = 2;
 }
 

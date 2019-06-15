@@ -22,9 +22,9 @@ message Region2D {
   int32 h = 4;
 }
 
-message MatImage {
-  int32 rows = 1;
-  int32 cols = 2;
-  int32 type = 3;
+message Image2D {
+  uint32 width = 1;
+  uint32 height = 2;
+  uint32 fourcc = 3;
   bytes data = 4;
 }
