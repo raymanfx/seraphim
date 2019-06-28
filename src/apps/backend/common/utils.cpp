@@ -14,6 +14,11 @@
 bool sph::backend::Image2DtoMat(const Seraphim::Types::Image2D &img, cv::Mat &dst) {
     // https://github.com/opencv/opencv/blob/master/modules/videoio/src/cap_v4l.cpp
     switch (img.fourcc()) {
+    case fourcc('r', 'a', 'w', ' '):
+        cv::cvtColor(
+            cv::Mat(img.height(), img.width(), CV_8UC3, const_cast<char *>(img.data().c_str())),
+            dst, cv::COLOR_RGB2BGR);
+        break;
     case fourcc('Y', 'U', 'Y', 'V'):
         cv::cvtColor(
             cv::Mat(img.height(), img.width(), CV_8UC2, const_cast<char *>(img.data().c_str())),
