@@ -4,6 +4,7 @@ set(MODULE_VERSION_MINOR 0)
 set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
+    src/module.cpp
     src/net/socket.cpp
     src/net/tcp_socket.cpp
     src/net/tcp_stream.cpp
@@ -11,6 +12,8 @@ set(SOURCES
     src/tcp_transport.cpp)
 
 set(HEADERS
+    include/seraphim/ipc.h
+    include/seraphim/ipc/module.h
     include/seraphim/ipc/net/socket.h
     include/seraphim/ipc/net/tcp_socket.h
     include/seraphim/ipc/net/tcp_stream.h
@@ -35,6 +38,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   target_link_libraries(${MODULE_NAME} PRIVATE rt)
 endif ()
 
+target_link_libraries(${MODULE_NAME} PUBLIC seraphim_core)
 target_link_libraries(${MODULE_NAME} PUBLIC seraphim_messages)
 
 # Make sure the compiler can find include files for our library

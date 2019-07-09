@@ -7,7 +7,8 @@ set(SOURCES
     src/dummy.cpp)
 
 set(HEADERS
-    include/seraphim/core/computable.h)
+    include/seraphim/core/computable.h
+    include/seraphim/core/module.h)
 
 add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})
 

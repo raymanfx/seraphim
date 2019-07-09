@@ -4,10 +4,12 @@ set(MODULE_VERSION_MINOR 0)
 set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
-    src/ez_lane_detector.cpp)
+    src/ez_lane_detector.cpp
+    src/module.cpp)
 
 set(HEADERS
     include/seraphim/car.h
+    include/seraphim/car/module.h
     include/seraphim/car/lane_detector.h
     include/seraphim/car/ez_lane_detector.h)
 

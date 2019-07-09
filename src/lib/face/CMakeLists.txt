@@ -4,12 +4,14 @@ set(MODULE_VERSION_MINOR 0)
 set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
+    src/module.cpp
     src/lbp_detector.cpp
     src/lbp_recognizer.cpp
     src/utils.cpp)
 
 set(HEADERS
     include/seraphim/face.h
+    include/seraphim/face/module.h
     include/seraphim/face/detector.h
     include/seraphim/face/lbp_detector.h
     include/seraphim/face/lbp_recognizer.h
