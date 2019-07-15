@@ -16,7 +16,7 @@
 namespace sph {
 namespace face {
 
-class LBPDetectorService : public sph::backend::Service {
+class LBPDetectorService : public sph::backend::IService {
 public:
     explicit LBPDetectorService(sph::face::LBPDetector *detector);
 

@@ -17,7 +17,7 @@
 namespace sph {
 namespace face {
 
-class RecognizerService : public sph::backend::Service {
+class RecognizerService : public sph::backend::IService {
 public:
     explicit RecognizerService(sph::face::LBPDetector *detector,
                                sph::face::IRecognizer *recognizer);

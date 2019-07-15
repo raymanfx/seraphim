@@ -16,7 +16,7 @@
 namespace sph {
 namespace car {
 
-class LaneDetectorService : public sph::backend::Service {
+class LaneDetectorService : public sph::backend::IService {
 public:
     explicit LaneDetectorService(sph::car::ILaneDetector *detector);
 
