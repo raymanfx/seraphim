@@ -36,6 +36,7 @@ public:
     bool close();
     bool reset();
 
+    uint32_t num_buffers() const { return m_num_buffers; }
     bool init_buffers(const int &iomethod, const uint32_t &num_buffers);
     bool release_buffers();
 

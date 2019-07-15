@@ -33,8 +33,9 @@ V4L2Device::V4L2Device() {
 
 V4L2Device::~V4L2Device() {
     // stop active stream
-    if (m_stream_active)
+    if (m_stream_active) {
         stop_stream();
+    }
 
     // close the device handle
     if (m_fd >= 0) {
@@ -238,6 +239,7 @@ bool V4L2Device::release_buffers() {
     delete m_buffers;
     m_buffers = nullptr;
     m_num_buffers = 0;
+
     return ret;
 }
 
@@ -432,13 +434,10 @@ bool V4L2Device::retrieve(struct Buffer &buf) {
     }
 
     buf = m_buffers[buffer_index];
+
     return true;
 }
 
 bool V4L2Device::read(struct Buffer &buf) {
-    if (!grab()) {
-        return false;
-    }
-
-    return retrieve(buf);
+    return grab() && retrieve(buf);
 }
