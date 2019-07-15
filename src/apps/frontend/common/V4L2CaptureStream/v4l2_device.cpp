@@ -352,6 +352,7 @@ bool V4L2Device::stop_stream() {
 
 bool V4L2Device::grab() {
     struct v4l2_buffer v4l2_buf = {};
+    static uint32_t buffer_index = 0;
 
     if (!m_stream_active) {
         // enable the stream (convenience API handling)
@@ -371,14 +372,18 @@ bool V4L2Device::grab() {
     case IO_METHOD_MMAP:
         v4l2_buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         v4l2_buf.memory = V4L2_MEMORY_MMAP;
+        v4l2_buf.index = buffer_index;
 
-        if (ioctl(VIDIOC_QBUF, &v4l2_buf) == -1)
+        if (ioctl(VIDIOC_QBUF, &v4l2_buf) == -1) {
             return false;
+        }
 
         break;
     default:
         break;
     }
+
+    buffer_index = (buffer_index + 1) % m_num_buffers;
 
     return true;
 }
@@ -403,7 +408,6 @@ bool V4L2Device::retrieve(struct Buffer &buf) {
 
         // emulate buffer properties
         clock_gettime(CLOCK_MONOTONIC, &now);
-        buffer_index = (buffer_index + 1) % m_num_buffers;
         m_buffers[buffer_index].bytesused = read;
         m_buffers[buffer_index].sequence = frame;
         m_buffers[buffer_index].timestamp.tv_sec = now.tv_sec;
@@ -413,6 +417,7 @@ bool V4L2Device::retrieve(struct Buffer &buf) {
     case IO_METHOD_MMAP:
         v4l2_buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         v4l2_buf.memory = V4L2_MEMORY_MMAP;
+        v4l2_buf.index = buffer_index;
 
         if (ioctl(VIDIOC_DQBUF, &v4l2_buf) == -1) {
             return false;
@@ -424,7 +429,6 @@ bool V4L2Device::retrieve(struct Buffer &buf) {
             return false;
         }
 
-        buffer_index = v4l2_buf.index;
         m_buffers[buffer_index].bytesused = v4l2_buf.bytesused;
         m_buffers[buffer_index].sequence = v4l2_buf.sequence;
         m_buffers[buffer_index].timestamp = v4l2_buf.timestamp;
@@ -434,6 +438,7 @@ bool V4L2Device::retrieve(struct Buffer &buf) {
     }
 
     buf = m_buffers[buffer_index];
+    buffer_index = (buffer_index + 1) % m_num_buffers;
 
     return true;
 }
