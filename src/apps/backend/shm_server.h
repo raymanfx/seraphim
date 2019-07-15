@@ -17,15 +17,17 @@
 namespace sph {
 namespace backend {
 
-class SharedMemoryServer : public sph::backend::Server {
+class SharedMemoryServer : public sph::backend::IServer {
 public:
     SharedMemoryServer();
     ~SharedMemoryServer() override;
 
     bool run() override;
     void terminate() override;
+    void register_event_handler(const event_t &mask, const event_handler_t handler) override;
 
     bool init(const std::string &shm_name, const long &shm_size);
+    void handle_event(const event_t &event, void *data);
 
 private:
     std::string m_shm_name;
@@ -37,6 +39,8 @@ private:
     std::thread m_thread;
     std::atomic<bool> m_running;
     Seraphim::Message m_msg;
+
+    std::vector<std::pair<IServer::event_t, IServer::event_handler_t>> m_event_handlers;
 };
 
 } // namespace backend

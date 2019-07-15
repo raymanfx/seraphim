@@ -104,40 +104,41 @@ static void print_usage(int print_description) {
     }
 }
 
-bool callback(Seraphim::Message &msg) {
+bool message_incoming(void *data) {
+    Seraphim::Message *msg = reinterpret_cast<Seraphim::Message *>(data);
     Seraphim::Response res;
     bool status = false;
 
-    if (!msg.has_req()) {
+    if (!msg->has_req()) {
         std::cout << "Server: no request; ignore" << std::endl;
-        msg.mutable_res()->set_status(Seraphim::Response::SEINVAL);
+        msg->mutable_res()->set_status(Seraphim::Response::SEINVAL);
         return false;
     }
 
-    std::cout << ">> Request" << std::endl << "   size=" << msg.ByteSizeLong() << std::endl;
+    std::cout << ">> Request" << std::endl << "   size=" << msg->ByteSizeLong() << std::endl;
 
-    if (msg.req().has_car()) {
-        if (msg.req().car().has_detector()) {
-            status = lane_detector_service.handle_request(msg.req(), res);
+    if (msg->req().has_car()) {
+        if (msg->req().car().has_detector()) {
+            status = lane_detector_service.handle_request(msg->req(), res);
         }
-    } else if (msg.req().has_face()) {
-        if (msg.req().face().has_detector()) {
-            status = face_detector_service.handle_request(msg.req(), res);
-        } else if (msg.req().face().has_recognizer()) {
-            status = face_recognizer_service.handle_request(msg.req(), res);
+    } else if (msg->req().has_face()) {
+        if (msg->req().face().has_detector()) {
+            status = face_detector_service.handle_request(msg->req(), res);
+        } else if (msg->req().face().has_recognizer()) {
+            status = face_recognizer_service.handle_request(msg->req(), res);
         }
-    } else if (msg.req().has_object()) {
-        if (msg.req().object().has_classifier()) {
-            status = object_classifier_service.handle_request(msg.req(), res);
+    } else if (msg->req().has_object()) {
+        if (msg->req().object().has_classifier()) {
+            status = object_classifier_service.handle_request(msg->req(), res);
         }
     }
 
     res.set_status(status ? Seraphim::Response::OK : Seraphim::Response::ERROR);
-    res.Swap(msg.mutable_res());
+    res.Swap(msg->mutable_res());
 
     std::cout << "<< Response" << std::endl
-              << "   status=" << msg.res().status() << std::endl
-              << "   size=" << msg.ByteSizeLong() << std::endl;
+              << "   status=" << msg->res().status() << std::endl
+              << "   size=" << msg->ByteSizeLong() << std::endl;
     return true;
 }
 
@@ -147,7 +148,7 @@ int main(int argc, char **argv) {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
     std::string config_path = "seraphim.conf";
-    std::vector<std::unique_ptr<Server>> servers;
+    std::vector<std::unique_ptr<IServer>> servers;
     std::string val;
     std::string val2;
 
@@ -262,13 +263,13 @@ int main(int argc, char **argv) {
             std::cout << "Failed to create SHM segment: " << strerror(errno) << std::endl;
             delete server;
         } else {
-            server->on_message(callback);
+            server->register_event_handler(IServer::EVENT_MESSAGE_INCOMING, message_incoming);
             std::cout << "Starting SHM server" << std::endl;
             if (!server->run()) {
                 std::cout << "Failed to run SHM server: " << strerror(errno) << std::endl;
                 delete server;
             } else {
-                servers.push_back(std::unique_ptr<Server>(server));
+                servers.push_back(std::unique_ptr<IServer>(server));
             }
         }
     }
@@ -295,13 +296,13 @@ int main(int argc, char **argv) {
             std::cout << "Failed to create TCP segment: " << strerror(errno) << std::endl;
             delete server;
         } else {
-            server->on_message(callback);
+            server->register_event_handler(IServer::EVENT_MESSAGE_INCOMING, message_incoming);
             std::cout << "Starting TCP server" << std::endl;
             if (!server->run()) {
                 std::cout << "Failed to run TCP server: " << strerror(errno) << std::endl;
                 delete server;
             } else {
-                servers.push_back(std::unique_ptr<Server>(server));
+                servers.push_back(std::unique_ptr<IServer>(server));
             }
         }
     }

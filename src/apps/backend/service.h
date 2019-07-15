@@ -22,7 +22,7 @@ public:
 protected:
     // disallow default construction, copy construction
     IService() = default;
-    IService(const IService&) = default;
+    IService(const IService &) = default;
 };
 
 } // namespace backend
