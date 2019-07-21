@@ -8,9 +8,9 @@
 #ifndef SPH_IPC_SHM_SHIM
 #define SPH_IPC_SHM_SHIM
 
-#ifdef __APPLE__
-#include <dispatch/dispatch.h>
-#elif defined(__linux__)
+#include <fcntl.h>
+#include <string>
+#if defined(__APPLE__) || defined(__unix__)
 #include <semaphore.h>
 #else
 #error no semaphore implementation available
@@ -19,64 +19,39 @@
 namespace sph {
 namespace ipc {
 
-#ifdef __APPLE__
-/// Grand Central Dispatch dispatch_semaphore_t
-typedef dispatch_semaphore_t sem_t;
+/// POSIX sem_t
+typedef ::sem_t sem_t;
 
+#ifdef __APPLE__
 /**
- * @brief POSIX sem_init wrapper using Grand Central Dispatch.
+ * @brief POSIX sem_init wrapper implemented using sem_open.
  * @param sem The uninitialized semaphore address.
- * @param pshared Ignored.
+ * @param pshared Whether to share the semaphore between threads (0) or processes (nonzero).
  * @param value The initial semaphore value.
  * @return 0 on success, -1 on error.
  */
 inline int sem_init(sem_t *sem, int pshared, unsigned int value) {
     (void)pshared;
-    *sem = dispatch_semaphore_create(value);
-    return *sem ? 0 : -1;
+    static unsigned int index = 0;
+    sem = ::sem_open((std::string("/seraphim/") + std::to_string(index)).c_str(), O_CREAT, 0666,
+                     value);
+    if (sem == SEM_FAILED) {
+        return -1;
+    }
+
+    index++;
+    return 0;
 }
 
 /**
- * @brief POSIX sem_destroy wrapper using Grand Central Dispatch.
+ * @brief POSIX sem_destroy wrapper implemented using sem_close.
  * @param sem The semaphore address.
- * @return 0
+ * @return 0 on success, -1 on error.
  */
 inline int sem_destroy(sem_t *sem) {
-    dispatch_release(*sem);
-    return 0;
-}
-
-/**
- * @brief POSIX sem_wait wrapper using Grand Central Dispatch.
- * @param sem The semaphore address.
- * @return 0 on success, -1 on error.
- */
-inline int sem_wait(sem_t *sem) {
-    return dispatch_semaphore_wait(*sem, DISPATCH_TIME_FOREVER) == 0 ? 0 : -1;
-}
-
-/**
- * @brief POSIX sem_trywait wrapper using Grand Central Dispatch.
- * @param sem The semaphore address.
- * @return 0 on success, -1 on error.
- */
-inline int sem_trywait(sem_t *sem) {
-    return dispatch_semaphore_wait(*sem, DISPATCH_TIME_NOW) == 0 ? 0 : -1;
-}
-
-/**
- * @brief POSIX sem_post wrapper using Grand Central Dispatch.
- * @param sem The semaphore address.
- * @return 0
- */
-inline int sem_post(sem_t *sem) {
-    dispatch_semaphore_signal(*sem);
-    return 0;
+    return ::sem_close(sem);
 }
 #elif defined(__linux__)
-/// POSIX sem_t
-typedef ::sem_t sem_t;
-
 /**
  * @brief POSIX sem_init.
  * @param sem The uninitialized semaphore address.
@@ -95,6 +70,38 @@ inline int sem_init(sem_t *sem, int pshared, unsigned int value) {
  */
 inline int sem_destroy(sem_t *sem) {
     return ::sem_destroy(sem);
+}
+#endif
+
+/**
+ * @brief POSIX sem_open.
+ * @param sem The semaphore address.
+ * @param oflag Open mode flags (e.g. O_CREAT to create a new semaphore).
+ * @return 0 on success, -1 on error.
+ */
+inline sem_t *sem_open(const char *name, int oflag) {
+    return ::sem_open(name, oflag);
+}
+
+/**
+ * @brief POSIX sem_open.
+ * @param sem The semaphore address.
+ * @param oflag Open mode flags (e.g. O_CREAT to create a new semaphore).
+ * @param mode Permission mask for the new semaphore.
+ * @value The initial semaphore value.
+ * @return 0 on success, -1 on error.
+ */
+inline sem_t *sem_open(const char *name, int oflag, mode_t mode, unsigned int value) {
+    return ::sem_open(name, oflag, mode, value);
+}
+
+/**
+ * @brief POSIX sem_close.
+ * @param sem The semaphore address.
+ * @return 0 on success, -1 on error.
+ */
+inline int sem_close(sem_t *sem) {
+    return ::sem_close(sem);
 }
 
 /**
@@ -123,7 +130,6 @@ inline int sem_trywait(sem_t *sem) {
 inline int sem_post(sem_t *sem) {
     return ::sem_post(sem);
 }
-#endif
 
 } // namespace ipc
 } // namespace sph
