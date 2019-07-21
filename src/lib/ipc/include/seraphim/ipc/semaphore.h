@@ -19,117 +19,78 @@
 namespace sph {
 namespace ipc {
 
-/// POSIX sem_t
-typedef ::sem_t sem_t;
+class Semaphore {
+public:
+    Semaphore();
+    ~Semaphore();
 
-#ifdef __APPLE__
-/**
- * @brief POSIX sem_init wrapper implemented using sem_open.
- * @param sem The uninitialized semaphore address.
- * @param pshared Whether to share the semaphore between threads (0) or processes (nonzero).
- * @param value The initial semaphore value.
- * @return 0 on success, -1 on error.
- */
-inline int sem_init(sem_t *sem, int pshared, unsigned int value) {
-    (void)pshared;
-    static unsigned int index = 0;
-    sem = ::sem_open((std::string("/seraphim/") + std::to_string(index)).c_str(), O_CREAT, 0666,
-                     value);
-    if (sem == SEM_FAILED) {
-        return -1;
-    }
+    /**
+     * @brief POSIX sem_init (unnamed semaphore creation).
+     * @param value The initial semaphore value.
+     * @param inter_process Whether to share the semaphore between threads (false) or processes (true).
+     * @return True on success, false otherwise.
+     */
+    bool create(const unsigned int &value, const bool &inter_process = true);
 
-    index++;
-    return 0;
-}
+    /**
+     * @brief POSIX sem_open (named semaphore creation).
+     * @param name The semaphore name.
+     * @param value The initial semaphore value.
+     * @return True on success, false otherwise.
+     */
+    bool create(const std::string &name, const unsigned int &value);
 
-/**
- * @brief POSIX sem_destroy wrapper implemented using sem_close.
- * @param sem The semaphore address.
- * @return 0 on success, -1 on error.
- */
-inline int sem_destroy(sem_t *sem) {
-    return ::sem_close(sem);
-}
-#elif defined(__linux__)
-/**
- * @brief POSIX sem_init.
- * @param sem The uninitialized semaphore address.
- * @param pshared Whether to share the semaphore between threads (0) or processes (nonzero).
- * @param value The initial semaphore value.
- * @return 0 on success, -1 on error.
- */
-inline int sem_init(sem_t *sem, int pshared, unsigned int value) {
-    return ::sem_init(sem, pshared, value);
-}
+    /**
+     * @brief Open an existing semaphore at a given address.
+     * @param name The memory address of the semaphore.
+     * @return True on success, false otherwise.
+     */
+    bool open(sem_t *addr);
 
-/**
- * @brief POSIX sem_destroy.
- * @param sem The semaphore address.
- * @return 0 on success, -1 on error.
- */
-inline int sem_destroy(sem_t *sem) {
-    return ::sem_destroy(sem);
-}
-#endif
+    /**
+     * @brief Open an existing semaphore at a given address.
+     * @param name The memory address of the semaphore.
+     * @return True on success, false otherwise.
+     */
+    bool open(const std::string &name);
 
-/**
- * @brief POSIX sem_open.
- * @param sem The semaphore address.
- * @param oflag Open mode flags (e.g. O_CREAT to create a new semaphore).
- * @return 0 on success, -1 on error.
- */
-inline sem_t *sem_open(const char *name, int oflag) {
-    return ::sem_open(name, oflag);
-}
+    /**
+     * @brief POSIX sem_destroy/sem_close (unnamed/named semaphore destruction).
+     * @return True on success, false otherwise.
+     */
+    bool close();
 
-/**
- * @brief POSIX sem_open.
- * @param sem The semaphore address.
- * @param oflag Open mode flags (e.g. O_CREAT to create a new semaphore).
- * @param mode Permission mask for the new semaphore.
- * @value The initial semaphore value.
- * @return 0 on success, -1 on error.
- */
-inline sem_t *sem_open(const char *name, int oflag, mode_t mode, unsigned int value) {
-    return ::sem_open(name, oflag, mode, value);
-}
+    /**
+     * @brief POSIX sem_wait.
+     * @return True on success, false otherwise.
+     */
+    bool wait();
 
-/**
- * @brief POSIX sem_close.
- * @param sem The semaphore address.
- * @return 0 on success, -1 on error.
- */
-inline int sem_close(sem_t *sem) {
-    return ::sem_close(sem);
-}
+    /**
+     * @brief POSIX sem_trywait.
+     * @return True on success, false otherwise.
+     */
+    bool trywait();
 
-/**
- * @brief POSIX sem_wait.
- * @param sem The semaphore address.
- * @return 0 on success, -1 on error.
- */
-inline int sem_wait(sem_t *sem) {
-    return ::sem_wait(sem);
-}
+    /**
+     * @brief POSIX sem_post.
+     * @return True on success, false otherwise.
+     */
+    bool post();
 
-/**
- * @brief POSIX sem_trywait.
- * @param sem The semaphore address.
- * @return 0 on success, -1 on error.
- */
-inline int sem_trywait(sem_t *sem) {
-    return ::sem_trywait(sem);
-}
+    /**
+     * @brief Get the memory address of the semaphore object.
+     * @return Memory address. SEM_FAILED if the semaphore is invalid.
+     */
+    sem_t *ptr() { return &m_sem; }
 
-/**
- * @brief POSIX sem_post.
- * @param sem The semaphore address.
- * @return 0 on success, -1 on error.
- */
-inline int sem_post(sem_t *sem) {
-    return ::sem_post(sem);
-}
+private:
+    /// POSIX sem_t
+    sem_t m_sem;
+
+    /// name of the semaphore (empty for unnamed ones)
+    std::string m_name;
+};
 
 } // namespace ipc
 } // namespace sph

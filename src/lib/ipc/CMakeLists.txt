@@ -8,6 +8,7 @@ set(SOURCES
     src/net/socket.cpp
     src/net/tcp_socket.cpp
     src/net/tcp_stream.cpp
+    src/semaphore.cpp
     src/shm_transport.cpp
     src/tcp_transport.cpp)
 

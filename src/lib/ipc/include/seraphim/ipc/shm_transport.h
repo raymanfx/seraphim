@@ -44,7 +44,7 @@ struct MessageStore {
     /// Current message size
     int msg_size;
     /// Unnamed POSIX semaphore, must be acquired before writing a message.
-    sph::ipc::sem_t sem;
+    sem_t *sem;
 };
 
 /**
@@ -117,6 +117,9 @@ private:
     int m_timeout;
     bool m_created;
     unsigned int m_id;
+
+    /// semaphore for inter-process resource locking
+    Semaphore m_sem;
 };
 
 } // namespace ipc

@@ -36,6 +36,7 @@ SharedMemoryTransport::~SharedMemoryTransport() {
 
 bool SharedMemoryTransport::open(const std::string &name) {
     struct stat shm_stat;
+    MessageStore *msgstore;
 
     m_fd = shm_open(name.c_str(), O_RDWR, S_IRUSR | S_IWUSR);
     if (m_fd == -1) {
@@ -47,6 +48,12 @@ bool SharedMemoryTransport::open(const std::string &name) {
     }
 
     if (!map(static_cast<size_t>(shm_stat.st_size))) {
+        return false;
+    }
+
+    msgstore = reinterpret_cast<MessageStore *>(m_addr);
+    if (!m_sem.open(msgstore->sem)) {
+        unmap();
         return false;
     }
 
@@ -80,10 +87,11 @@ bool SharedMemoryTransport::create(const std::string &name, const long &size) {
     MessageStore msgstore = {};
     msgstore.id = 1;
     // create a semaphore for the segment
-    if (sph::ipc::sem_init(&msgstore.sem, 1 /* share between processes */, 1) != 0) {
+    if (!m_sem.create(1)) {
         remove();
         return false;
     }
+    msgstore.sem = m_sem.ptr();
 
     // copy message store to shared segment
     std::memcpy(m_addr, &msgstore, sizeof(msgstore));
@@ -97,8 +105,7 @@ bool SharedMemoryTransport::remove() {
     int ret;
 
     if (m_addr) {
-        MessageStore *msgstore = reinterpret_cast<MessageStore *>(m_addr);
-        sph::ipc::sem_destroy(&msgstore->sem);
+        m_sem.close();
     }
 
     ret = shm_unlink(m_name.c_str());
@@ -166,7 +173,7 @@ bool SharedMemoryTransport::send(const Seraphim::Message &msg) {
     }
 
     // block until a message was read and can thus be overwritten
-    while ((sph::ipc::sem_trywait(&msgstore->sem) != 0) ||
+    while ((!m_sem.trywait()) ||
            (msgstore->status != MessageStoreStatus::MESSAGE_READ)) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         elapsed_ms++;
@@ -190,7 +197,7 @@ bool SharedMemoryTransport::send(const Seraphim::Message &msg) {
     m_id = msgstore->id;
     msgstore->msg_size = msg.ByteSize();
     msgstore->status = MessageStoreStatus::MESSAGE_UNREAD;
-    sph::ipc::sem_post(&msgstore->sem);
+    m_sem.post();
 
     return true;
 }
