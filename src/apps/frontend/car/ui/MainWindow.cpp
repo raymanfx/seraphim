@@ -4,6 +4,7 @@
 
 #include <QVideoCaptureStream/QVideoCaptureStream.h>
 #include <Seraphim.pb.h>
+#include <seraphim/ipc/transport_factory.h>
 
 #include "MainWindow.h"
 
@@ -178,26 +179,13 @@ void MainWindow::toggleBackendSync(bool enable) {
     mBackendSync = enable;
 }
 
-bool MainWindow::openShmSession(QString path) {
-    sph::ipc::SharedMemoryTransport *shm = new sph::ipc::SharedMemoryTransport();
-    if (!shm->open(path.toStdString())) {
-        std::cout << "Failed to open SHM: " << strerror(errno) << std::endl;
+bool MainWindow::openTransportSession(QString uri) {
+    mTransport = sph::ipc::TransportFactory::Instance().open(uri.toStdString());
+    if (mTransport == nullptr) {
         return false;
     }
 
-    shm->set_timeout(1000);
-    mTransport = std::unique_ptr<sph::ipc::ITransport>(shm);
-    return true;
-}
-
-bool MainWindow::openTcpSession(QString ip, ushort port) {
-    sph::ipc::TCPTransport *tcp = new sph::ipc::TCPTransport(AF_INET);
-    if (!tcp->connect(ip.toStdString(), port)) {
-        std::cout << "Failed to connect to TCP: " << strerror(errno) << std::endl;
-        return false;
-    }
-
-    mTransport = std::unique_ptr<sph::ipc::ITransport>(tcp);
+    mTransport->set_timeout(1000);
     return true;
 }
 

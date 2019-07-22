@@ -17,12 +17,8 @@ ApplicationWindow {
         Menu {
             title: qsTr("&Session")
             Action {
-                text: qsTr("Open SHM..")
-                onTriggered: shmDialog.open()
-            }
-            Action {
-                text: qsTr("Open TCP..")
-                onTriggered: tcpDialog.open()
+                text: qsTr("Transport Session..")
+                onTriggered: transportDialog.open()
             }
         }
 
@@ -36,48 +32,19 @@ ApplicationWindow {
         }
 
         Dialog {
-            id: shmDialog
+            id: transportDialog
             parent: mainLayout
             x: (parent.width - width) / 2
             y: (parent.height - height) / 2
-            title: "Shared Memory Session"
+            title: "Transport Session"
             standardButtons: Dialog.Ok | Dialog.Cancel
 
             contentItem: TextField {
-                id: shmPath
-                text: "/seraphim"
+                id: transportURI
+                text: "shm:///seraphim"
             }
 
-            onAccepted: facePage.backendSessionOpened = mainWindow.openShmSession(shmPath.text)
-        }
-
-        Dialog {
-            id: tcpDialog
-            parent: mainLayout
-            x: (parent.width - width) / 2
-            y: (parent.height - height) / 2
-            title: "TCP Session"
-            standardButtons: Dialog.Ok | Dialog.Cancel
-
-            contentItem: RowLayout {
-                TextField {
-                    id: tcpIp
-                    text: "127.0.0.1"
-                }
-
-                Label {
-                    text: ":"
-                }
-
-                SpinBox {
-                    id: tcpPort
-                    from: 0
-                    to: 65535
-                    value: 8001
-                }
-            }
-
-            onAccepted: facePage.backendSessionOpened = mainWindow.openTcpSession(tcpIp.text, tcpPort.value)
+            onAccepted: facePage.backendSessionOpened = mainWindow.openTransportSession(transportURI.text)
         }
     }
 

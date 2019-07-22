@@ -41,8 +41,7 @@ public slots:
 
     // menu bar settings
     void toggleBackendSync(bool enable);
-    bool openShmSession(QString path);
-    bool openTcpSession(QString ip, ushort port);
+    bool openTransportSession(QString uri);
 
 private:
     // main event loop
