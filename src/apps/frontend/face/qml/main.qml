@@ -43,15 +43,9 @@ ApplicationWindow {
             title: "Shared Memory Session"
             standardButtons: Dialog.Ok | Dialog.Cancel
 
-            contentItem: RowLayout {
-                Label {
-                    text: "/"
-                }
-
-                TextField {
-                    id: shmPath
-                    text: "seraphim"
-                }
+            contentItem: TextField {
+                id: shmPath
+                text: "/seraphim"
             }
 
             onAccepted: facePage.backendSessionOpened = mainWindow.openShmSession(shmPath.text)

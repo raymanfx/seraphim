@@ -19,15 +19,32 @@
 namespace sph {
 namespace ipc {
 
+/**
+ * @brief Semaphore (shared resource lock).
+ *
+ * This class uses POSIX semaphores provide locks that are shared between threads and/or processes.
+ * This way, shared memory can be protected so one client does not overwrite data of another one
+ * which also happens to be writing to it at that moment.
+ */
 class Semaphore {
 public:
+    /**
+     * @brief Semaphore wrapper, the constructor does nothing in itself.
+     */
     Semaphore();
+
+    /**
+     * @brief Semaphore destructor.
+     * Closes the semaphore if it was opened.
+     * Removes the semaphore if it was created.
+     */
     ~Semaphore();
 
     /**
      * @brief POSIX sem_init (unnamed semaphore creation).
      * @param value The initial semaphore value.
-     * @param inter_process Whether to share the semaphore between threads (false) or processes (true).
+     * @param inter_process Whether to share the semaphore between threads (false) or processes
+     * (true).
      * @return True on success, false otherwise.
      */
     bool create(const unsigned int &value, const bool &inter_process = true);
