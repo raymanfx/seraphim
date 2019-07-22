@@ -9,7 +9,7 @@
 #define SPH_SHARED_MEMORY_SERVER_H
 
 #include <atomic>
-#include <seraphim/ipc/shm_transport.h>
+#include <seraphim/ipc/transport_factory.h>
 #include <thread>
 
 #include "server.h"
@@ -30,10 +30,7 @@ public:
     void handle_event(const event_t &event, void *data);
 
 private:
-    std::string m_shm_name;
-    long m_shm_size;
-
-    sph::ipc::SharedMemoryTransport m_transport;
+    std::unique_ptr<sph::ipc::ITransport> m_transport;
     bool m_init;
 
     std::thread m_thread;

@@ -22,7 +22,9 @@ SharedMemoryServer::~SharedMemoryServer() {
 }
 
 bool SharedMemoryServer::init(const std::string &shm_name, const long &shm_size) {
-    m_init = m_transport.create(shm_name, shm_size);
+    std::string uri = "shm://" + shm_name + ":" + std::to_string(shm_size);
+    m_transport = sph::ipc::TransportFactory::Instance().create(uri);
+    m_init = m_transport != nullptr;
     return m_init;
 }
 
@@ -34,12 +36,12 @@ bool SharedMemoryServer::run() {
     m_running = true;
     m_thread = std::thread([&]() {
         while (m_running) {
-            if (!m_transport.recv(m_msg)) {
+            if (!m_transport->recv(m_msg)) {
                 continue;
             }
 
             handle_event(EVENT_MESSAGE_INCOMING, &m_msg);
-            m_transport.send(m_msg);
+            m_transport->send(m_msg);
         }
     });
 
@@ -48,7 +50,7 @@ bool SharedMemoryServer::run() {
 
 void SharedMemoryServer::terminate() {
     m_running = false;
-    m_transport.set_timeout(1);
+    m_transport->set_timeout(1);
     if (m_thread.joinable()) {
         m_thread.join();
     }

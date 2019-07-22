@@ -9,7 +9,7 @@
 #define SPH_TCP_SERVER_H
 
 #include <atomic>
-#include <seraphim/ipc/tcp_transport.h>
+#include <seraphim/ipc/transport_factory.h>
 #include <thread>
 
 #include "server.h"
@@ -19,21 +19,18 @@ namespace backend {
 
 class TCPServer : public sph::backend::IServer {
 public:
-    explicit TCPServer(const int &domain);
+    TCPServer();
     ~TCPServer() override;
 
     bool run() override;
     void terminate() override;
     void register_event_handler(const event_t &mask, const event_handler_t handler) override;
 
-    bool init(const uint16_t &port);
+    bool init(const std::string &address, const uint16_t &port);
     void handle_event(const event_t &event, void *data);
 
 private:
-    std::string m_shm_name;
-    long m_shm_size;
-
-    sph::ipc::TCPTransport m_transport;
+    std::unique_ptr<sph::ipc::ITransport> m_transport;
     bool m_init;
 
     std::thread m_thread;

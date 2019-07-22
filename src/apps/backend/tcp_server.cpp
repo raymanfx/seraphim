@@ -6,12 +6,13 @@
  */
 
 #include <poll.h>
+#include <seraphim/ipc/tcp_transport.h>
 
 #include "tcp_server.h"
 
 using namespace sph::backend;
 
-TCPServer::TCPServer(const int &domain) : m_transport(domain) {
+TCPServer::TCPServer() {
     m_init = false;
     m_running = false;
 }
@@ -23,29 +24,34 @@ TCPServer::~TCPServer() {
     }
 }
 
-bool TCPServer::init(const uint16_t &port) {
-    m_init = m_transport.bind(port);
+bool TCPServer::init(const std::string &address, const uint16_t &port) {
+    std::string uri = "tcp://" + address + ":" + std::to_string(port);
+    m_transport = sph::ipc::TransportFactory::Instance().create(uri);
+    m_init = m_transport != nullptr;
     return m_init;
 }
 
 bool TCPServer::run() {
+    sph::ipc::TCPTransport *tcp = static_cast<sph::ipc::TCPTransport *>(m_transport.get());
+
     if (!m_init) {
         return false;
     }
 
-    if (!m_transport.listen(1)) {
+    if (!tcp->listen(1)) {
         return false;
     }
 
     m_running = true;
     m_thread = std::thread([&]() {
+        sph::ipc::TCPTransport *tcp = static_cast<sph::ipc::TCPTransport *>(m_transport.get());
         std::vector<int> client_fds;
         std::vector<struct pollfd> poll_fds;
 
         while (m_running) {
             poll_fds.resize(client_fds.size() + 1);
 
-            poll_fds[0].fd = m_transport.stream().socket().fd();
+            poll_fds[0].fd = tcp->stream().socket().fd();
             poll_fds[0].events = POLLIN;
             for (size_t i = 0; i < client_fds.size(); i++) {
                 poll_fds[i + 1].fd = client_fds[i];
@@ -59,7 +65,7 @@ bool TCPServer::run() {
             // check which client got input
             if (poll_fds[0].revents == POLLIN) {
                 // add a new client
-                int client = m_transport.accept(nullptr, nullptr);
+                int client = tcp->accept(nullptr, nullptr);
                 if (client == -1) {
                     continue;
                 }
@@ -72,8 +78,8 @@ bool TCPServer::run() {
                 }
 
                 // get data from client
-                if (!m_transport.recv(poll_fds[i + 1].fd, m_msg)) {
-                    if (m_transport.client_disconnected()) {
+                if (!tcp->recv(poll_fds[i + 1].fd, m_msg)) {
+                    if (tcp->client_disconnected()) {
                         client_fds.erase(client_fds.begin() + i);
                         continue;
                     }
@@ -83,7 +89,7 @@ bool TCPServer::run() {
                 }
 
                 handle_event(EVENT_MESSAGE_INCOMING, &m_msg);
-                m_transport.send(poll_fds[i + 1].fd, m_msg);
+                tcp->send(poll_fds[i + 1].fd, m_msg);
             }
         }
     });
@@ -93,7 +99,7 @@ bool TCPServer::run() {
 
 void TCPServer::terminate() {
     m_running = false;
-    m_transport.set_timeout(1);
+    m_transport->set_timeout(1);
     if (m_thread.joinable()) {
         m_thread.join();
     }

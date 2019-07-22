@@ -18,7 +18,7 @@
 #include <seraphim/face/lbp_detector.h>
 #include <seraphim/face/lbp_recognizer.h>
 #include <seraphim/face/utils.h>
-#include <seraphim/ipc/tcp_transport.h>
+#include <seraphim/ipc.h>
 #include <seraphim/object/dnn_classifier.h>
 
 #include "car/lane_detector_service.h"
@@ -276,13 +276,22 @@ int main(int argc, char **argv) {
 
     val = ConfigStore::Instance().get_value("tcp_server");
     if (!val.empty()) {
+        std::string address;
+        uint16_t port;
+
+        val = ConfigStore::Instance().get_value("tcp_server_address");
+        if (val.empty()) {
+            std::cout << "[ERROR] Missing conf key: tcp_server_address" << std::endl;
+            return 1;
+        }
+        address = val;
+
         val = ConfigStore::Instance().get_value("tcp_server_port");
         if (val.empty()) {
             std::cout << "[ERROR] Missing conf key: tcp_server_port" << std::endl;
             return 1;
         }
 
-        uint16_t port;
         try {
             port = static_cast<uint16_t>(std::stoi(val));
         } catch (...) {
@@ -291,8 +300,8 @@ int main(int argc, char **argv) {
         }
 
         std::cout << "Creating TCP server on port: " << port << std::endl;
-        TCPServer *server = new TCPServer(AF_INET);
-        if (!server->init(port)) {
+        TCPServer *server = new TCPServer();
+        if (!server->init(address, port)) {
             std::cout << "Failed to create TCP segment: " << strerror(errno) << std::endl;
             delete server;
         } else {
