@@ -10,7 +10,8 @@ set(SOURCES
     src/net/tcp_stream.cpp
     src/semaphore.cpp
     src/shm_transport.cpp
-    src/tcp_transport.cpp)
+    src/tcp_transport.cpp
+    src/transport_factory.cpp)
 
 set(HEADERS
     include/seraphim/ipc.h
@@ -19,6 +20,7 @@ set(HEADERS
     include/seraphim/ipc/net/tcp_socket.h
     include/seraphim/ipc/net/tcp_stream.h
     include/seraphim/ipc/transport.h
+    include/seraphim/ipc/transport_factory.h
     include/seraphim/ipc/semaphore.h
     include/seraphim/ipc/shm_transport.h
     include/seraphim/ipc/tcp_transport.h)

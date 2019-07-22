@@ -10,7 +10,9 @@
 
 #include <seraphim/ipc/module.h>
 
+#include <seraphim/ipc/semaphore.h>
 #include <seraphim/ipc/shm_transport.h>
 #include <seraphim/ipc/tcp_transport.h>
+#include <seraphim/ipc/transport_factory.h>
 
 #endif // SPH_IPC_H
