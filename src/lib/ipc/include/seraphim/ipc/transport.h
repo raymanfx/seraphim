@@ -25,6 +25,13 @@ public:
     virtual ~ITransport() = default;
 
     /**
+     * @brief Set timeout for blocking RX/TX operations.
+     * @param ms Timeout in milliseconds, 0 means blocking.
+     * @return true on success, false otherwise.
+     */
+    virtual void set_timeout(const int &ms) = 0;
+
+    /**
      * @brief Receive a message.
      * @param msg The message, used as output parameter.
      * @return true on success, false on error or timeout.

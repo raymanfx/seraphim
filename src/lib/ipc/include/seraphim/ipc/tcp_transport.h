@@ -69,18 +69,14 @@ public:
     }
 
     /**
-     * @brief Set a timeout for blocking RX/TX operations.
-     * @param ms Timeout in milliseconds.
-     */
-    void set_timeout(const int &ms) { m_stream.socket().set_timeout(ms * 1000); }
-
-    /**
      * @brief Check whether a client has disconnected.
      * This is useful when \ref recv returns false (when running as server) to check whether there
      * was an error or just a disconnect.
      * @return true if a client has disconnected, false otherwise.
      */
     bool client_disconnected() { return m_client_disconnected; }
+
+    void set_timeout(const int &ms) override { m_stream.socket().set_timeout(ms * 1000); }
 
     bool recv(Seraphim::Message &msg) override;
     bool send(const Seraphim::Message &msg) override;

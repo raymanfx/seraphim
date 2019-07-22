@@ -88,14 +88,10 @@ public:
      */
     bool remove();
 
+    void set_timeout(const int &ms) override { m_timeout = ms; }
+
     bool recv(Seraphim::Message &msg) override;
     bool send(const Seraphim::Message &msg) override;
-
-    /**
-     * @brief Set timeout for blocking RX/TX operations.
-     * @param ms Timeout in milliseconds.
-     */
-    void set_timeout(const int &ms) { m_timeout = ms; }
 
 private:
     /**
