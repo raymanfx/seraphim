@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 
-project(Seraphim)
+project(Seraphim VERSION 0.0.0)
 
 add_subdirectory(src)
 add_subdirectory(deploy)
