@@ -8,7 +8,7 @@
 #include <csignal>
 #include <getopt.h>
 #include <opencv2/videoio.hpp>
-#include <seraphim/car/ez_lane_detector.h>
+#include <seraphim/car/linear_lane_detector.h>
 
 static bool main_loop = true;
 
@@ -73,7 +73,7 @@ void signal_handler(int signal) {
 
 int main(int argc, char **argv) {
     std::string file_path;
-    sph::car::EZLaneDetector lane_detector;
+    sph::car::LinearLaneDetector lane_detector;
     std::vector<sph::car::ILaneDetector::Lane> lanes;
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;

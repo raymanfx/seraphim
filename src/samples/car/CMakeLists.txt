@@ -1,5 +1,5 @@
 set(SAMPLES
-    ez_lane_detector)
+    linear_lane_detector)
 
 # OpenCV dependency
 find_package(OpenCV COMPONENTS opencv_core opencv_imgproc REQUIRED)

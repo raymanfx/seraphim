@@ -5,11 +5,11 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "seraphim/car/ez_lane_detector.h"
+#include "seraphim/car/linear_lane_detector.h"
 
 using namespace sph::car;
 
-EZLaneDetector::EZLaneDetector() {
+LinearLaneDetector::LinearLaneDetector() {
     m_params = {};
     m_params.roi.push_back(cv::Point(210, 720 /* img.rows() */));
     m_params.roi.push_back(cv::Point(550, 450));
@@ -30,11 +30,11 @@ EZLaneDetector::EZLaneDetector() {
     m_target = TARGET_CPU;
 }
 
-EZLaneDetector::~EZLaneDetector() {
+LinearLaneDetector::~LinearLaneDetector() {
     // dummy
 }
 
-void EZLaneDetector::preprocess(cv::InputArray img, cv::OutputArray out) {
+void LinearLaneDetector::preprocess(cv::InputArray img, cv::OutputArray out) {
     // convert image to grayscale
     if (img.channels() > 1) {
         cv::cvtColor(img, out, cv::COLOR_BGR2GRAY);
@@ -43,13 +43,13 @@ void EZLaneDetector::preprocess(cv::InputArray img, cv::OutputArray out) {
     }
 }
 
-void EZLaneDetector::filter_edges(cv::InputArray img, cv::OutputArray out) {
+void LinearLaneDetector::filter_edges(cv::InputArray img, cv::OutputArray out) {
     cv::Canny(img, out, m_params.canny_low_thresh, m_params.canny_low_thresh * m_params.canny_ratio,
               m_params.canny_kernel_size, m_params.canny_use_l2_dist);
 }
 
-void EZLaneDetector::apply_mask(cv::InputArray img, cv::OutputArray out,
-                                const std::vector<cv::Point> &poly) {
+void LinearLaneDetector::apply_mask(cv::InputArray img, cv::OutputArray out,
+                                    const std::vector<cv::Point> &poly) {
     cv::Mat mask = cv::Mat::zeros(img.size(), img.type());
 
     if (mask.empty()) {
@@ -63,12 +63,12 @@ void EZLaneDetector::apply_mask(cv::InputArray img, cv::OutputArray out,
     cv::bitwise_and(img, mask, out);
 }
 
-void EZLaneDetector::detect_lines(cv::InputArray img, cv::OutputArray &lines) {
+void LinearLaneDetector::detect_lines(cv::InputArray img, cv::OutputArray &lines) {
     cv::HoughLinesP(img, lines, m_params.hough_rho, m_params.hough_theta, m_params.hough_thresh,
                     m_params.hough_min_line_len, m_params.hough_max_line_len);
 }
 
-bool EZLaneDetector::set_target(const target_t &target) {
+bool LinearLaneDetector::set_target(const target_t &target) {
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
     switch (target) {
@@ -84,7 +84,7 @@ bool EZLaneDetector::set_target(const target_t &target) {
     return true;
 }
 
-bool EZLaneDetector::detect(cv::InputArray img, std::vector<Lane> &lanes) {
+bool LinearLaneDetector::detect(cv::InputArray img, std::vector<Lane> &lanes) {
     std::vector<cv::Vec4i> segments;
     std::vector<cv::Point> left_points;
     std::vector<cv::Point> right_points;

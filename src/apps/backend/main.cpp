@@ -14,7 +14,7 @@
 #include <vector>
 
 #include <Seraphim.pb.h>
-#include <seraphim/car/ez_lane_detector.h>
+#include <seraphim/car/linear_lane_detector.h>
 #include <seraphim/face/lbp_detector.h>
 #include <seraphim/face/lbp_recognizer.h>
 #include <seraphim/face/utils.h>
@@ -34,7 +34,7 @@ using namespace sph::backend;
 static bool server_running = false;
 static Seraphim::Message msg;
 
-static sph::car::EZLaneDetector lane_detector;
+static sph::car::LinearLaneDetector lane_detector;
 static sph::face::LBPDetector face_detector;
 static sph::face::LBPRecognizer face_recognizer;
 static sph::object::DNNClassifier object_classifier;

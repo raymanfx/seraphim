@@ -13,7 +13,7 @@
 namespace sph {
 namespace car {
 
-enum CLASSES { CLASS_EZLaneDetector = 0 };
+enum CLASSES { CLASS_LinearLaneDetector = 0 };
 
 } // namespace car
 } // namespace sph

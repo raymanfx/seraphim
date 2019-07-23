@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SPH_CAR_LANE_DETECTOR_EZ_H
-#define SPH_CAR_LANE_DETECTOR_EZ_H
+#ifndef SPH_CAR_LANE_DETECTOR_LINEAR_H
+#define SPH_CAR_LANE_DETECTOR_LINEAR_H
 
 #include "lane_detector.h"
 #include <mutex>
@@ -30,10 +30,10 @@ namespace car {
  *   4) hough line transformation
  *   5) linear regression for left and right segments
  */
-class EZLaneDetector : public ILaneDetector, public sph::core::IComputable {
+class LinearLaneDetector : public ILaneDetector, public sph::core::IComputable {
 public:
-    EZLaneDetector();
-    ~EZLaneDetector() override;
+    LinearLaneDetector();
+    ~LinearLaneDetector() override;
 
     /**
      * @brief Parameters used by algorithms in the image processing pipeline.
@@ -108,4 +108,4 @@ private:
 } // namespace car
 } // namespace sph
 
-#endif // SPH_CAR_LANE_DETECTOR_EZ_H
+#endif // SPH_CAR_LANE_DETECTOR_LINEAR_H

@@ -16,8 +16,8 @@ extern "C" void *create(int clazz, ...) {
     va_start(args, clazz);
 
     switch (clazz) {
-    case CLASS_EZLaneDetector:
-        return new EZLaneDetector;
+    case CLASS_LinearLaneDetector:
+        return new LinearLaneDetector;
     }
 
     return nullptr;
@@ -25,8 +25,8 @@ extern "C" void *create(int clazz, ...) {
 
 extern "C" void destroy(int clazz, void *ptr) {
     switch (clazz) {
-    case CLASS_EZLaneDetector:
-        delete reinterpret_cast<EZLaneDetector *>(ptr);
+    case CLASS_LinearLaneDetector:
+        delete reinterpret_cast<LinearLaneDetector *>(ptr);
     }
 }
 
