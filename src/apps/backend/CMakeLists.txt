@@ -25,7 +25,6 @@ target_include_directories(${COMPONENT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(${COMPONENT_NAME} PUBLIC car_service)
 target_link_libraries(${COMPONENT_NAME} PUBLIC face_service)
 target_link_libraries(${COMPONENT_NAME} PUBLIC object_service)
-target_link_libraries(${COMPONENT_NAME} PUBLIC seraphim_messages)
 
 set(COMPONENT_NAME seraphim-server)
 

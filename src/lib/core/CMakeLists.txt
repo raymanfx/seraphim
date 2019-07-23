@@ -8,6 +8,9 @@ set(SOURCES
 
 set(HEADERS
     include/seraphim/core/computable.h
+    include/seraphim/core/image.h
+    include/seraphim/core/image_formats.h
+    include/seraphim/core/image_utils.h
     include/seraphim/core/module.h)
 
 add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})

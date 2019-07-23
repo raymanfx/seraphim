@@ -33,6 +33,5 @@ target_link_libraries(${COMPONENT_NAME} PRIVATE Qt5::Core Qt5::Quick Qt5::QuickC
 target_link_libraries(${COMPONENT_NAME} PRIVATE frontend_common)
 target_link_libraries(${COMPONENT_NAME} PRIVATE seraphim_core)
 target_link_libraries(${COMPONENT_NAME} PRIVATE seraphim_ipc)
-target_link_libraries(${COMPONENT_NAME} PRIVATE seraphim_messages)
 
 install(TARGETS ${COMPONENT_NAME} DESTINATION bin)

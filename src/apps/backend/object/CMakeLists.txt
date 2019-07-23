@@ -13,5 +13,5 @@ add_library(${MODULE_NAME} STATIC ${SOURCES} ${HEADERS})
 target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(${MODULE_NAME} PUBLIC backend_common)
-target_link_libraries(${MODULE_NAME} PUBLIC seraphim_messages)
+target_link_libraries(${MODULE_NAME} PUBLIC seraphim_ipc)
 target_link_libraries(${MODULE_NAME} PUBLIC seraphim_object)

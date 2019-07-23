@@ -1,3 +1,6 @@
+# protobuf messages
+add_subdirectory(data)
+
 set(MODULE_NAME seraphim_ipc)
 set(MODULE_VERSION_MAJOR 0)
 set(MODULE_VERSION_MINOR 0)
