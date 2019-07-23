@@ -63,6 +63,11 @@ bool SharedMemoryTransport::open(const std::string &name) {
 bool SharedMemoryTransport::create(const std::string &name, const long &size) {
     struct stat shm_stat;
 
+    // shared memory segment size must at least be the size of the controlling structure
+    if (static_cast<size_t>(size) < sizeof(MessageStore)) {
+        return false;
+    }
+
     m_fd = shm_open(name.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
     if (m_fd == -1) {
         return false;
