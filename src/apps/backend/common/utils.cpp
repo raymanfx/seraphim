@@ -8,27 +8,22 @@
 #include <cstring>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
+#include <seraphim/core/image.h>
+#include <seraphim/core/image_utils_opencv.h>
 
 #include "utils.h"
 
-bool sph::backend::Image2DtoMat(const Seraphim::Types::Image2D &img, cv::Mat &dst) {
-    // https://github.com/opencv/opencv/blob/master/modules/videoio/src/cap_v4l.cpp
-    switch (img.fourcc()) {
-    case fourcc('r', 'a', 'w', ' '):
-        cv::cvtColor(
-            cv::Mat(img.height(), img.width(), CV_8UC3, const_cast<char *>(img.data().c_str())),
-            dst, cv::COLOR_RGB2BGR);
-        break;
-    case fourcc('Y', 'U', 'Y', 'V'):
-        cv::cvtColor(
-            cv::Mat(img.height(), img.width(), CV_8UC2, const_cast<char *>(img.data().c_str())),
-            dst, cv::COLOR_YUV2BGR_YUYV);
-        break;
-    case fourcc('M', 'J', 'P', 'G'):
-        cv::imdecode(cv::Mat(1, img.data().size(), CV_8U, const_cast<char *>(img.data().c_str())),
-                     cv::IMREAD_COLOR, &dst);
-        break;
-    default:
+bool sph::backend::Image2DtoMat(const Seraphim::Types::Image2D &src, cv::Mat &dst) {
+    // create intermediate wrapper
+    sph::core::Image img(src.width(), src.height(), 3 /* channels */);
+    sph::core::Image::Pixelformat fmt = sph::core::Image::as_pixelformat(src.fourcc());
+
+    if (!img.wrap_data(const_cast<void *>(reinterpret_cast<const void *>(src.data().c_str())),
+                       src.data().size(), fmt)) {
+        return false;
+    }
+
+    if (!sph::core::Image2Mat(img, dst)) {
         return false;
     }
 
