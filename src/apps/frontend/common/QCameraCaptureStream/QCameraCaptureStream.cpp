@@ -1,10 +1,9 @@
+#include <QCameraInfo>
 #include <atomic>
 
 #include "QCameraCaptureStream.h"
 
 QCameraCaptureStream::QCameraCaptureStream() {
-    mCamera.setViewfinder(&mSurface);
-
     auto cb = [&](const QVideoFrame &frame) {
         std::lock_guard<std::mutex> lock(mFrameLock);
         mFrame = frame;
@@ -12,22 +11,60 @@ QCameraCaptureStream::QCameraCaptureStream() {
 
     mSurface.setCalback(cb);
 
+    mCamera = nullptr;
     mBuffer = {};
 }
 
 QCameraCaptureStream::~QCameraCaptureStream() {
-    mCamera.stop();
+    mCamera->stop();
+
     if (mBuffer.start != nullptr) {
         std::free(mBuffer.start);
     }
 }
 
-bool QCameraCaptureStream::grab() {
-    if (mCamera.state() != QCamera::ActiveState) {
-        mCamera.start();
+bool QCameraCaptureStream::open() {
+    QCameraInfo defaultCamera;
+    QCameraViewfinderSettings settings;
+    QCameraFocus *focus;
+
+    if (!mCamera) {
+        defaultCamera = QCameraInfo::defaultCamera();
+        if (defaultCamera.isNull()) {
+            return false;
+        } else {
+            mCamera = new QCamera(defaultCamera);
+        }
     }
 
-    return mCamera.state() == QCamera::ActiveState;
+    settings = mCamera->viewfinderSettings();
+    settings.setResolution(mSurface.getResolution());
+    settings.setPixelFormat(mSurface.surfaceFormat().pixelFormat());
+
+    mCamera->setViewfinder(&mSurface);
+    mCamera->setViewfinderSettings(settings);
+
+    // force continuous autofocus for now
+    focus = mCamera->focus();
+    focus->setFocusMode(QCameraFocus::ContinuousFocus);
+
+    // unfortunately Qt does not allow us to block until the camera is ready here?
+    // mCamera->load();
+    // return mCamera->status() == QCamera::LoadedStatus;
+    return true;
+}
+
+bool QCameraCaptureStream::close() {
+    mSurface.stop();
+    return true;
+}
+
+bool QCameraCaptureStream::grab() {
+    if (mCamera->state() != QCamera::ActiveState) {
+        mCamera->start();
+    }
+
+    return mCamera->state() == QCamera::ActiveState;
 }
 
 bool QCameraCaptureStream::retrieve(struct Buffer &buf) {
@@ -63,14 +100,25 @@ bool QCameraCaptureStream::retrieve(struct Buffer &buf) {
     return true;
 }
 
-bool QCameraCaptureStream::open(const std::string &path) {
-    // mCamera.setMedia(QUrl::fromLocalFile(QString::fromStdString(path)));
-    QCameraViewfinderSettings settings = mCamera.viewfinderSettings();
+bool QCameraCaptureStream::open(const std::string &deviceName) {
+    QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
+    QCameraInfo camera;
 
-    settings.setResolution(mSurface.getResolution());
-    settings.setPixelFormat(mSurface.surfaceFormat().pixelFormat());
-    mCamera.setViewfinderSettings(settings);
+    for (const auto &cam : cameras) {
+        if (cam.deviceName() == QString::fromStdString(deviceName)) {
+            camera = cam;
+        }
+    }
 
+    if (camera.isNull()) {
+        return false;
+    }
+
+    if (mCamera) {
+        delete mCamera;
+    }
+
+    mCamera = new QCamera(camera);
     return open();
 }
 
@@ -92,10 +140,10 @@ QSize QCameraCaptureStream::getResolution() {
 }
 
 bool QCameraCaptureStream::setResolution(const QSize &res) {
-    QCameraViewfinderSettings settings = mCamera.viewfinderSettings();
+    QCameraViewfinderSettings settings = mCamera->viewfinderSettings();
 
     settings.setResolution(res);
-    mCamera.setViewfinderSettings(settings);
+    mCamera->setViewfinderSettings(settings);
 
     mSurface.setResolution(res);
     return mSurface.getResolution() == res;

@@ -16,7 +16,8 @@ public:
         Q_UNUSED(handleType);
 
         // Return the formats you will support
-        return QList<QVideoFrame::PixelFormat>() << QVideoFrame::Format_Jpeg;
+        return QList<QVideoFrame::PixelFormat>()
+               << QVideoFrame::Format_RGB24 << QVideoFrame::Format_Jpeg;
     }
 
     bool present(const QVideoFrame &frame) {
@@ -40,19 +41,16 @@ public:
     QCameraCaptureStream();
     virtual ~QCameraCaptureStream() override;
 
-    bool isOpen() override { return mCamera.status() == QCamera::LoadedStatus; }
+    bool isOpen() override { return mCamera->status() == QCamera::LoadedStatus; }
 
-    bool open() override { return mCamera.status() == QCamera::LoadedStatus; }
-    bool close() override {
-        mSurface.stop();
-        return true;
-    }
+    bool open() override;
+    bool close() override;
 
     bool grab() override;
     bool retrieve(struct Buffer &buf) override;
 
     // convenience API
-    bool open(const std::string &path);
+    bool open(const std::string &deviceName);
 
     // convenience API
     uint32_t getFourcc();
@@ -74,7 +72,7 @@ private:
     QCameraCaptureSurface mSurface;
 
     /// camera capture engine
-    QCamera mCamera;
+    QCamera *mCamera;
 
     /// surface frame buffer
     QVideoFrame mFrame;
