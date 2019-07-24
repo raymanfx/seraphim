@@ -7,6 +7,8 @@
 #include <QPainter>
 #include <Seraphim.pb.h>
 #include <V4L2CaptureStream/V4L2CaptureStream.h>
+#include <seraphim/core/image.h>
+#include <seraphim/core/image_utils_qt.h>
 #include <seraphim/ipc/transport_factory.h>
 
 #include "MainWindow.h"
@@ -114,9 +116,16 @@ void MainWindow::updateTimeout() {
         mCaptureBuffer = buf;
 
         // get the QImage wrapper representation
-        mFrame = QImageProvider::QImageFromBuffer(reinterpret_cast<uchar *>(buf.start),
-                                                  buf.bytesused, buf.format.width,
-                                                  buf.format.height, buf.format.fourcc);
+        // TODO: do not just use the fourcc filed from struct v4l2_fmt, but sanitize it
+        sph::core::Image img(buf.format.width, buf.format.height, 3 /* channels */);
+        sph::core::Image::Pixelformat fmt = sph::core::Image::as_pixelformat(buf.format.fourcc);
+
+        if (!img.wrap_data(buf.start, buf.bytesused, fmt)) {
+            return;
+        }
+        if (!sph::core::Image2QImage(img, mFrame)) {
+            return;
+        }
     }
 
     if (mFrame.isNull()) {

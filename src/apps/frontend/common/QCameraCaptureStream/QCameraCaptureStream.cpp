@@ -75,7 +75,16 @@ bool QCameraCaptureStream::open(const std::string &path) {
 }
 
 uint32_t QCameraCaptureStream::getFourcc() {
-    return mSurface.fourcc();
+    // https://chromium.googlesource.com/libyuv/libyuv/+/refs/heads/master/include/libyuv/video_common.h
+    QVideoFrame::PixelFormat format = mSurface.surfaceFormat().pixelFormat();
+    switch (format) {
+    case QVideoFrame::Format_RGB24:
+        return fourcc('R', 'G', 'B', '3');
+    case QVideoFrame::Format_Jpeg:
+        return fourcc('M', 'J', 'P', 'G');
+    default:
+        return 0;
+    }
 }
 
 QSize QCameraCaptureStream::getResolution() {

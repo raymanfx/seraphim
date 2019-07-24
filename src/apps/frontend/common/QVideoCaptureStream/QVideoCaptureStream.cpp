@@ -70,7 +70,14 @@ bool QVideoCaptureStream::open(const std::string &path) {
 }
 
 uint32_t QVideoCaptureStream::getFourcc() {
-    return mSurface.fourcc();
+    // https://chromium.googlesource.com/libyuv/libyuv/+/refs/heads/master/include/libyuv/video_common.h
+    QVideoFrame::PixelFormat format = mSurface.surfaceFormat().pixelFormat();
+    switch (format) {
+    case QVideoFrame::Format_RGB24:
+        return fourcc('R', 'G', 'B', '3');
+    default:
+        return 0;
+    }
 }
 
 uint32_t QVideoCaptureStream::getWidth() {
