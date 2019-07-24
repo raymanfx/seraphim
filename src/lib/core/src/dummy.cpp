@@ -1,1 +1,0 @@
-/* dummy file to allow cmake modules that link together multiple libs */
