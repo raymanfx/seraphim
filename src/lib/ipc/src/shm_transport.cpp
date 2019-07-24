@@ -178,8 +178,7 @@ bool SharedMemoryTransport::send(const Seraphim::Message &msg) {
     }
 
     // block until a message was read and can thus be overwritten
-    while ((!m_sem.trywait()) ||
-           (msgstore->status != MessageStoreStatus::MESSAGE_READ)) {
+    while ((!m_sem.trywait()) || (msgstore->status != MessageStoreStatus::MESSAGE_READ)) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         elapsed_ms++;
         if (elapsed_ms < 0) {
