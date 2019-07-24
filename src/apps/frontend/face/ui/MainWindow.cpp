@@ -4,9 +4,9 @@
 
 #include <FaceDetector.pb.h>
 #include <FaceRecognizer.pb.h>
+#include <QCameraCaptureStream/QCameraCaptureStream.h>
 #include <QPainter>
 #include <Seraphim.pb.h>
-#include <V4L2CaptureStream/V4L2CaptureStream.h>
 #include <seraphim/core/image.h>
 #include <seraphim/core/image_utils_qt.h>
 #include <seraphim/ipc/transport_factory.h>
@@ -37,16 +37,13 @@ MainWindow::MainWindow(QObject *parent) : QObject(parent) {
     connect(mDiagPrintTimer, SIGNAL(timeout()), SLOT(diagTimeout()));
     mDiagPrintTimer->start(500);
 
-    V4L2CaptureStream *captureStream = new V4L2CaptureStream();
-    if (captureStream->open(0)) {
-        if (!captureStream->setFourcc(V4L2CaptureStream::fourcc_from_string('M', 'J', 'P', 'G'))) {
+    QCameraCaptureStream *captureStream = new QCameraCaptureStream();
+    if (captureStream->open()) {
+        if (!captureStream->setFourcc(QCameraCaptureStream::fourcc('M', 'J', 'P', 'G'))) {
             std::cout << "Failed to set capture format to MJPG" << std::endl;
         }
-        if (!captureStream->setWidth(1280)) {
-            std::cout << "Failed to set capture width to 1280" << std::endl;
-        }
-        if (!captureStream->setHeight(720)) {
-            std::cout << "Failed to set capture height to 720" << std::endl;
+        if (!captureStream->setResolution(QSize(1280, 720))) {
+            std::cout << "Failed to set capture res to 1280x720" << std::endl;
         }
     } else {
         std::cout << "Failed to open default capture device (0)" << std::endl;
