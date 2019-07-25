@@ -75,6 +75,12 @@ public:
     bool open(const std::string &name);
 
     /**
+     * @brief Close a shared memory region and release associated resources.
+     * @return true on success, false otherwise.
+     */
+    bool close();
+
+    /**
      * @brief Create a shared memory region.
      * @param name The unique name of the file to be created.
      * @param size The size of the memory region.

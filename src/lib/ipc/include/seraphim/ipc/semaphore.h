@@ -58,6 +58,12 @@ public:
     bool create(const std::string &name, const unsigned int &value);
 
     /**
+     * @brief POSIX sem_destroy/sem_unlink (unnamed/named semaphore destruction).
+     * @return True on success, false otherwise.
+     */
+    bool destroy();
+
+    /**
      * @brief Open an existing semaphore at a given address.
      * @param name The memory address of the semaphore.
      * @return True on success, false otherwise.
@@ -72,7 +78,7 @@ public:
     bool open(const std::string &name);
 
     /**
-     * @brief POSIX sem_destroy/sem_close (unnamed/named semaphore destruction).
+-    * @brief POSIX sem_close (call this when you are done using the named semaphore).
      * @return True on success, false otherwise.
      */
     bool close();
@@ -107,6 +113,9 @@ private:
 
     /// name of the semaphore (empty for unnamed ones)
     std::string m_name;
+
+    /// whether this instance has created the underlying semaphore object
+    bool m_created;
 };
 
 } // namespace ipc

@@ -27,10 +27,16 @@ SharedMemoryTransport::SharedMemoryTransport() {
 
 SharedMemoryTransport::~SharedMemoryTransport() {
     if (m_addr != nullptr) {
+        if (m_created) {
+            m_sem.destroy();
+        }
         unmap();
     }
+
     if (m_created && m_fd > -1) {
         remove();
+    } else if (m_fd > -1) {
+        close();
     }
 }
 
@@ -58,6 +64,10 @@ bool SharedMemoryTransport::open(const std::string &name) {
     }
 
     return true;
+}
+
+bool SharedMemoryTransport::close() {
+    return ::close(m_fd) == 0;
 }
 
 bool SharedMemoryTransport::create(const std::string &name, const long &size) {
@@ -108,10 +118,6 @@ bool SharedMemoryTransport::create(const std::string &name, const long &size) {
 
 bool SharedMemoryTransport::remove() {
     int ret;
-
-    if (m_addr) {
-        m_sem.close();
-    }
 
     ret = shm_unlink(m_name.c_str());
     m_fd = -1;
