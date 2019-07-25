@@ -33,10 +33,15 @@ message("PROTO_HDRS = ${PROTO_HDRS}")
 
 # Build a static library containing the message classes
 add_library(${COMPONENT_NAME} STATIC ${PROTO_FILES} ${PROTO_SRCS} ${PROTO_HDRS})
-target_link_libraries(${COMPONENT_NAME} ${PROTOBUF_LIBRARY})
 
-# Expose message header
-target_include_directories(${COMPONENT_NAME} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+# Make sure the compiler can find include files for our library
+# when other libraries or executables link to it
+target_include_directories(${COMPONENT_NAME} PUBLIC
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/data>
+                           $<INSTALL_INTERFACE:include/seraphim/ipc/data>)
 
 # shared libraries need PIC
 set_property(TARGET ${COMPONENT_NAME} PROPERTY POSITION_INDEPENDENT_CODE 1)
+
+# Install generated headers
+install(FILES ${PROTO_HDRS} DESTINATION include/seraphim/ipc/data)

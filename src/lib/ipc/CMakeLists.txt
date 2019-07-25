@@ -44,12 +44,19 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   target_link_libraries(${MODULE_NAME} PRIVATE rt)
 endif ()
 
+# protobuf generated classes
+find_package(Protobuf REQUIRED)
+target_link_libraries(${MODULE_NAME} PUBLIC ${PROTOBUF_LIBRARY})
+target_link_libraries(${MODULE_NAME} PRIVATE seraphim_messages)
+
 target_link_libraries(${MODULE_NAME} PUBLIC seraphim_core)
-target_link_libraries(${MODULE_NAME} PUBLIC seraphim_messages)
 
 # Make sure the compiler can find include files for our library
 # when other libraries or executables link to it
-target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(${MODULE_NAME} PUBLIC
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/data>
+                           $<INSTALL_INTERFACE:include/seraphim/ipc>)
 
 # install shared lib and headers
 install(FILES ${HEADERS} DESTINATION include/seraphim/ipc)
