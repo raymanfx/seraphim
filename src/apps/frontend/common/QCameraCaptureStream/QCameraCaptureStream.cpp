@@ -4,15 +4,11 @@
 #include "QCameraCaptureStream.h"
 
 QCameraCaptureStream::QCameraCaptureStream() {
-    auto cb = [&](const QVideoFrame &frame) {
-        std::lock_guard<std::mutex> lock(mFrameLock);
-        mFrame = frame;
-    };
-
-    mSurface.setCalback(cb);
-
     mCamera = nullptr;
     mBuffer = {};
+
+    QObject::connect(&mSurface, &QCameraCaptureSurface::frameAvailable, this,
+                     &QCameraCaptureStream::consumeFrame);
 }
 
 QCameraCaptureStream::~QCameraCaptureStream() {
@@ -98,6 +94,26 @@ bool QCameraCaptureStream::retrieve(struct Buffer &buf) {
     buf.format.height = static_cast<uint32_t>(getResolution().height());
     buf.format.fourcc = getFourcc();
     return true;
+}
+
+void QCameraCaptureStream::consumeFrame(const QVideoFrame &frame) {
+    Buffer buf = {};
+    std::lock_guard<std::mutex> lock(mFrameLock);
+
+    mFrame = frame;
+    if (!mFrame.map(QAbstractVideoBuffer::ReadOnly)) {
+        return;
+    }
+
+    buf.start = mFrame.bits();
+    buf.size = static_cast<size_t>(mFrame.mappedBytes());
+    buf.bytesused = buf.size;
+    buf.format.width = static_cast<uint32_t>(getResolution().width());
+    buf.format.height = static_cast<uint32_t>(getResolution().height());
+    buf.format.fourcc = getFourcc();
+
+    emit bufferAvailable(buf);
+    mFrame.unmap();
 }
 
 bool QCameraCaptureStream::open(const std::string &deviceName) {

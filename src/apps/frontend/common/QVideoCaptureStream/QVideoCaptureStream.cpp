@@ -4,15 +4,10 @@
 
 QVideoCaptureStream::QVideoCaptureStream() {
     mPlayer.setVideoOutput(&mSurface);
-
-    auto cb = [&](const QVideoFrame &frame) {
-        std::lock_guard<std::mutex> lock(mFrameLock);
-        mFrame = frame;
-    };
-
-    mSurface.setCalback(cb);
-
     mBuffer = {};
+
+    QObject::connect(&mSurface, &QVideoCaptureSurface::frameAvailable, this,
+                     &QVideoCaptureStream::consumeFrame);
 }
 
 QVideoCaptureStream::~QVideoCaptureStream() {
@@ -61,6 +56,26 @@ bool QVideoCaptureStream::retrieve(struct Buffer &buf) {
     buf.format.height = getHeight();
     buf.format.fourcc = getFourcc();
     return true;
+}
+
+void QVideoCaptureStream::consumeFrame(const QVideoFrame &frame) {
+    Buffer buf = {};
+    std::lock_guard<std::mutex> lock(mFrameLock);
+
+    mFrame = frame;
+    if (!mFrame.map(QAbstractVideoBuffer::ReadOnly)) {
+        return;
+    }
+
+    buf.start = mFrame.bits();
+    buf.size = static_cast<size_t>(mFrame.mappedBytes());
+    buf.bytesused = buf.size;
+    buf.format.width = static_cast<uint32_t>(getWidth());
+    buf.format.height = static_cast<uint32_t>(getHeight());
+    buf.format.fourcc = getFourcc();
+
+    emit bufferAvailable(buf);
+    mFrame.unmap();
 }
 
 bool QVideoCaptureStream::open(const std::string &path) {

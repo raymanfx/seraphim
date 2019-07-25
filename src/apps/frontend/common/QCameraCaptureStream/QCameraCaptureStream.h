@@ -10,6 +10,7 @@
 #include <mutex>
 
 class QCameraCaptureSurface : public QAbstractVideoSurface {
+    Q_OBJECT
 public:
     QList<QVideoFrame::PixelFormat> supportedPixelFormats(
         QAbstractVideoBuffer::HandleType handleType = QAbstractVideoBuffer::NoHandle) const {
@@ -21,22 +22,19 @@ public:
     }
 
     bool present(const QVideoFrame &frame) {
-        if (mCallback) {
-            mCallback(frame);
-        }
-
+        emit frameAvailable(frame);
         return true;
     }
 
     QSize getResolution() const { return nativeResolution(); }
     void setResolution(const QSize &resolution) { setNativeResolution(resolution); }
-    void setCalback(std::function<void(const QVideoFrame &frame)> cb) { mCallback = cb; }
 
-private:
-    std::function<void(const QVideoFrame &frame)> mCallback;
+signals:
+    void frameAvailable(const QVideoFrame &frame);
 };
 
-class QCameraCaptureStream : public ICaptureStream {
+class QCameraCaptureStream : public QObject, public ICaptureStream {
+    Q_OBJECT
 public:
     QCameraCaptureStream();
     virtual ~QCameraCaptureStream() override;
@@ -48,6 +46,15 @@ public:
 
     bool grab() override;
     bool retrieve(struct Buffer &buf) override;
+
+    bool start() override {
+        mCamera->start();
+        return true;
+    }
+    bool stop() override {
+        mCamera->stop();
+        return true;
+    }
 
     // convenience API
     bool open(const std::string &deviceName);
@@ -66,6 +73,12 @@ public:
         return ((static_cast<uint32_t>(a) << 0) | (static_cast<uint32_t>(b) << 8) |
                 (static_cast<uint32_t>(c) << 16) | (static_cast<uint32_t>(d) << 24));
     }
+
+signals:
+    void bufferAvailable(const Buffer &buf);
+
+public slots:
+    void consumeFrame(const QVideoFrame &frame);
 
 private:
     /// internal surface for Qt abstraction

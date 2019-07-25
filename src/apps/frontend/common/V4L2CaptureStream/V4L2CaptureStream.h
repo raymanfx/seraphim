@@ -24,6 +24,10 @@ public:
     bool grab() override { return mDevice.grab(); }
     bool retrieve(struct Buffer &buf) override;
 
+    // TODO: implement async API
+    bool start() override { return false; }
+    bool stop() override { return false; }
+
     // implement passthrough methods
     bool open(const std::string &path);
     bool open(const int &index);
