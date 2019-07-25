@@ -39,7 +39,7 @@ set_target_properties(${MODULE_NAME} PROPERTIES VERSION
 set_target_properties(${MODULE_NAME} PROPERTIES SOVERSION
                       ${MODULE_VERSION_MAJOR})
 
-# Linux requires POSIX realtime extensions for threads
+# Linux requires POSIX realtime extensions for threads, semaphores etc
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   target_link_libraries(${MODULE_NAME} PRIVATE rt)
 endif ()
@@ -56,8 +56,13 @@ target_link_libraries(${MODULE_NAME} PUBLIC seraphim_core)
 target_include_directories(${MODULE_NAME} PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/data>
-                           $<INSTALL_INTERFACE:include/seraphim/ipc>)
+                           $<INSTALL_INTERFACE:include>
+                           $<INSTALL_INTERFACE:include/seraphim/ipc/data>)
 
 # install shared lib and headers
-install(FILES ${HEADERS} DESTINATION include/seraphim/ipc)
-install(TARGETS ${MODULE_NAME} DESTINATION lib)
+install(FILES ${PROTO_HDRS} DESTINATION include/seraphim/ipc/data)
+install(DIRECTORY include/seraphim DESTINATION include)
+install(TARGETS ${MODULE_NAME} EXPORT ${MODULE_NAME} DESTINATION lib)
+
+# add cmake install target
+install(EXPORT ${MODULE_NAME} DESTINATION lib/seraphim)
