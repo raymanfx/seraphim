@@ -138,7 +138,7 @@ bool SharedMemoryTransport::unmap() {
     return ret == 0;
 }
 
-bool SharedMemoryTransport::recv(Seraphim::Message &msg) {
+ITransport::IOResult SharedMemoryTransport::recv(Seraphim::Message &msg) {
     int elapsed_ms = 0;
     MessageStore *msgstore = reinterpret_cast<MessageStore *>(m_addr);
 
@@ -155,26 +155,26 @@ bool SharedMemoryTransport::recv(Seraphim::Message &msg) {
         }
 
         if (m_timeout > 0 && elapsed_ms >= m_timeout) {
-            return false;
+            return ITransport::IOResult::TIMEOUT;
         }
     }
 
     // read the message
     if (!msg.ParseFromArray(static_cast<char *>(m_addr) + sizeof(MessageStore),
                             msgstore->msg_size)) {
-        return false;
+        return ITransport::IOResult::ERROR;
     }
 
     msgstore->status = MessageStoreStatus::MESSAGE_READ;
-    return true;
+    return ITransport::IOResult::OK;
 }
 
-bool SharedMemoryTransport::send(const Seraphim::Message &msg) {
+ITransport::IOResult SharedMemoryTransport::send(const Seraphim::Message &msg) {
     int elapsed_ms = 0;
     MessageStore *msgstore = reinterpret_cast<MessageStore *>(m_addr);
 
     if (msg.ByteSizeLong() > m_size - sizeof(MessageStore::msg_size)) {
-        return false;
+        return ITransport::IOResult::ERROR;
     }
 
     // block until a message was read and can thus be overwritten
@@ -186,7 +186,7 @@ bool SharedMemoryTransport::send(const Seraphim::Message &msg) {
         }
 
         if (m_timeout > 0 && elapsed_ms >= m_timeout) {
-            return false;
+            return ITransport::IOResult::TIMEOUT;
         }
     }
 
@@ -203,5 +203,5 @@ bool SharedMemoryTransport::send(const Seraphim::Message &msg) {
     msgstore->status = MessageStoreStatus::MESSAGE_UNREAD;
     m_sem.post();
 
-    return true;
+    return ITransport::IOResult::OK;
 }

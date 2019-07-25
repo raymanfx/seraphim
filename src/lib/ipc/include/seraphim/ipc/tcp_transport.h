@@ -78,8 +78,8 @@ public:
 
     void set_timeout(const int &ms) override { m_stream.socket().set_timeout(ms * 1000); }
 
-    bool recv(Seraphim::Message &msg) override;
-    bool send(const Seraphim::Message &msg) override;
+    IOResult recv(Seraphim::Message &msg) override;
+    IOResult send(const Seraphim::Message &msg) override;
 
     /**
      * @brief Receive a message from a client.
@@ -87,7 +87,7 @@ public:
      * @param msg The message.
      * @return true on success, false on error or timeout.
      */
-    bool recv(const int &fd, Seraphim::Message &msg);
+    IOResult recv(const int &fd, Seraphim::Message &msg);
 
     /**
      * @brief Send a message to a client.
@@ -95,7 +95,7 @@ public:
      * @param msg The message.
      * @return true on success, false on error or timeout.
      */
-    bool send(const int &fd, const Seraphim::Message &msg);
+    IOResult send(const int &fd, const Seraphim::Message &msg);
 
 private:
     /// TCP data stream

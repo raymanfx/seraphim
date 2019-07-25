@@ -90,8 +90,8 @@ public:
 
     void set_timeout(const int &ms) override { m_timeout = ms; }
 
-    bool recv(Seraphim::Message &msg) override;
-    bool send(const Seraphim::Message &msg) override;
+    IOResult recv(Seraphim::Message &msg) override;
+    IOResult send(const Seraphim::Message &msg) override;
 
 private:
     /**

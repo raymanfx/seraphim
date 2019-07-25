@@ -25,6 +25,14 @@ public:
     virtual ~ITransport() = default;
 
     /**
+     * @brief Input/Output operation result.
+     * The boolean operator is overloaded so it can be treated like a binary value, in which case
+     * true means "OK" and false everything else.
+     */
+    enum class IOResult { ERROR, OK, TIMEOUT };
+    inline friend bool operator!(const IOResult &res) { return res != IOResult::OK; }
+
+    /**
      * @brief Set timeout for blocking RX/TX operations.
      * @param ms Timeout in milliseconds, 0 means blocking.
      * @return true on success, false otherwise.
@@ -36,14 +44,14 @@ public:
      * @param msg The message, used as output parameter.
      * @return true on success, false on error or timeout.
      */
-    virtual bool recv(Seraphim::Message &msg) = 0;
+    virtual IOResult recv(Seraphim::Message &msg) = 0;
 
     /**
      * @brief Send a message.
      * @param msg The message.
      * @return true on success, false on error or timeout.
      */
-    virtual bool send(const Seraphim::Message &msg) = 0;
+    virtual IOResult send(const Seraphim::Message &msg) = 0;
 
 protected:
     ITransport() = default;
