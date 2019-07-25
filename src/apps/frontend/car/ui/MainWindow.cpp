@@ -68,7 +68,14 @@ MainWindow::MainWindow(QObject *parent) : QObject(parent) {
         std::cout << "Failed to open video: "
                   << "project_video.mp4" << std::endl;
     }
+
     mCaptureStream = std::unique_ptr<ICaptureStream>(captureStream);
+    if (!mCaptureStream->start()) {
+        std::cout << "Failed to start async capture stream" << std::endl;
+    }
+
+    QObject::connect(captureStream, &QVideoCaptureStream::bufferAvailable, this,
+                     &MainWindow::updateBuffer);
 
     mLaneDetection = false;
     mBackendWorkerActive = false;
@@ -77,6 +84,9 @@ MainWindow::MainWindow(QObject *parent) : QObject(parent) {
 }
 
 MainWindow::~MainWindow() {
+    mCaptureStream->stop();
+    mFrame = QImage();
+
     if (mBackendWorkerActive) {
         mBackendWorkerActive = false;
         if (mBackendWorker.joinable()) {
@@ -109,33 +119,10 @@ void MainWindow::diagTimeout() {
 }
 
 void MainWindow::updateTimeout() {
-    struct ICaptureStream::Buffer buf = {};
     std::chrono::high_resolution_clock::time_point start =
         std::chrono::high_resolution_clock::now();
 
-    {
-        std::lock_guard<std::mutex> lock(mFrameLock);
-        if (!mCaptureStream->read(buf)) {
-            std::cout << "Failed to capture frame from stream" << std::endl;
-            mFrame = QImage();
-            return;
-        }
-
-        // save the buffer for the backend worker thread
-        mCaptureBuffer = buf;
-
-        // get the QImage wrapper representation
-        sph::core::Image img(buf.format.width, buf.format.height, 3 /* channels */);
-        sph::core::Image::Pixelformat fmt = sph::core::Image::as_pixelformat(buf.format.fourcc);
-
-        if (!img.wrap_data(buf.start, buf.bytesused, fmt)) {
-            return;
-        }
-        if (!sph::core::Image2QImage(img, mFrame)) {
-            return;
-        }
-    }
-
+    // TODO: frame buffer?
     if (mFrame.isNull()) {
         return;
     }
@@ -176,6 +163,23 @@ void MainWindow::updateTimeout() {
     mMainLoopDuration = std::chrono::duration_cast<std::chrono::milliseconds>(
                             std::chrono::high_resolution_clock::now() - start)
                             .count();
+}
+
+void MainWindow::updateBuffer(const ICaptureStream::Buffer &buf) {
+    std::lock_guard<std::mutex> lock(mFrameLock);
+    mCaptureBuffer = buf;
+
+    // get the QImage wrapper representation
+    sph::core::Image img(buf.format.width, buf.format.height, 3 /* channels */);
+    sph::core::Image::Pixelformat fmt = sph::core::Image::as_pixelformat(buf.format.fourcc);
+
+    if (!img.wrap_data(buf.start, buf.bytesused, fmt)) {
+        return;
+    }
+
+    if (!sph::core::Image2QImage(img, mFrame)) {
+        return;
+    }
 }
 
 void MainWindow::laneDetectionButtonClicked() {

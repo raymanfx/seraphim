@@ -34,6 +34,9 @@ public slots:
     void updateTimeout();
     void diagTimeout();
 
+    // capture slot
+    void updateBuffer(const ICaptureStream::Buffer &buf);
+
     // qml slots for buttons
     void faceButtonClicked(int label);
     void faceDetectionButtonClicked();
