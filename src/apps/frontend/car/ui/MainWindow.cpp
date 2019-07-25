@@ -225,6 +225,26 @@ void MainWindow::backendWork() {
             msg.mutable_req()->mutable_car()->mutable_detector()->mutable_detection();
         req->set_allocated_image(img);
 
+        // tune the ROI according to your input video
+        // in this case, use a 4-point polygon shape to match the "project_video.mp4"
+        // clip of the udacity course at https://github.com/udacity/CarND-Vehicle-Detection
+        Seraphim::Types::Point2D *bl = req->mutable_polyroi()->add_points();
+        Seraphim::Types::Point2D *tl = req->mutable_polyroi()->add_points();
+        Seraphim::Types::Point2D *tr = req->mutable_polyroi()->add_points();
+        Seraphim::Types::Point2D *br = req->mutable_polyroi()->add_points();
+        // bottom left
+        bl->set_x(210);
+        bl->set_y(static_cast<int>(img->height()));
+        // top left
+        tl->set_x(550);
+        tl->set_y(450);
+        // top right
+        tr->set_x(717);
+        tr->set_y(450);
+        // bottom right
+        br->set_x(static_cast<int>(img->width()) - 210);
+        br->set_y(static_cast<int>(img->height()));
+
         Seraphim::Car::LaneDetector::DetectionResponse res;
 
         if (!mTransport->send(msg)) {
