@@ -39,9 +39,6 @@ public:
      * @brief Parameters used by algorithms in the image processing pipeline.
      */
     struct Parameters {
-        // region of interest masking
-        std::vector<cv::Point> roi;
-
         // canny edge detection params
         double canny_low_thresh;
         double canny_ratio;
@@ -95,9 +92,17 @@ public:
 
     bool detect(cv::InputArray img, std::vector<Lane> &lanes) override;
 
+    bool set_roi(const std::vector<cv::Point> &polyroi) override {
+        m_roi = polyroi;
+        return true;
+    }
+
 private:
     /// parameters used by the image processing pipeline
     Parameters m_params;
+
+    // region of interest masking
+    std::vector<cv::Point> m_roi;
 
     cv::Mat m_mat_buf;
     cv::UMat m_umat_buf;

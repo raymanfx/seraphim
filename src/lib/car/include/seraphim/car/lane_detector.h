@@ -49,6 +49,13 @@ public:
      */
     virtual bool detect(cv::InputArray img, std::vector<Lane> &lanes) = 0;
 
+    /**
+     * @brief Define a polygon-shaped region of interest for lane detection.
+     * @param polyroi A set of points forming a polygon.
+     * @return True on success, false otherwise.
+     */
+    virtual bool set_roi(const std::vector<cv::Point> &polyroi) = 0;
+
 protected:
     ILaneDetector() = default;
 };

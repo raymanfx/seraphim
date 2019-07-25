@@ -38,7 +38,7 @@ message ParameterRequest {
 
 message DetectionRequest {
   Types.Image2D image = 1;
-  Types.Region2D roi = 2;
+  Types.PointSet2D polyroi = 2;
 }
 
 message Request {

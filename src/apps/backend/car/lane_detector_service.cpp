@@ -33,23 +33,23 @@ bool LaneDetectorService::handle_detection_request(
     const Seraphim::Car::LaneDetector::DetectionRequest &req,
     Seraphim::Car::LaneDetector::DetectionResponse &res) {
     cv::Mat image;
-    cv::Rect2i roi;
+    std::vector<cv::Point> polyroi;
     std::vector<sph::car::ILaneDetector::Lane> lanes;
 
     if (!sph::backend::Image2DtoMat(req.image(), image)) {
         return false;
     }
 
-    roi = cv::Rect2i(0, 0, image.cols, image.rows);
-
-    if (req.has_roi()) {
-        roi.x = req.roi().x();
-        roi.y = req.roi().y();
-        roi.width = req.roi().w();
-        roi.height = req.roi().h();
+    if (req.has_polyroi()) {
+        for (const auto &point : req.polyroi().points()) {
+            polyroi.push_back(cv::Point(point.x(), point.y()));
+        }
+        m_detector->set_roi(polyroi);
+    } else {
+        m_detector->set_roi({});
     }
 
-    m_detector->detect(image(roi), lanes);
+    m_detector->detect(image, lanes);
     for (const auto &lane : lanes) {
         Seraphim::Car::LaneDetector::Lane *lane_ = res.add_lanes();
         lane_->mutable_bottomleft()->set_x(lane.bottomLeft.x);

@@ -11,10 +11,6 @@ using namespace sph::car;
 
 LinearLaneDetector::LinearLaneDetector() {
     m_params = {};
-    m_params.roi.push_back(cv::Point(210, 720 /* img.rows() */));
-    m_params.roi.push_back(cv::Point(550, 450));
-    m_params.roi.push_back(cv::Point(717, 450));
-    m_params.roi.push_back(cv::Point(1280 /* img.cols() */, 720 /* img.rows() */));
 
     m_params.canny_low_thresh = 50;
     m_params.canny_ratio = 3;
@@ -52,7 +48,7 @@ void LinearLaneDetector::apply_mask(cv::InputArray img, cv::OutputArray out,
                                     const std::vector<cv::Point> &poly) {
     cv::Mat mask = cv::Mat::zeros(img.size(), img.type());
 
-    if (mask.empty()) {
+    if (mask.empty() || poly.empty()) {
         return;
     }
 
@@ -97,13 +93,13 @@ bool LinearLaneDetector::detect(cv::InputArray img, std::vector<Lane> &lanes) {
     case TARGET_CPU:
         preprocess(img, m_mat_buf);
         filter_edges(m_mat_buf, m_mat_buf);
-        apply_mask(m_mat_buf, m_mat_buf, m_params.roi);
+        apply_mask(m_mat_buf, m_mat_buf, m_roi);
         detect_lines(m_mat_buf, segments);
         break;
     case TARGET_OPENCL:
         preprocess(img, m_umat_buf);
         filter_edges(m_umat_buf, m_umat_buf);
-        apply_mask(m_umat_buf, m_umat_buf, m_params.roi);
+        apply_mask(m_umat_buf, m_umat_buf, m_roi);
         detect_lines(m_umat_buf, segments);
         break;
     default:
