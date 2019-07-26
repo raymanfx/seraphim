@@ -1,0 +1,2 @@
+Seraphim is licensed under the MIT License.
+Copyright (c) 2019 Christopher N. Hesse <raymanfx@gmail.com>
