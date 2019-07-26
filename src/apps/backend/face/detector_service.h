@@ -9,23 +9,23 @@
 #define SPH_FACE_DETECTOR_SERVICE_H
 
 #include <FaceDetector.pb.h>
-#include <seraphim/face/lbp_detector.h>
+#include <seraphim/face/detector.h>
 
 #include "../service.h"
 
 namespace sph {
 namespace face {
 
-class LBPDetectorService : public sph::backend::IService {
+class DetectorService : public sph::backend::IService {
 public:
-    explicit LBPDetectorService(std::shared_ptr<sph::face::LBPDetector> detector);
+    explicit DetectorService(std::shared_ptr<sph::face::IDetector> detector);
 
     bool handle_request(const Seraphim::Request &req, Seraphim::Response &res) override;
     bool handle_detection_request(const Seraphim::Face::Detector::DetectionRequest &req,
                                   Seraphim::Face::Detector::DetectionResponse &res);
 
 private:
-    std::shared_ptr<sph::face::LBPDetector> m_detector;
+    std::shared_ptr<sph::face::IDetector> m_detector;
 };
 
 } // namespace face

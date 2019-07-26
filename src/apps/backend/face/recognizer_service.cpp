@@ -12,7 +12,7 @@
 
 using namespace sph::face;
 
-RecognizerService::RecognizerService(std::shared_ptr<sph::face::LBPDetector> detector,
+RecognizerService::RecognizerService(std::shared_ptr<sph::face::IDetector> detector,
                                      std::shared_ptr<sph::face::IRecognizer> recognizer) {
     m_detector = detector;
     m_recognizer = recognizer;

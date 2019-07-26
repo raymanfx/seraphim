@@ -7,15 +7,15 @@
 
 #include <utils.h>
 
-#include "detector_lbp_service.h"
+#include "detector_service.h"
 
 using namespace sph::face;
 
-LBPDetectorService::LBPDetectorService(std::shared_ptr<sph::face::LBPDetector> detector) {
+DetectorService::DetectorService(std::shared_ptr<sph::face::IDetector> detector) {
     m_detector = detector;
 }
 
-bool LBPDetectorService::handle_request(const Seraphim::Request &req, Seraphim::Response &res) {
+bool DetectorService::handle_request(const Seraphim::Request &req, Seraphim::Response &res) {
     if (!req.has_face() || !req.face().has_detector()) {
         return false;
     }
@@ -29,7 +29,7 @@ bool LBPDetectorService::handle_request(const Seraphim::Request &req, Seraphim::
     return false;
 }
 
-bool LBPDetectorService::handle_detection_request(
+bool DetectorService::handle_detection_request(
     const Seraphim::Face::Detector::DetectionRequest &req,
     Seraphim::Face::Detector::DetectionResponse &res) {
     cv::Mat image;

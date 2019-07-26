@@ -9,7 +9,7 @@
 #define SPH_FACE_RECOGNIZER_SERVICE_H
 
 #include <FaceRecognizer.pb.h>
-#include <seraphim/face/lbp_detector.h>
+#include <seraphim/face/detector.h>
 #include <seraphim/face/recognizer.h>
 
 #include "../service.h"
@@ -19,7 +19,7 @@ namespace face {
 
 class RecognizerService : public sph::backend::IService {
 public:
-    explicit RecognizerService(std::shared_ptr<sph::face::LBPDetector> detector,
+    explicit RecognizerService(std::shared_ptr<sph::face::IDetector> detector,
                                std::shared_ptr<sph::face::IRecognizer> recognizer);
     ~RecognizerService() override;
 
@@ -30,7 +30,7 @@ public:
                                     Seraphim::Face::Recognizer::RecognitionResponse &res);
 
 private:
-    std::shared_ptr<sph::face::LBPDetector> m_detector;
+    std::shared_ptr<sph::face::IDetector> m_detector;
     std::shared_ptr<sph::face::IRecognizer> m_recognizer;
 };
 

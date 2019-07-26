@@ -23,7 +23,7 @@
 
 #include "car/lane_detector_service.h"
 #include "config_store.h"
-#include "face/detector_lbp_service.h"
+#include "face/detector_service.h"
 #include "face/recognizer_service.h"
 #include "object/classifier_service.h"
 #include "shm_server.h"
@@ -40,7 +40,7 @@ static std::shared_ptr<sph::face::LBPRecognizer> face_recognizer(new sph::face::
 static std::shared_ptr<sph::object::DNNClassifier> object_classifier(new sph::object::DNNClassifier());
 
 static sph::car::LaneDetectorService lane_detector_service(lane_detector);
-static sph::face::LBPDetectorService face_detector_service(face_detector);
+static sph::face::DetectorService face_detector_service(face_detector);
 static sph::face::RecognizerService face_recognizer_service(face_detector, face_recognizer);
 static sph::object::ClassifierService object_classifier_service(object_classifier);
 
