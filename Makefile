@@ -23,3 +23,6 @@ uninstall: install
 
 clean:
 	rm -rf build
+
+format:
+	clang-format -i -style=file $(SOURCES) $(HEADERS)

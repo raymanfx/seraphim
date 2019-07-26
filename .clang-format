@@ -1,0 +1,21 @@
+BasedOnStyle: LLVM
+Language: Cpp
+
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: false
+BreakBeforeBraces: Attach
+IndentCaseLabels: false
+ColumnLimit: 100
+CommentPragmas: NOLINT:.*
+Cpp11BracedListStyle: false
+
+# pointers should be right aligned
+DerivePointerAlignment: false
+PointerAlignment: Right
+
+# indent using 4 spaces
+IndentWidth: 4
+UseTab: Never
+
+# do not indent access modifiers ("private", "public", ..)
+AccessModifierOffset: -4
