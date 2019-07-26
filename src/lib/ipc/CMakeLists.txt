@@ -1,4 +1,7 @@
 set(MODULE_NAME seraphim_ipc)
+set(MODULE_VERSION_MAJOR 0)
+set(MODULE_VERSION_MINOR 0)
+set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
     src/net/socket.cpp
@@ -29,7 +32,10 @@ add_library(${MODULE_NAME}_shared SHARED $<TARGET_OBJECTS:${MODULE_NAME}>)
 set_target_properties(${MODULE_NAME}_shared PROPERTIES OUTPUT_NAME ${MODULE_NAME})
 
 # set the shared lib version
-set_target_properties(${LIB_NAME} PROPERTIES SOVERSION 0.0.0)
+set_target_properties(${MODULE_NAME}_shared PROPERTIES VERSION
+                      ${MODULE_VERSION_MAJOR}.${MODULE_VERSION_MINOR}.${MODULE_VERSION_PATCH})
+set_target_properties(${MODULE_NAME}_shared PROPERTIES SOVERSION
+                      ${MODULE_VERSION_MAJOR})
 
 # Linux requires POSIX realtime extensions for threads
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
