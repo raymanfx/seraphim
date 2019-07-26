@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package Seraphim.Face.Detector;
+
+import "Types.proto";
+
+/*
+ * Facial landmarks of a face
+ */
+message Facemarks {
+  enum Landmark {
+    JAW = 0;
+    RIGHT_EYEBROW = 1;
+    LEFT_EYEBROW = 2;
+    NOSE = 3;
+    RIGHT_EYE = 4;
+    LEFT_EYE = 5;
+    MOUTH = 6;
+  }
+  repeated Landmark landmarks = 1;
+  repeated Types.PointSet2D pointsets = 2;
+}
+
+/*
+ * Requests
+ *
+ * Client --> Server
+ */
+
+message DetectionRequest {
+  Types.MatImage image = 1;
+  Types.Region2D roi = 2;
+}
+
+message Request {
+  oneof req {
+    DetectionRequest detection = 1;
+  }
+}
+
+/*
+ * Responses
+ *
+ * Server --> Client
+ */
+
+message DetectionResponse {
+  repeated Types.Region2D faces = 1;
+  repeated Facemarks facemarks = 2;
+}
+
+message Response {
+  oneof res {
+    DetectionResponse detection = 1;
+  }
+}

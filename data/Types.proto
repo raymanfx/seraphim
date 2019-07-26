@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package Seraphim.Types;
+
+/*
+ * Common types used in messages
+ */
+
+message Point2D {
+  int32 x = 1;
+  int32 y = 2;
+}
+
+message PointSet2D {
+  repeated Point2D points = 1;
+}
+
+message Region2D {
+  int32 x = 1;
+  int32 y = 2;
+  int32 w = 3;
+  int32 h = 4;
+}
+
+message MatImage {
+  int32 rows = 1;
+  int32 cols = 2;
+  int32 type = 3;
+  bytes data = 4;
+}

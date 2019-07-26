@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package Seraphim;
+
+import "LaneDetector.proto";
+import "FaceDetector.proto";
+import "FaceRecognizer.proto";
+import "ObjectClassifier.proto";
+
+/*
+ * Master message structure
+ *
+ * All module messages must be included here.
+ */
+
+message CarRequest {
+  oneof req {
+    Car.LaneDetector.Request detector = 1;
+  }
+}
+
+message CarResponse {
+  oneof req {
+    Car.LaneDetector.Response detector = 1;
+  }
+}
+
+message FaceRequest {
+  oneof req {
+    Face.Detector.Request detector = 1;
+    Face.Recognizer.Request recognizer = 2;
+  }
+}
+
+message FaceResponse {
+  oneof req {
+    Face.Detector.Response detector = 1;
+    Face.Recognizer.Response recognizer = 2;
+  }
+}
+
+message ObjectRequest {
+  oneof req {
+    Object.Classifier.Request classifier = 1;
+  }
+}
+
+message ObjectResponse {
+  oneof req {
+    Object.Classifier.Response classifier = 1;
+  }
+}
+
+message Request {
+  oneof req {
+    CarRequest car = 1;
+    FaceRequest face = 2;
+    ObjectRequest object = 3;
+  }
+}
+
+message Response {
+  enum ResponseStatus {
+    OK = 0;
+    ERROR = 1;
+    SEINVAL = 2;
+  }
+  ResponseStatus status = 1;
+  oneof res {
+    CarResponse car = 2;
+    FaceResponse face = 3;
+    ObjectResponse object = 4;
+  }
+}
+
+message Message {
+  oneof msg {
+    Request req = 1;
+    Response res = 2;
+  }
+}

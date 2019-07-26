@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package Seraphim.Face.Recognizer;
+
+import "Types.proto";
+
+/*
+ * Requests
+ *
+ * Client --> Server
+ */
+
+message TrainingRequest {
+  Types.MatImage image = 1;
+  int32 label = 2;
+  bool invalidate = 3;
+}
+
+message RecognitionRequest {
+  Types.MatImage image = 1;
+  double confidence = 2;
+  Types.Region2D roi = 3;
+}
+
+message Request {
+  oneof req {
+    TrainingRequest training = 1;
+    RecognitionRequest recognition = 2;
+  }
+}
+
+/*
+ * Responses
+ *
+ * Server --> Client
+ */
+
+message TrainingResponse {
+  int32 label = 1;
+  Types.Region2D face = 2;
+}
+
+message RecognitionResponse {
+  repeated int32 labels = 1;
+  repeated double distances = 2;
+  repeated Types.Region2D rois = 3;
+}
+
+message Response {
+  oneof res {
+    TrainingResponse training = 1;
+    RecognitionResponse recognition = 2;
+  }
+}

@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package Seraphim.Car.LaneDetector;
+
+import "Types.proto";
+
+message Parameters {
+  // canny edge detection
+  double canny_low_thresh = 1;
+  double canny_ratio = 2;
+  int32 canny_size = 3;
+  bool canny_l2_dist = 4;
+
+  // hough line transform
+  double hough_rho = 5;
+  double hough_theta = 6;
+  int32 hough_thresh = 7;
+  double hough_min_line_len = 8;
+  double hough_max_line_len = 9;
+}
+
+message Lane {
+  Types.Point2D bottomLeft = 1;
+  Types.Point2D topLeft = 2;
+  Types.Point2D topRight = 3;
+  Types.Point2D bottomRight = 4;
+}
+
+/*
+ * Requests
+ *
+ * Client --> Server
+ */
+
+message ParameterRequest {
+  Parameters params = 1;
+}
+
+message DetectionRequest {
+  Types.MatImage image = 1;
+  Types.Region2D roi = 2;
+}
+
+message Request {
+  oneof req {
+    ParameterRequest params = 1;
+    DetectionRequest detection = 2;
+  }
+}
+
+/*
+ * Responses
+ *
+ * Server --> Client
+ */
+
+message ParameterResponse {
+  Parameters params = 1;
+}
+
+message DetectionResponse {
+  repeated Lane lanes = 1;
+}
+
+message Response {
+  oneof res {
+    ParameterResponse params = 1;
+    DetectionResponse detection = 2;
+  }
+}

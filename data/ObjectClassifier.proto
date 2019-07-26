@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package Seraphim.Object.Classifier;
+
+import "Types.proto";
+
+/*
+ * Requests
+ *
+ * Client --> Server
+ */
+
+message ClassificationRequest {
+  Types.MatImage image = 1;
+  Types.Region2D roi = 2;
+  float confidence = 3;
+}
+
+message Request {
+  oneof req {
+    ClassificationRequest classification = 1;
+  }
+}
+
+/*
+ * Responses
+ *
+ * Server --> Client
+ */
+
+message ClassificationResponse {
+  repeated int32 labels = 1;
+  repeated float confidences = 2;
+  repeated Types.Region2D rois = 3;
+}
+
+message Response {
+  oneof res {
+    ClassificationResponse classification = 1;
+  }
+}
