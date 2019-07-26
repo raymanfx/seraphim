@@ -42,8 +42,7 @@ public:
     uint32_t getWidth() { return mWidth; }
     uint32_t getHeight() { return mHeight; }
     bool setFourcc(const uint32_t &fourcc);
-    bool setWidth(const uint32_t &width);
-    bool setHeight(const uint32_t &height);
+    bool setResolution(const uint32_t &width, const uint32_t &height);
 
     // helpers
     static inline uint32_t fourcc_from_string(const char &a, const char &b, const char &c,

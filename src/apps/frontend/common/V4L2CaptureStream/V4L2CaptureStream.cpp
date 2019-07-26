@@ -57,7 +57,7 @@ bool V4L2CaptureStream::setFourcc(const uint32_t &fourcc) {
     return true;
 }
 
-bool V4L2CaptureStream::setWidth(const uint32_t &width) {
+bool V4L2CaptureStream::setResolution(const uint32_t &width, const uint32_t &height) {
     struct v4l2_format fmt = {};
 
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -66,27 +66,12 @@ bool V4L2CaptureStream::setWidth(const uint32_t &width) {
     }
 
     fmt.fmt.pix.width = width;
-    if (mDevice.ioctl(VIDIOC_S_FMT, &fmt) == -1) {
-        return false;
-    }
-
-    mWidth = width;
-    return true;
-}
-
-bool V4L2CaptureStream::setHeight(const uint32_t &height) {
-    struct v4l2_format fmt = {};
-
-    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    if (mDevice.ioctl(VIDIOC_G_FMT, &fmt) == -1) {
-        return false;
-    }
-
     fmt.fmt.pix.height = height;
     if (mDevice.ioctl(VIDIOC_S_FMT, &fmt) == -1) {
         return false;
     }
 
+    mWidth = width;
     mHeight = height;
     return true;
 }

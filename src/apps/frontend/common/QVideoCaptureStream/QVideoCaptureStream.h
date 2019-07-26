@@ -63,14 +63,12 @@ public:
 
     // convenience API
     uint32_t getFourcc();
-    uint32_t getWidth();
-    uint32_t getHeight();
+    QSize getResolution();
     bool setFourcc(const uint32_t &fourcc) {
         (void)fourcc;
         return false;
     }
-    bool setWidth(const uint32_t &width);
-    bool setHeight(const uint32_t &height);
+    bool setResolution(const QSize &res);
 
     // helpers
     static inline uint32_t fourcc(const char &a, const char &b, const char &c, const char &d) {

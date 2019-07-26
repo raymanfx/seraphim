@@ -58,13 +58,10 @@ MainWindow::MainWindow(QObject *parent) : QObject(parent) {
     mDiagPrintTimer->start(500);
 
     QVideoCaptureStream *captureStream = new QVideoCaptureStream();
-    if (!captureStream->setWidth(1280)) {
-        std::cout << "Failed to set capture width to 1280" << std::endl;
+    if (!captureStream->setResolution(QSize(1280, 720))) {
+        std::cout << "Failed to set capture res to 1280x720" << std::endl;
     }
-    if (!captureStream->setHeight(720)) {
-        std::cout << "Failed to set capture height to 1280" << std::endl;
-    }
-    if (!captureStream->open("project_video.mp4")) {
+    if (!captureStream->open("/home/redqueen/Videos/FrontLeft1080.mp4")) {
         std::cout << "Failed to open video: "
                   << "project_video.mp4" << std::endl;
     }

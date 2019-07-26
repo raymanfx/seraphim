@@ -52,8 +52,8 @@ bool QVideoCaptureStream::retrieve(struct Buffer &buf) {
     buf.start = mBuffer.start;
     buf.size = mBuffer.size;
     buf.bytesused = mBuffer.bytesused;
-    buf.format.width = getWidth();
-    buf.format.height = getHeight();
+    buf.format.width = static_cast<uint32_t>(getResolution().width());
+    buf.format.height = static_cast<uint32_t>(getResolution().height());
     buf.format.fourcc = getFourcc();
     return true;
 }
@@ -70,8 +70,8 @@ void QVideoCaptureStream::consumeFrame(const QVideoFrame &frame) {
     buf.start = mFrame.bits();
     buf.size = static_cast<size_t>(mFrame.mappedBytes());
     buf.bytesused = buf.size;
-    buf.format.width = static_cast<uint32_t>(getWidth());
-    buf.format.height = static_cast<uint32_t>(getHeight());
+    buf.format.width = static_cast<uint32_t>(getResolution().width());
+    buf.format.height = static_cast<uint32_t>(getResolution().height());
     buf.format.fourcc = getFourcc();
 
     emit bufferAvailable(buf);
@@ -95,28 +95,12 @@ uint32_t QVideoCaptureStream::getFourcc() {
     }
 }
 
-uint32_t QVideoCaptureStream::getWidth() {
-    return static_cast<uint32_t>(mFrame.width());
+QSize QVideoCaptureStream::getResolution() {
+    return mFrame.size();
 }
 
-uint32_t QVideoCaptureStream::getHeight() {
-    return static_cast<uint32_t>(mFrame.height());
-}
-
-bool QVideoCaptureStream::setWidth(const uint32_t &width) {
-    QSize res = mSurface.nativeResolution();
-
-    res.setWidth(static_cast<int>(width));
+bool QVideoCaptureStream::setResolution(const QSize &res) {
     mSurface.setResolution(res);
 
-    return static_cast<uint32_t>(mSurface.getResolution().width()) == width;
-}
-
-bool QVideoCaptureStream::setHeight(const uint32_t &height) {
-    QSize res = mSurface.nativeResolution();
-
-    res.setHeight(static_cast<int>(height));
-    mSurface.setResolution(res);
-
-    return static_cast<uint32_t>(mSurface.getResolution().height()) == height;
+    return mSurface.getResolution() == res;
 }
