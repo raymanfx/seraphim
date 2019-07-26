@@ -5,6 +5,7 @@
 #include <atomic>
 #include <cstdint>
 #include <cstring>
+#include <functional>
 #include <thread>
 #include <time.h>
 #include <vector>
@@ -14,7 +15,7 @@
 class V4L2CaptureStream : public ICaptureStream {
 public:
     V4L2CaptureStream();
-    virtual ~V4L2CaptureStream() override = default;
+    ~V4L2CaptureStream() override;
 
     bool isOpen() override { return mDevice.initialized(); }
 
@@ -24,9 +25,9 @@ public:
     bool grab() override { return mDevice.grab(); }
     bool retrieve(struct Buffer &buf) override;
 
-    // TODO: implement async API
-    bool start() override { return false; }
-    bool stop() override { return false; }
+    bool start() override;
+    bool stop() override;
+    void setFrameCallback(std::function<void(const Buffer &)> fn) { mFrameCallback = fn; }
 
     // implement passthrough methods
     bool open(const std::string &path);
@@ -62,6 +63,12 @@ private:
 
     /// internal path to the capture device
     std::string mDevicePath;
+
+    /// capture thread for async I/O
+    std::thread mCaptureThread;
+    std::atomic<bool> mCaptureActive;
+    /// callback for async capture notifications
+    std::function<void(const Buffer &)> mFrameCallback;
 
     /// capture format
     uint32_t mFourcc;

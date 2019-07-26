@@ -5,9 +5,18 @@
 V4L2CaptureStream::V4L2CaptureStream() {
     mDevicePath = "/dev/video0";
 
+    mCaptureActive = false;
+    mFrameCallback = nullptr;
+
     mFourcc = 0;
     mWidth = 0;
     mHeight = 0;
+}
+
+V4L2CaptureStream::~V4L2CaptureStream() {
+    if (mCaptureActive) {
+        stop();
+    }
 }
 
 bool V4L2CaptureStream::open() {
@@ -27,6 +36,54 @@ bool V4L2CaptureStream::retrieve(struct Buffer &buf) {
     buf.format.width = mWidth;
     buf.format.height = mHeight;
     buf.format.fourcc = mFourcc;
+    return true;
+}
+
+bool V4L2CaptureStream::start() {
+    if (mCaptureActive) {
+        return true;
+    }
+
+    if (!mDevice.active()) {
+        if (!mDevice.start_stream()) {
+            return false;
+        }
+    }
+
+    mCaptureActive = true;
+    mCaptureThread = std::thread([&]() {
+        struct Buffer buf;
+
+        while (mCaptureActive) {
+            if (!grab() || !retrieve(buf)) {
+                continue;
+            }
+
+            if (mFrameCallback) {
+                mFrameCallback(buf);
+            }
+        }
+    });
+
+    return true;
+}
+
+bool V4L2CaptureStream::stop() {
+    if (!mCaptureActive) {
+        return true;
+    }
+
+    mCaptureActive = false;
+    if (mCaptureThread.joinable()) {
+        mCaptureThread.join();
+    }
+
+    if (mDevice.active()) {
+        if (!mDevice.stop_stream()) {
+            return false;
+        }
+    }
+
     return true;
 }
 
