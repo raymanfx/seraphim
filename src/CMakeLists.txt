@@ -10,4 +10,5 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   include_directories("/usr/local/include")
 endif ()
 
+add_subdirectory(apps)
 add_subdirectory(lib)
