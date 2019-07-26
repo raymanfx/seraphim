@@ -147,7 +147,7 @@ int main(int argc, char **argv) {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
     std::string config_path = "seraphim.conf";
-    std::vector<Server *> servers;
+    std::vector<std::unique_ptr<Server>> servers;
     std::string val;
     std::string val2;
 
@@ -232,7 +232,7 @@ int main(int argc, char **argv) {
             std::cout << "Failed to create SHM segment: " << strerror(errno) << std::endl;
             delete server;
         } else {
-            servers.push_back(server);
+            servers.push_back(std::unique_ptr<Server>(server));
         }
     }
 
@@ -261,7 +261,7 @@ int main(int argc, char **argv) {
             std::cout << "Failed to create TCP segment: " << strerror(errno) << std::endl;
             delete server;
         } else {
-            servers.push_back(server);
+            servers.push_back(std::unique_ptr<Server>(server));
         }
     }
 
@@ -270,7 +270,7 @@ int main(int argc, char **argv) {
     }
 
     std::cout << "Stopping servers" << std::endl;
-    for (const auto serv : servers) {
+    for (const auto &serv : servers) {
         serv->terminate();
     }
 
