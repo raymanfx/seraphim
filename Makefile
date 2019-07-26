@@ -32,3 +32,7 @@ tidy:
 	cd build && cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
 	$(MAKE) -C build -j4
 	python3 run-clang-tidy.py -p build
+
+docs:
+	mkdir -p build/docs
+	doxygen .doxyfile
