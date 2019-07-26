@@ -26,3 +26,9 @@ clean:
 
 format:
 	clang-format -i -style=file $(SOURCES) $(HEADERS)
+
+tidy:
+	mkdir -p build
+	cd build && cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+	$(MAKE) -C build -j4
+	python3 run-clang-tidy.py -p build
