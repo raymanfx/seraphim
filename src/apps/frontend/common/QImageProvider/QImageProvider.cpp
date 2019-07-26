@@ -21,7 +21,10 @@ void QImageProvider::framePainted() {
 
 bool QImageProvider::show(const QImage &image) {
     // shallow copy, must be repainted immediately
-    mImage = image;
+    // since this is in fact just a shallow copy, we must not try to free the buffer in the
+    // destructor of the mImage instance in this class!
+    mImage =
+        QImage(image.bits(), image.width(), image.height(), image.bytesPerLine(), image.format());
 
     emit repaint();
     return true;
