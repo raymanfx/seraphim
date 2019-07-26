@@ -19,8 +19,8 @@ namespace face {
 
 class RecognizerService : public sph::backend::IService {
 public:
-    explicit RecognizerService(sph::face::LBPDetector *detector,
-                               sph::face::IRecognizer *recognizer);
+    explicit RecognizerService(std::shared_ptr<sph::face::LBPDetector> detector,
+                               std::shared_ptr<sph::face::IRecognizer> recognizer);
     ~RecognizerService() override;
 
     bool handle_request(const Seraphim::Request &req, Seraphim::Response &res) override;
@@ -30,8 +30,8 @@ public:
                                     Seraphim::Face::Recognizer::RecognitionResponse &res);
 
 private:
-    sph::face::LBPDetector *m_detector;
-    sph::face::IRecognizer *m_recognizer;
+    std::shared_ptr<sph::face::LBPDetector> m_detector;
+    std::shared_ptr<sph::face::IRecognizer> m_recognizer;
 };
 
 } // namespace face

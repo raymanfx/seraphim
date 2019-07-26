@@ -12,8 +12,8 @@
 
 using namespace sph::face;
 
-RecognizerService::RecognizerService(sph::face::LBPDetector *detector,
-                                     sph::face::IRecognizer *recognizer) {
+RecognizerService::RecognizerService(std::shared_ptr<sph::face::LBPDetector> detector,
+                                     std::shared_ptr<sph::face::IRecognizer> recognizer) {
     m_detector = detector;
     m_recognizer = recognizer;
 }
@@ -61,7 +61,7 @@ bool RecognizerService::handle_training_request(
 
     // compute centers of the eyes
     std::vector<cv::Rect> faces;
-    std::vector<std::vector<cv::Point2f>> facemarks;
+    std::vector<IDetector::Facemarks> facemarks;
     std::vector<cv::Point2f> eyes;
     m_detector->detect_faces(image, faces);
 
@@ -76,7 +76,26 @@ bool RecognizerService::handle_training_request(
         face->set_h(faces.at(0).height);
 
         m_detector->detect_facemarks(image, faces, facemarks);
-        m_detector->find_eyes(facemarks[0], eyes);
+
+        // collect the eye point positions from the face
+        for (const auto &landmark_set : facemarks[0].landmarks) {
+            if (landmark_set.first == IDetector::FacemarkType::LEFT_EYE || landmark_set.first == IDetector::FacemarkType::RIGHT_EYE) {
+                cv::Point2f p;
+                for (const auto &point : landmark_set.second) {
+                    p.x += point.x;
+                    p.y += point.y;
+                }
+                p.x /= landmark_set.second.size();
+                p.y /= landmark_set.second.size();
+                eyes.push_back(p);
+                break;
+            }
+        }
+
+        if (eyes.size() == 0) {
+            std::cout << "Could not detect eyes, aborting training" << std::endl;
+            return false;
+        }
 
         double angle = sph::face::align_face(alignedFace, eyes);
         std::cout << "rot angle: " << angle << std::endl;

@@ -11,7 +11,7 @@
 
 using namespace sph::car;
 
-LaneDetectorService::LaneDetectorService(sph::car::ILaneDetector *detector) {
+LaneDetectorService::LaneDetectorService(std::shared_ptr<sph::car::ILaneDetector> detector) {
     m_detector = detector;
 }
 

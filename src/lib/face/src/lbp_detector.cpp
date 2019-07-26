@@ -9,6 +9,16 @@
 
 using namespace sph::face;
 
+static constexpr std::pair<IDetector::FacemarkType, std::pair<size_t, size_t>> Facemark_LUT[] = {
+    { IDetector::FacemarkType::JAW,             { 0, 16 } },
+    { IDetector::FacemarkType::RIGHT_EYEBROW,   { 17, 21 } },
+    { IDetector::FacemarkType::LEFT_EYEBROW,    { 22, 26 } },
+    { IDetector::FacemarkType::NOSE,            { 27, 35 } },
+    { IDetector::FacemarkType::RIGHT_EYE,       { 36, 41 } },
+    { IDetector::FacemarkType::LEFT_EYE,        { 42, 47 } },
+    { IDetector::FacemarkType::MOUTH,           { 48, 67 } }
+};
+
 static bool face_cascade_impl_helper(cv::InputArray img, cv::OutputArray ROIs, void *data) {
     return reinterpret_cast<LBPDetector *>(data)->face_cascade_impl(img, ROIs);
 }
@@ -114,7 +124,9 @@ bool LBPDetector::detect_faces(cv::InputArray img, cv::OutputArray ROIs) {
 }
 
 bool LBPDetector::detect_facemarks(cv::InputArray img, cv::InputArray faces,
-                                   cv::OutputArrayOfArrays facemarks) {
+                                   std::vector<Facemarks> &facemarks) {
+    std::vector<std::vector<cv::Point2f>> landmarks;
+
     if (!m_face_cascade || m_impl.empty()) {
         return false;
     }
@@ -125,46 +137,27 @@ bool LBPDetector::detect_facemarks(cv::InputArray img, cv::InputArray faces,
         return false;
     }
 
-    return m_impl->fit(img, faces, facemarks);
-}
-
-bool LBPDetector::find_eyes(const std::vector<cv::Point2f> &facemarks,
-                            std::vector<cv::Point2f> &eyes) const {
-    cv::Point2f leftEye, rightEye;
-    std::vector<int> leftEyemarks, rightEyemarks;
-
-    eyes.clear();
-
-    // compute centers of the eyes
-    for (size_t i = 0; i < m_facemark_params.pupils[0].size(); i++) {
-        leftEyemarks.push_back(m_facemark_params.pupils[0][i]);
-    }
-    for (size_t i = 0; i < m_facemark_params.pupils[1].size(); i++) {
-        rightEyemarks.push_back(m_facemark_params.pupils[1][i]);
-    }
-
-    if (leftEyemarks.size() == 0 || rightEyemarks.size() == 0) {
-        // could not find the indices
+    if (!m_impl->fit(img, faces, landmarks)) {
         return false;
     }
 
-    // left and right eye points in the image
-    for (const auto &idx : leftEyemarks) {
-        leftEye.x += facemarks[static_cast<size_t>(idx)].x;
-        leftEye.y += facemarks[static_cast<size_t>(idx)].y;
-    }
-    leftEye.x /= leftEyemarks.size();
-    leftEye.y /= leftEyemarks.size();
+    facemarks.clear();
+    for (const auto &facepoints : landmarks) {
+        Facemarks marks;
 
-    for (const auto &idx : rightEyemarks) {
-        rightEye.x += facemarks[static_cast<size_t>(idx)].x;
-        rightEye.y += facemarks[static_cast<size_t>(idx)].y;
-    }
-    rightEye.x /= leftEyemarks.size();
-    rightEye.y /= leftEyemarks.size();
+        for (const auto &elem : Facemark_LUT) {
+            std::vector<cv::Point> points;
 
-    eyes.push_back(leftEye);
-    eyes.push_back(rightEye);
+            for (size_t i = elem.second.first; i <= elem.second.second; i++) {
+                points.push_back(facepoints[i]);
+            }
+
+            marks.landmarks.emplace_back(std::make_pair(elem.first, points));
+        }
+
+        facemarks.push_back(marks);
+    }
+
     return true;
 }
 

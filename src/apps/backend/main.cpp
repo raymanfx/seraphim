@@ -34,15 +34,15 @@ using namespace sph::backend;
 static bool server_running = false;
 static Seraphim::Message msg;
 
-static sph::car::LinearLaneDetector lane_detector;
-static sph::face::LBPDetector face_detector;
-static sph::face::LBPRecognizer face_recognizer;
-static sph::object::DNNClassifier object_classifier;
+static std::shared_ptr<sph::car::LinearLaneDetector> lane_detector(new sph::car::LinearLaneDetector());
+static std::shared_ptr<sph::face::LBPDetector> face_detector(new sph::face::LBPDetector());
+static std::shared_ptr<sph::face::LBPRecognizer> face_recognizer(new sph::face::LBPRecognizer());
+static std::shared_ptr<sph::object::DNNClassifier> object_classifier(new sph::object::DNNClassifier());
 
-static sph::car::LaneDetectorService lane_detector_service(&lane_detector);
-static sph::face::LBPDetectorService face_detector_service(&face_detector);
-static sph::face::RecognizerService face_recognizer_service(&face_detector, &face_recognizer);
-static sph::object::ClassifierService object_classifier_service(&object_classifier);
+static sph::car::LaneDetectorService lane_detector_service(lane_detector);
+static sph::face::LBPDetectorService face_detector_service(face_detector);
+static sph::face::RecognizerService face_recognizer_service(face_detector, face_recognizer);
+static sph::object::ClassifierService object_classifier_service(object_classifier);
 
 void signal_handler(int signal) {
     switch (signal) {
@@ -183,7 +183,7 @@ int main(int argc, char **argv) {
         std::cout << "[ERROR] Missing conf key: face_cascade" << std::endl;
         return 1;
     } else {
-        if (!face_detector.load_face_cascade(val)) {
+        if (!face_detector->load_face_cascade(val)) {
             std::cout << "[ERROR] Failed to load face cascade from: " << val << std::endl;
             return 1;
         }
@@ -194,7 +194,7 @@ int main(int argc, char **argv) {
         std::cout << "[ERROR] Missing conf key: face_facemark_model" << std::endl;
         return 1;
     } else {
-        if (!face_detector.load_facemark_model(val)) {
+        if (!face_detector->load_facemark_model(val)) {
             std::cout << "[ERROR] Failed to load facemark model from: " << val << std::endl;
             return 1;
         }
@@ -206,7 +206,7 @@ int main(int argc, char **argv) {
         std::cout << "[ERROR] Missing conf key: object_net_model|object_net_config" << std::endl;
         return 1;
     } else {
-        if (!object_classifier.read_net(val, val2)) {
+        if (!object_classifier->read_net(val, val2)) {
             std::cout << "[ERROR] Failed to load object net from: model: " << val
                       << ", config: " << val2 << std::endl;
             return 1;
@@ -216,10 +216,10 @@ int main(int argc, char **argv) {
     val = ConfigStore::Instance().get_value("compute_target");
     if (val.empty()) {
         std::cout << "[WARN] Missing conf key: compute_target, fallback to CPU" << std::endl;
-        lane_detector.set_target(sph::core::IComputable::TARGET_CPU);
-        face_detector.set_target(sph::core::IComputable::TARGET_CPU);
-        face_recognizer.set_target(sph::core::IComputable::TARGET_CPU);
-        object_classifier.set_target(sph::core::IComputable::TARGET_CPU);
+        lane_detector->set_target(sph::core::IComputable::TARGET_CPU);
+        face_detector->set_target(sph::core::IComputable::TARGET_CPU);
+        face_recognizer->set_target(sph::core::IComputable::TARGET_CPU);
+        object_classifier->set_target(sph::core::IComputable::TARGET_CPU);
     } else {
         sph::core::IComputable::target_t target = sph::core::IComputable::TARGET_CPU;
         if (val == "CPU") {
@@ -232,16 +232,16 @@ int main(int argc, char **argv) {
             std::cout << "[WARN] Invalid compute target, fallback to CPU" << std::endl;
         }
 
-        if (!lane_detector.set_target(target)) {
+        if (!lane_detector->set_target(target)) {
             std::cout << "[WARN] Failed to set Lane Detector target to: " << val << std::endl;
         }
-        if (!face_detector.set_target(target)) {
+        if (!face_detector->set_target(target)) {
             std::cout << "[WARN] Failed to set Face Detector target to: " << val << std::endl;
         }
-        if (!face_recognizer.set_target(target)) {
+        if (!face_recognizer->set_target(target)) {
             std::cout << "[WARN] Failed to set Face Recognizer target to: " << val << std::endl;
         }
-        if (!object_classifier.set_target(target)) {
+        if (!object_classifier->set_target(target)) {
             std::cout << "[WARN] Failed to set Object Classifier target to: " << val << std::endl;
         }
     }

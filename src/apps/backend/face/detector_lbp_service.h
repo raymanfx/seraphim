@@ -18,14 +18,14 @@ namespace face {
 
 class LBPDetectorService : public sph::backend::IService {
 public:
-    explicit LBPDetectorService(sph::face::LBPDetector *detector);
+    explicit LBPDetectorService(std::shared_ptr<sph::face::LBPDetector> detector);
 
     bool handle_request(const Seraphim::Request &req, Seraphim::Response &res) override;
     bool handle_detection_request(const Seraphim::Face::Detector::DetectionRequest &req,
                                   Seraphim::Face::Detector::DetectionResponse &res);
 
 private:
-    sph::face::LBPDetector *m_detector;
+    std::shared_ptr<sph::face::LBPDetector> m_detector;
 };
 
 } // namespace face

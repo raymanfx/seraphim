@@ -18,9 +18,30 @@ class IDetector {
 public:
     virtual ~IDetector() = default;
 
+    /**
+     * @brief Facemark type.
+     */
+    enum class FacemarkType {
+        JAW ,
+        RIGHT_EYEBROW,
+        LEFT_EYEBROW,
+        NOSE,
+        RIGHT_EYE,
+        LEFT_EYE,
+        MOUTH
+    };
+
+    /**
+     * @brief Struct describing the landmarks of a face.
+     */
+    struct Facemarks {
+        /// all the point positions for each facemark of a face
+        std::vector<std::pair<FacemarkType, std::vector<cv::Point>>> landmarks;
+    };
+
     virtual bool detect_faces(cv::InputArray img, cv::OutputArray faces) = 0;
     virtual bool detect_facemarks(cv::InputArray img, cv::InputArray faces,
-                                  cv::OutputArrayOfArrays facemarks) = 0;
+                                  std::vector<Facemarks> &facemarks) = 0;
 
     float confidence_threshold() const { return m_confidence_threshold; }
     void set_confidence_threshold(const float &threshold) { m_confidence_threshold = threshold; }

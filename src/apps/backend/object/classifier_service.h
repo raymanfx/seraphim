@@ -18,7 +18,7 @@ namespace object {
 
 class ClassifierService : public sph::backend::IService {
 public:
-    explicit ClassifierService(sph::object::Classifier *recognizer);
+    explicit ClassifierService(std::shared_ptr<sph::object::Classifier> recognizer);
 
     bool handle_request(const Seraphim::Request &req, Seraphim::Response &res) override;
     bool
@@ -26,7 +26,7 @@ public:
                                   Seraphim::Object::Classifier::ClassificationResponse &res);
 
 private:
-    sph::object::Classifier *m_recognizer;
+    std::shared_ptr<sph::object::Classifier> m_recognizer;
 };
 
 } // namespace object

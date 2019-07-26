@@ -18,16 +18,6 @@
 namespace sph {
 namespace face {
 
-static const std::pair<size_t, size_t> facemark_LUT[] = {
-    { 0, 16 },  // FACEMARK_JAW
-    { 17, 21 }, // FACEMARK_RIGHT_EYEBROW
-    { 22, 26 }, // FACEMARK_LEFT_EYEBROW
-    { 27, 35 }, // FACEMARK_NOSE
-    { 36, 41 }, // FACEMARK_RIGHT_EYE
-    { 42, 47 }, // FACEMARK_LEFT_EYE
-    { 48, 67 }  // FACEMARK_MOUTH
-};
-
 class LBPDetector : public IDetector, sph::core::IComputable {
 public:
     explicit LBPDetector();
@@ -44,17 +34,6 @@ public:
         cv::Size cascade_min_size;
     };
 
-    typedef enum {
-        FACEMARK_JAW = 0,
-        FACEMARK_RIGHT_EYEBROW,
-        FACEMARK_LEFT_EYEBROW,
-        FACEMARK_NOSE,
-        FACEMARK_RIGHT_EYE,
-        FACEMARK_LEFT_EYE,
-        FACEMARK_MOUTH,
-        FACEMARK_MAX
-    } facemark_t;
-
     bool empty() const { return m_impl.empty(); }
     void write(cv::FileStorage &fs) const { return m_impl->write(fs); }
 
@@ -64,9 +43,7 @@ public:
 
     bool detect_faces(cv::InputArray img, cv::OutputArray faces) override;
     bool detect_facemarks(cv::InputArray img, cv::InputArray faces,
-                          cv::OutputArrayOfArrays facemarks) override;
-
-    bool find_eyes(const std::vector<cv::Point2f> &facemarks, std::vector<cv::Point2f> &eyes) const;
+                          std::vector<Facemarks> &facemarks) override;
 
     /**
      * @brief Set parameters for various algorithms that are used by this class.

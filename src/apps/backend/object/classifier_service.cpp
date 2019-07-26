@@ -11,7 +11,7 @@
 
 using namespace sph::object;
 
-ClassifierService::ClassifierService(sph::object::Classifier *recognizer) {
+ClassifierService::ClassifierService(std::shared_ptr<sph::object::Classifier> recognizer) {
     m_recognizer = recognizer;
 }
 
