@@ -70,7 +70,7 @@ void LBPRecognizer::update(cv::InputArrayOfArrays imgs, const std::vector<int> &
 
     for (size_t i = 0; i < labels.size(); i++) {
         // add the new face images
-        m_faces[labels[i]].push_back(images[i]);
+        m_faces[labels[i]].push_back(gray_imgs[i]);
     }
 
     if (!invalidate) {
