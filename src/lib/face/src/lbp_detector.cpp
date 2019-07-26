@@ -26,9 +26,6 @@ LBPDetector::LBPDetector() {
 
 LBPDetector::~LBPDetector() {
     m_impl.release();
-    if (m_face_cascade) {
-        delete m_face_cascade;
-    }
 }
 
 bool LBPDetector::face_cascade_impl(cv::InputArray img, cv::OutputArray ROIs) {
@@ -76,7 +73,7 @@ bool LBPDetector::load_face_cascade(const std::string &path) {
         return false;
     }
 
-    m_face_cascade = new cv::CascadeClassifier(path);
+    m_face_cascade = std::unique_ptr<cv::CascadeClassifier>(new cv::CascadeClassifier(path));
     m_impl->setFaceDetector(face_cascade_impl_helper, this);
     return true;
 }

@@ -78,7 +78,7 @@ private:
     /// parameters used by the image processing pipeline
     Parameters m_params;
 
-    cv::CascadeClassifier *m_face_cascade;
+    std::unique_ptr<cv::CascadeClassifier> m_face_cascade;
     cv::face::FacemarkLBF::Params m_facemark_params;
 
     bool m_facemark_model_loaded;
