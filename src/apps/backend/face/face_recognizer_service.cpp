@@ -78,8 +78,11 @@ bool FaceRecognizerService::handle_training_request(
         face->set_w(faces.at(0).width);
         face->set_h(faces.at(0).height);
 
-        // TODO: search in the region of the previously detected face
+        // search in the region of the previously detected face
         m_facemark_detector->detect_facemarks(image, faces, facemarks);
+        if (faces.size() == 0 || facemarks.size() == 0) {
+            return false;
+        }
 
         // collect the eye point positions from the face
         for (const auto &landmark_set : facemarks[0].landmarks) {
@@ -108,6 +111,12 @@ bool FaceRecognizerService::handle_training_request(
         // rotate the face ROI by the same angle
         alignedROI = cv::RotatedRect((faces[0].br() + faces[0].tl()) * 0.5, faces[0].size(),
                                      static_cast<float>(angle));
+
+        if (alignedROI.boundingRect().width > alignedFace.size().width ||
+            alignedROI.boundingRect().height > alignedFace.size().height) {
+            // the input image is too small to do proper cropping
+            return false;
+        }
 
         // perform final cropping of the image using the minimal upright
         // bounding rect
