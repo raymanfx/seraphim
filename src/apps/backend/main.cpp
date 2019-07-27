@@ -214,13 +214,7 @@ int main(int argc, char **argv) {
     }
 
     val = ConfigStore::Instance().get_value("compute_target");
-    if (val.empty()) {
-        std::cout << "[WARN] Missing conf key: compute_target, fallback to CPU" << std::endl;
-        lane_detector->set_target(sph::core::IComputable::TARGET_CPU);
-        face_detector->set_target(sph::core::IComputable::TARGET_CPU);
-        face_recognizer->set_target(sph::core::IComputable::TARGET_CPU);
-        object_classifier->set_target(sph::core::IComputable::TARGET_CPU);
-    } else {
+    if (!val.empty()) {
         sph::core::IComputable::target_t target = sph::core::IComputable::TARGET_CPU;
         if (val == "CPU") {
             target = sph::core::IComputable::TARGET_CPU;
