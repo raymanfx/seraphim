@@ -1,4 +1,5 @@
 set(SAMPLES
+    dnn_face_detector
     lbp_face_detector
     lbf_facemark_detector)
 
@@ -10,4 +11,5 @@ foreach(SAMPLE ${SAMPLES})
   add_executable(${SAMPLE} ${SAMPLE}.cpp)
   target_link_libraries(${SAMPLE} opencv_core opencv_highgui opencv_imgproc opencv_videoio)
   target_link_libraries(${SAMPLE} seraphim_face)
+  target_link_libraries(${SAMPLE} seraphim_object)
 endforeach()
