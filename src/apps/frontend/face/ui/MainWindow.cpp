@@ -65,6 +65,7 @@ MainWindow::MainWindow(QObject *parent) : QObject(parent) {
     mFaceTrained = false;
     mFaceLabel = 0;
     mFaceDetection = false;
+    mFacemarkDetection = false;
     mFaceRecognition = false;
     mBackendWorkerActive = false;
     mBackendFrameReady = false;
@@ -115,7 +116,7 @@ void MainWindow::updateTimeout() {
         return;
     }
 
-    if (mFaceDetection || mFaceRecognition || mFaceTraining) {
+    if (mFaceDetection || mFacemarkDetection || mFaceRecognition || mFaceTraining) {
         if (!mBackendWorkerActive) {
             mBackendWorkerActive = true;
             mBackendWorker = std::thread([&]() {
@@ -137,7 +138,7 @@ void MainWindow::updateTimeout() {
                 mOverlayImageProvider->show(mOverlay);
             }
         }
-    } else if (!mFaceDetection && !mFaceRecognition && !mFaceTraining) {
+    } else if (!mFaceDetection && !mFacemarkDetection && !mFaceRecognition && !mFaceTraining) {
         if (mBackendWorkerActive) {
             mBackendWorkerActive = false;
             if (mBackendWorker.joinable()) {
@@ -170,14 +171,19 @@ void MainWindow::updateBuffer(const ICaptureStream::Buffer &buf) {
     }
 }
 
+void MainWindow::faceDetectionButtonClicked() {
+    mFaceDetection = !mFaceDetection;
+    emit toggleOverlay(mFaceDetection || mFacemarkDetection);
+}
+
+void MainWindow::facemarkDetectionButtonClicked() {
+    mFacemarkDetection = !mFacemarkDetection;
+    emit toggleOverlay(mFacemarkDetection || mFaceDetection);
+}
+
 void MainWindow::faceButtonClicked(int label) {
     mFaceLabel = label;
     mFaceTraining = mFaceTrainingSamples;
-}
-
-void MainWindow::faceDetectionButtonClicked() {
-    mFaceDetection = !mFaceDetection;
-    emit toggleOverlay(mFaceDetection);
 }
 
 void MainWindow::faceRecognitionButtonClicked() {
@@ -222,17 +228,46 @@ void MainWindow::backendWork() {
 
     if (mFaceDetection) {
         Seraphim::Message msg;
-        Seraphim::Face::Detector::DetectionRequest *req =
-            msg.mutable_req()->mutable_face()->mutable_detector()->mutable_detection();
+        Seraphim::Face::FaceDetector::DetectionRequest *req =
+            msg.mutable_req()->mutable_face()->mutable_face_detector()->mutable_detection();
         req->set_allocated_image(img);
 
-        Seraphim::Face::Detector::DetectionResponse res;
+        Seraphim::Face::FaceDetector::DetectionResponse res;
 
         if (!mTransport->send(msg)) {
             std::cout << "Transport: failed to send(): " << strerror(errno) << std::endl;
         }
         mTransport->recv(msg);
-        res = msg.res().face().detector().detection();
+        res = msg.res().face().face_detector().detection();
+
+        std::cout << "Server sent response:" << std::endl
+                  << "  status=" << msg.res().status() << std::endl
+                  << "  faces=" << res.faces_size() << std::endl;
+
+        // clear overlay
+        overlay.fill(Qt::transparent);
+
+        // draw the new overlay
+        QPainter painter(&overlay);
+        painter.setPen(Qt::red);
+        for (const auto &face : res.faces()) {
+            painter.drawRect(face.x(), face.y(), face.w(), face.h());
+        }
+    }
+
+    if (mFacemarkDetection) {
+        Seraphim::Message msg;
+        Seraphim::Face::FacemarkDetector::DetectionRequest *req =
+            msg.mutable_req()->mutable_face()->mutable_facemark_detector()->mutable_detection();
+        req->set_allocated_image(img);
+
+        Seraphim::Face::FacemarkDetector::DetectionResponse res;
+
+        if (!mTransport->send(msg)) {
+            std::cout << "Transport: failed to send(): " << strerror(errno) << std::endl;
+        }
+        mTransport->recv(msg);
+        res = msg.res().face().facemark_detector().detection();
 
         std::cout << "Server sent response:" << std::endl
                   << "  status=" << msg.res().status() << std::endl
@@ -260,17 +295,17 @@ void MainWindow::backendWork() {
         double confidence;
 
         Seraphim::Message msg;
-        Seraphim::Face::Recognizer::RecognitionRequest *req =
-            msg.mutable_req()->mutable_face()->mutable_recognizer()->mutable_recognition();
+        Seraphim::Face::FaceRecognizer::RecognitionRequest *req =
+            msg.mutable_req()->mutable_face()->mutable_face_recognizer()->mutable_recognition();
         req->set_allocated_image(img);
 
-        Seraphim::Face::Recognizer::RecognitionResponse res;
+        Seraphim::Face::FaceRecognizer::RecognitionResponse res;
 
         if (!mTransport->send(msg)) {
             std::cout << "Transport: failed to send(): " << strerror(errno) << std::endl;
         }
         mTransport->recv(msg);
-        res = msg.res().face().recognizer().recognition();
+        res = msg.res().face().face_recognizer().recognition();
 
         std::cout << "Server sent response:" << std::endl
                   << "  status=" << msg.res().status() << std::endl
@@ -301,19 +336,19 @@ void MainWindow::backendWork() {
 
     if (mFaceTraining > 0) {
         Seraphim::Message msg;
-        Seraphim::Face::Recognizer::TrainingRequest *req =
-            msg.mutable_req()->mutable_face()->mutable_recognizer()->mutable_training();
+        Seraphim::Face::FaceRecognizer::TrainingRequest *req =
+            msg.mutable_req()->mutable_face()->mutable_face_recognizer()->mutable_training();
         req->set_label(mFaceLabel);
         req->set_allocated_image(img);
         req->set_invalidate(mFaceTraining == 10);
 
-        Seraphim::Face::Recognizer::TrainingResponse res;
+        Seraphim::Face::FaceRecognizer::TrainingResponse res;
 
         if (!mTransport->send(msg)) {
             std::cout << "Transport: failed to send(): " << strerror(errno) << std::endl;
         }
         mTransport->recv(msg);
-        res = msg.res().face().recognizer().training();
+        res = msg.res().face().face_recognizer().training();
 
         std::cout << "Server sent response:" << std::endl
                   << "  status=" << msg.res().status() << std::endl

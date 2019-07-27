@@ -16,10 +16,13 @@ extern "C" void *create(int clazz, ...) {
     va_start(args, clazz);
 
     switch (clazz) {
-    case CLASS_LBPDetector:
-        return new LBPDetector;
-    case CLASS_LBPRecognizer:
-        return new LBPRecognizer;
+    case CLASS_LBPFaceDetector:
+        return new LBPFaceDetector;
+    case CLASS_LBPFaceRecognizer:
+        return new LBPFaceRecognizer;
+    case CLASS_LBFFacemarkDetector:
+        return new LBFFacemarkDetector(
+            std::shared_ptr<IFaceDetector>(static_cast<IFaceDetector *>(va_arg(args, void *))));
     }
 
     return nullptr;
@@ -27,11 +30,15 @@ extern "C" void *create(int clazz, ...) {
 
 extern "C" void destroy(int clazz, void *ptr) {
     switch (clazz) {
-    case CLASS_LBPDetector:
-        delete reinterpret_cast<LBPDetector *>(ptr);
+    case CLASS_LBPFaceDetector:
+        delete reinterpret_cast<LBPFaceDetector *>(ptr);
         break;
-    case CLASS_LBPRecognizer:
-        delete reinterpret_cast<LBPRecognizer *>(ptr);
+    case CLASS_LBPFaceRecognizer:
+        delete reinterpret_cast<LBPFaceRecognizer *>(ptr);
+        break;
+    case CLASS_LBFFacemarkDetector:
+        delete reinterpret_cast<LBFFacemarkDetector *>(ptr);
+        break;
     }
 }
 

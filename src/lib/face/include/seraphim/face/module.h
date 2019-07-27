@@ -13,7 +13,7 @@
 namespace sph {
 namespace face {
 
-enum CLASSES { CLASS_LBPDetector = 0, CLASS_LBPRecognizer };
+enum CLASSES { CLASS_LBPFaceDetector = 0, CLASS_LBPFaceRecognizer, CLASS_LBFFacemarkDetector };
 
 } // namespace face
 } // namespace sph

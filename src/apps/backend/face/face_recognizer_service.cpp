@@ -8,41 +8,44 @@
 #include <seraphim/face/utils.h>
 #include <utils.h>
 
-#include "recognizer_service.h"
+#include "face_recognizer_service.h"
 
 using namespace sph::face;
 
-RecognizerService::RecognizerService(std::shared_ptr<sph::face::IDetector> detector,
-                                     std::shared_ptr<sph::face::IRecognizer> recognizer) {
-    m_detector = detector;
-    m_recognizer = recognizer;
+FaceRecognizerService::FaceRecognizerService(
+    std::shared_ptr<sph::face::IFaceDetector> face_detector,
+    std::shared_ptr<sph::face::IFacemarkDetector> facemark_detector,
+    std::shared_ptr<sph::face::IFaceRecognizer> face_recognizer) {
+    m_face_detector = face_detector;
+    m_face_recognizer = face_recognizer;
+    m_facemark_detector = facemark_detector;
 }
 
-RecognizerService::~RecognizerService() {
+FaceRecognizerService::~FaceRecognizerService() {
     // dummy
 }
 
-bool RecognizerService::handle_request(const Seraphim::Request &req, Seraphim::Response &res) {
-    if (!req.has_face() || !req.face().has_recognizer()) {
+bool FaceRecognizerService::handle_request(const Seraphim::Request &req, Seraphim::Response &res) {
+    if (!req.has_face() || !req.face().has_face_recognizer()) {
         return false;
     }
 
-    if (req.face().recognizer().has_training()) {
+    if (req.face().face_recognizer().has_training()) {
         return handle_training_request(
-            req.face().recognizer().training(),
-            *res.mutable_face()->mutable_recognizer()->mutable_training());
-    } else if (req.face().recognizer().has_recognition()) {
+            req.face().face_recognizer().training(),
+            *res.mutable_face()->mutable_face_recognizer()->mutable_training());
+    } else if (req.face().face_recognizer().has_recognition()) {
         return handle_recognition_request(
-            req.face().recognizer().recognition(),
-            *res.mutable_face()->mutable_recognizer()->mutable_recognition());
+            req.face().face_recognizer().recognition(),
+            *res.mutable_face()->mutable_face_recognizer()->mutable_recognition());
     }
 
     return false;
 }
 
-bool RecognizerService::handle_training_request(
-    const Seraphim::Face::Recognizer::TrainingRequest &req,
-    Seraphim::Face::Recognizer::TrainingResponse &res) {
+bool FaceRecognizerService::handle_training_request(
+    const Seraphim::Face::FaceRecognizer::TrainingRequest &req,
+    Seraphim::Face::FaceRecognizer::TrainingResponse &res) {
     cv::Mat image;
     std::vector<cv::Mat> images;
     std::vector<int> labels;
@@ -61,9 +64,9 @@ bool RecognizerService::handle_training_request(
 
     // compute centers of the eyes
     std::vector<cv::Rect> faces;
-    std::vector<IDetector::Facemarks> facemarks;
+    std::vector<IFacemarkDetector::Facemarks> facemarks;
     std::vector<cv::Point2f> eyes;
-    m_detector->detect_faces(image, faces);
+    m_face_detector->detect_faces(image, faces);
 
     if (faces.size() != 1) {
         res.set_label(-1);
@@ -75,11 +78,13 @@ bool RecognizerService::handle_training_request(
         face->set_w(faces.at(0).width);
         face->set_h(faces.at(0).height);
 
-        m_detector->detect_facemarks(image, faces, facemarks);
+        // TODO: search in the region of the previously detected face
+        m_facemark_detector->detect_facemarks(image, faces, facemarks);
 
         // collect the eye point positions from the face
         for (const auto &landmark_set : facemarks[0].landmarks) {
-            if (landmark_set.first == IDetector::FacemarkType::LEFT_EYE || landmark_set.first == IDetector::FacemarkType::RIGHT_EYE) {
+            if (landmark_set.first == IFacemarkDetector::FacemarkType::LEFT_EYE ||
+                landmark_set.first == IFacemarkDetector::FacemarkType::RIGHT_EYE) {
                 cv::Point2f p;
                 for (const auto &point : landmark_set.second) {
                     p.x += point.x;
@@ -109,20 +114,20 @@ bool RecognizerService::handle_training_request(
         alignedFace = alignedFace(alignedROI.boundingRect());
 
         images.push_back(alignedFace);
-        m_recognizer->update(images, labels, req.invalidate());
+        m_face_recognizer->update(images, labels, req.invalidate());
         res.set_label(req.label());
     }
 
     return true;
 }
 
-bool RecognizerService::handle_recognition_request(
-    const Seraphim::Face::Recognizer::RecognitionRequest &req,
-    Seraphim::Face::Recognizer::RecognitionResponse &res) {
+bool FaceRecognizerService::handle_recognition_request(
+    const Seraphim::Face::FaceRecognizer::RecognitionRequest &req,
+    Seraphim::Face::FaceRecognizer::RecognitionResponse &res) {
     cv::Mat image;
     std::vector<cv::Rect> faces;
     cv::Rect2i roi;
-    std::vector<sph::face::IRecognizer::Prediction> preds;
+    std::vector<sph::face::IFaceRecognizer::Prediction> preds;
 
     if (!sph::backend::Image2DtoMat(req.image(), image)) {
         return false;
@@ -137,9 +142,9 @@ bool RecognizerService::handle_recognition_request(
         roi.height = req.roi().h();
     }
 
-    m_detector->detect_faces(image(roi), faces);
+    m_face_detector->detect_faces(image(roi), faces);
     for (size_t i = 0; i < faces.size(); i++) {
-        m_recognizer->predict(image(faces[i]), preds);
+        m_face_recognizer->predict(image(faces[i]), preds);
         Seraphim::Types::Region2D *roi = res.add_rois();
         for (size_t j = 0; j < preds.size(); j++) {
             // filter results if a global threshold is set

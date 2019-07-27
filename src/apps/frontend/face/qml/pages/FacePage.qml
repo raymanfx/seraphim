@@ -69,37 +69,63 @@ Page {
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             height: mainFrame.height
 
-            ListView {
-                id: faceButtonList
-                model: ListModel { id: faceListModel }
-
-                width: 200
-                height: 500
-
-                delegate: FaceButton {
-                    id: faceButton
-                    faceLabel: label
-                    faceImage.source: image
-                    onClicked: mainWindow.faceButtonClicked(label)
+            Button {
+                id: faceDetectionButton
+                implicitWidth: parent.width
+                implicitHeight: 100
+                text: "Face Detection"
+                property bool active: false
+                onClicked: {
+                    active = !active;
+                    mainWindow.faceDetectionButtonClicked();
                 }
 
-                function getElement(label) {
-                    for (var i = 0; i < model.count; i++) {
-                        if (model.get(i).label === label) {
-                            return model.get(i);
-                        }
-                    }
-                    return null;
+                contentItem: Text {
+                    text: faceDetectionButton.text
+                    font: faceDetectionButton.font
+                    opacity: enabled ? 1.0 : 0.3
+                    color: faceDetectionButton.pressed ? "#F84018" : "#FFFFFF";
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    elide: Text.ElideRight
                 }
 
-                function getDelegate(label) {
-                    for (var i = 0; i < contentItem.children.length; i++) {
-                        var item = contentItem.children[i];
-                        if (item.faceLabel === label) {
-                            return item;
-                        }
-                    }
-                    return null;
+                background: Rectangle {
+                    color: faceDetectionButton.active ? "#F84018" : "#000000";
+                    border.color: "#FFFFFF";
+                    border.width: 1
+                    radius: 2
+                    opacity: enabled ? 1 : 0.3
+                }
+            }
+
+            Button {
+                id: facemarkDetectionButton
+                implicitWidth: parent.width
+                implicitHeight: 100
+                text: "Facemark Detection"
+                property bool active: false
+                onClicked: {
+                    active = !active;
+                    mainWindow.facemarkDetectionButtonClicked();
+                }
+
+                contentItem: Text {
+                    text: facemarkDetectionButton.text
+                    font: facemarkDetectionButton.font
+                    opacity: enabled ? 1.0 : 0.3
+                    color: facemarkDetectionButton.pressed ? "#F84018" : "#FFFFFF";
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    elide: Text.ElideRight
+                }
+
+                background: Rectangle {
+                    color: facemarkDetectionButton.active ? "#F84018" : "#000000";
+                    border.color: "#FFFFFF";
+                    border.width: 1
+                    radius: 2
+                    opacity: enabled ? 1 : 0.3
                 }
             }
 
@@ -138,36 +164,6 @@ Page {
             }
 
             Button {
-                id: faceDetectionButton
-                implicitWidth: parent.width
-                implicitHeight: 100
-                text: "Detection"
-                property bool active: false
-                onClicked: {
-                    active = !active;
-                    mainWindow.faceDetectionButtonClicked();
-                }
-
-                contentItem: Text {
-                    text: faceDetectionButton.text
-                    font: faceDetectionButton.font
-                    opacity: enabled ? 1.0 : 0.3
-                    color: faceDetectionButton.pressed ? "#F84018" : "#FFFFFF";
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    elide: Text.ElideRight
-                }
-
-                background: Rectangle {
-                    color: faceDetectionButton.active ? "#F84018" : "#000000";
-                    border.color: "#FFFFFF";
-                    border.width: 1
-                    radius: 2
-                    opacity: enabled ? 1 : 0.3
-                }
-            }
-
-            Button {
                 id: faceRecognitionButton
                 implicitWidth: parent.width
                 implicitHeight: 100
@@ -197,6 +193,39 @@ Page {
                 }
             }
 
+            ListView {
+                id: faceButtonList
+                model: ListModel { id: faceListModel }
+
+                width: 200
+                height: 500
+
+                delegate: FaceButton {
+                    id: faceButton
+                    faceLabel: label
+                    faceImage.source: image
+                    onClicked: mainWindow.faceButtonClicked(label)
+                }
+
+                function getElement(label) {
+                    for (var i = 0; i < model.count; i++) {
+                        if (model.get(i).label === label) {
+                            return model.get(i);
+                        }
+                    }
+                    return null;
+                }
+
+                function getDelegate(label) {
+                    for (var i = 0; i < contentItem.children.length; i++) {
+                        var item = contentItem.children[i];
+                        if (item.faceLabel === label) {
+                            return item;
+                        }
+                    }
+                    return null;
+                }
+            }
             Connections {
                 target: mainWindow
 

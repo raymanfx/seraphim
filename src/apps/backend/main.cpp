@@ -15,16 +15,18 @@
 
 #include <Seraphim.pb.h>
 #include <seraphim/car/linear_lane_detector.h>
-#include <seraphim/face/lbp_detector.h>
-#include <seraphim/face/lbp_recognizer.h>
+#include <seraphim/face/lbf_facemark_detector.h>
+#include <seraphim/face/lbp_face_detector.h>
+#include <seraphim/face/lbp_face_recognizer.h>
 #include <seraphim/face/utils.h>
 #include <seraphim/ipc.h>
 #include <seraphim/object/dnn_classifier.h>
 
 #include "car/lane_detector_service.h"
 #include "config_store.h"
-#include "face/detector_service.h"
-#include "face/recognizer_service.h"
+#include "face/face_detector_service.h"
+#include "face/face_recognizer_service.h"
+#include "face/facemark_detector_service.h"
 #include "object/classifier_service.h"
 #include "shm_server.h"
 #include "tcp_server.h"
@@ -34,14 +36,22 @@ using namespace sph::backend;
 static bool server_running = false;
 static Seraphim::Message msg;
 
-static std::shared_ptr<sph::car::LinearLaneDetector> lane_detector(new sph::car::LinearLaneDetector());
-static std::shared_ptr<sph::face::LBPDetector> face_detector(new sph::face::LBPDetector());
-static std::shared_ptr<sph::face::LBPRecognizer> face_recognizer(new sph::face::LBPRecognizer());
-static std::shared_ptr<sph::object::DNNClassifier> object_classifier(new sph::object::DNNClassifier());
+static std::shared_ptr<sph::car::LinearLaneDetector>
+    lane_detector(new sph::car::LinearLaneDetector());
+static std::shared_ptr<sph::face::LBPFaceDetector> face_detector(new sph::face::LBPFaceDetector());
+static std::shared_ptr<sph::face::LBPFaceRecognizer>
+    face_recognizer(new sph::face::LBPFaceRecognizer());
+static std::shared_ptr<sph::face::LBFFacemarkDetector>
+    facemark_detector(new sph::face::LBFFacemarkDetector(face_detector));
+static std::shared_ptr<sph::object::DNNClassifier>
+    object_classifier(new sph::object::DNNClassifier());
 
 static sph::car::LaneDetectorService lane_detector_service(lane_detector);
-static sph::face::DetectorService face_detector_service(face_detector);
-static sph::face::RecognizerService face_recognizer_service(face_detector, face_recognizer);
+static sph::face::FaceDetectorService face_detector_service(face_detector);
+static sph::face::FaceRecognizerService face_recognizer_service(face_detector, facemark_detector,
+                                                                face_recognizer);
+static sph::face::FacemarkDetectorService facemark_detector_service(face_detector,
+                                                                    facemark_detector);
 static sph::object::ClassifierService object_classifier_service(object_classifier);
 
 void signal_handler(int signal) {
@@ -122,10 +132,12 @@ bool message_incoming(void *data) {
             status = lane_detector_service.handle_request(msg->req(), res);
         }
     } else if (msg->req().has_face()) {
-        if (msg->req().face().has_detector()) {
+        if (msg->req().face().has_face_detector()) {
             status = face_detector_service.handle_request(msg->req(), res);
-        } else if (msg->req().face().has_recognizer()) {
+        } else if (msg->req().face().has_face_recognizer()) {
             status = face_recognizer_service.handle_request(msg->req(), res);
+        } else if (msg->req().face().has_facemark_detector()) {
+            status = facemark_detector_service.handle_request(msg->req(), res);
         }
     } else if (msg->req().has_object()) {
         if (msg->req().object().has_classifier()) {
@@ -194,7 +206,7 @@ int main(int argc, char **argv) {
         std::cout << "[ERROR] Missing conf key: face_facemark_model" << std::endl;
         return 1;
     } else {
-        if (!face_detector->load_facemark_model(val)) {
+        if (!facemark_detector->load_facemark_model(val)) {
             std::cout << "[ERROR] Failed to load facemark model from: " << val << std::endl;
             return 1;
         }

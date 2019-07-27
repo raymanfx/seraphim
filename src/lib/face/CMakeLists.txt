@@ -5,17 +5,20 @@ set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
     src/module.cpp
-    src/lbp_detector.cpp
-    src/lbp_recognizer.cpp
+    src/lbp_face_detector.cpp
+    src/lbp_face_recognizer.cpp
+    src/lbf_facemark_detector.cpp
     src/utils.cpp)
 
 set(HEADERS
     include/seraphim/face.h
     include/seraphim/face/module.h
-    include/seraphim/face/detector.h
-    include/seraphim/face/lbp_detector.h
-    include/seraphim/face/lbp_recognizer.h
-    include/seraphim/face/recognizer.h
+    include/seraphim/face/face_detector.h
+    include/seraphim/face/face_recognizer.h
+    include/seraphim/face/facemark_detector.h
+    include/seraphim/face/lbf_facemark_detector.h
+    include/seraphim/face/lbp_face_detector.h
+    include/seraphim/face/lbp_face_recognizer.h
     include/seraphim/face/utils.h)
 
 add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})

@@ -1,12 +1,14 @@
 set(MODULE_NAME face_service)
 
 set(SOURCES
-    detector_service.cpp
-    recognizer_service.cpp)
+    face_detector_service.cpp
+    face_recognizer_service.cpp
+    facemark_detector_service.cpp)
 
 set(HEADERS
-    detector_service.h
-    recognizer_service.h)
+    face_detector_service.h
+    face_recognizer_service.h
+    facemark_detector_service.h)
 
 add_library(${MODULE_NAME} STATIC ${SOURCES} ${HEADERS})
 

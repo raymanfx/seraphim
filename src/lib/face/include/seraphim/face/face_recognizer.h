@@ -14,9 +14,9 @@
 namespace sph {
 namespace face {
 
-class IRecognizer {
+class IFaceRecognizer {
 public:
-    virtual ~IRecognizer() = default;
+    virtual ~IFaceRecognizer() = default;
 
     struct Prediction {
         int label;
@@ -28,9 +28,6 @@ public:
     virtual bool predict(cv::InputArray img, std::vector<Prediction> &preds) = 0;
     virtual void update(cv::InputArrayOfArrays imgs, const std::vector<int> &labels,
                         bool invalidate = false) = 0;
-
-protected:
-    IRecognizer() = default;
 };
 
 } // namespace face

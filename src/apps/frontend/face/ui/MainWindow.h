@@ -38,8 +38,9 @@ public slots:
     void updateBuffer(const ICaptureStream::Buffer &buf);
 
     // qml slots for buttons
-    void faceButtonClicked(int label);
     void faceDetectionButtonClicked();
+    void facemarkDetectionButtonClicked();
+    void faceButtonClicked(int label);
     void faceRecognitionButtonClicked();
 
     // menu bar settings
@@ -67,8 +68,9 @@ private:
     // FaceID trainer
     int mFaceLabel;
     int mFaceTrainingSamples;
-    std::atomic<int> mFaceTraining;
     std::atomic<bool> mFaceDetection;
+    std::atomic<bool> mFacemarkDetection;
+    std::atomic<int> mFaceTraining;
     std::atomic<bool> mFaceRecognition;
     bool mFaceTrained;
 

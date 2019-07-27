@@ -8,20 +8,21 @@
 #ifndef SPH_FACE_RECOGNIZER_LBPH_H
 #define SPH_FACE_RECOGNIZER_LBPH_H
 
-#include "recognizer.h"
 #include <mutex>
 #include <opencv2/face.hpp>
 #include <opencv2/opencv.hpp>
 #include <seraphim/core/computable.h>
 #include <vector>
 
+#include "face_recognizer.h"
+
 namespace sph {
 namespace face {
 
-class LBPRecognizer : public IRecognizer, sph::core::IComputable {
+class LBPFaceRecognizer : public IFaceRecognizer, sph::core::IComputable {
 public:
-    LBPRecognizer();
-    ~LBPRecognizer() override;
+    LBPFaceRecognizer();
+    ~LBPFaceRecognizer() override;
 
     bool empty() const { return m_impl.empty(); }
     double getThreshold() const { return m_impl->getThreshold(); }

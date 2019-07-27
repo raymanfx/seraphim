@@ -5,6 +5,7 @@ package Seraphim;
 import "LaneDetector.proto";
 import "FaceDetector.proto";
 import "FaceRecognizer.proto";
+import "FacemarkDetector.proto";
 import "ObjectClassifier.proto";
 
 /*
@@ -27,15 +28,17 @@ message CarResponse {
 
 message FaceRequest {
   oneof req {
-    Face.Detector.Request detector = 1;
-    Face.Recognizer.Request recognizer = 2;
+    Face.FaceDetector.Request face_detector = 1;
+    Face.FaceRecognizer.Request face_recognizer = 2;
+    Face.FacemarkDetector.Request facemark_detector = 3;
   }
 }
 
 message FaceResponse {
   oneof req {
-    Face.Detector.Response detector = 1;
-    Face.Recognizer.Response recognizer = 2;
+    Face.FaceDetector.Response face_detector = 1;
+    Face.FaceRecognizer.Response face_recognizer = 2;
+    Face.FacemarkDetector.Response facemark_detector = 3;
   }
 }
 

@@ -5,21 +5,21 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "seraphim/face/lbp_recognizer.h"
+#include "seraphim/face/lbp_face_recognizer.h"
 
 using namespace sph::face;
 
-LBPRecognizer::LBPRecognizer() {
+LBPFaceRecognizer::LBPFaceRecognizer() {
     m_impl = cv::face::LBPHFaceRecognizer::create();
 
     m_target = TARGET_CPU;
 }
 
-LBPRecognizer::~LBPRecognizer() {
+LBPFaceRecognizer::~LBPFaceRecognizer() {
     // dummy
 }
 
-void LBPRecognizer::train(cv::InputArrayOfArrays imgs, const std::vector<int> &labels) {
+void LBPFaceRecognizer::train(cv::InputArrayOfArrays imgs, const std::vector<int> &labels) {
     std::vector<cv::Mat> gray_imgs;
 
     // invalidate old faces
@@ -45,8 +45,8 @@ void LBPRecognizer::train(cv::InputArrayOfArrays imgs, const std::vector<int> &l
     m_impl->train(gray_imgs, labels);
 }
 
-void LBPRecognizer::update(cv::InputArrayOfArrays imgs, const std::vector<int> &labels,
-                           bool invalidate) {
+void LBPFaceRecognizer::update(cv::InputArrayOfArrays imgs, const std::vector<int> &labels,
+                               bool invalidate) {
     std::vector<cv::Mat> gray_imgs;
     std::vector<cv::Mat> images;
 
@@ -94,7 +94,7 @@ void LBPRecognizer::update(cv::InputArrayOfArrays imgs, const std::vector<int> &
     }
 }
 
-bool LBPRecognizer::predict(cv::InputArray img, std::vector<Prediction> &preds) {
+bool LBPFaceRecognizer::predict(cv::InputArray img, std::vector<Prediction> &preds) {
     Prediction pred = {};
     cv::Mat gray;
     cv::UMat gray_umat;
@@ -149,7 +149,7 @@ bool LBPRecognizer::predict(cv::InputArray img, std::vector<Prediction> &preds) 
     return true;
 }
 
-bool LBPRecognizer::set_target(const target_t &target) {
+bool LBPFaceRecognizer::set_target(const target_t &target) {
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
     switch (target) {

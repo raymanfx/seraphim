@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package Seraphim.Face.Recognizer;
+package Seraphim.Face.FaceRecognizer;
 
 import "Types.proto";
 
