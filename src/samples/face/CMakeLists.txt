@@ -1,5 +1,6 @@
 set(SAMPLES
-    lbp_face_detector)
+    lbp_face_detector
+    lbf_facemark_detector)
 
 # OpenCV dependency
 find_package(OpenCV COMPONENTS opencv_core opencv_highgui opencv_imgproc opencv_videoio REQUIRED)
