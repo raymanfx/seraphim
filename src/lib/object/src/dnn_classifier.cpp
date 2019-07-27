@@ -10,6 +10,13 @@
 using namespace sph::object;
 
 DNNClassifier::DNNClassifier() {
+    m_blob_params = {};
+    m_blob_params.scalefactor = 1.0;
+    m_blob_params.size = cv::Size(300, 300);
+    m_blob_params.mean = cv::Scalar();
+    m_blob_params.swap_rb = false;
+    m_blob_params.crop = false;
+
     m_refresh_layer_names = false;
 }
 
@@ -82,7 +89,8 @@ bool DNNClassifier::predict(cv::InputArray img, std::vector<Prediction> &preds) 
     // create a 4D blob and feed it to the net
     // in most common cases, RGB images are used for training, but OpenCV always stores images in
     // BGR order, so we set swapRB to "true" by default
-    cv::dnn::blobFromImage(img, blob, 1.0, cv::Size(300, 300), cv::Scalar(), true /* swapRB */);
+    cv::dnn::blobFromImage(img, blob, m_blob_params.scalefactor, m_blob_params.size,
+                           m_blob_params.mean, m_blob_params.swap_rb, m_blob_params.crop);
     m_net.setInput(blob);
 
     // infer
@@ -92,9 +100,11 @@ bool DNNClassifier::predict(cv::InputArray img, std::vector<Prediction> &preds) 
     // get the output layer type
     //  MobileNet SSDv2: "DetectionOutput"
     //  YOLOv3: "Region"
+    //  Caffe: "DetectionOutput"
     out_layers = m_net.getUnconnectedOutLayers();
     out_layer_types.push_back(m_net.getLayer(out_layers[0])->type);
 
+    std::cout << "OUT LAYER NAME: " << out_layer_types[0] << std::endl;
     if (out_layer_types[0] == "DetectionOutput") {
         // Network produces output blob with a shape 1x1xNx7 where N is a number
         // of detections and an every detection is a vector of values [batchId,

@@ -31,6 +31,24 @@ public:
     ~DNNClassifier() override;
 
     /**
+     * @brief Parameters used for preparing input images.
+     */
+    struct BlobParameters {
+        /// input image scaling
+        double scalefactor;
+        /// input image resizing
+        cv::Size size;
+        /// mean substraction
+        cv::Scalar mean;
+        /// whether to swap R/B channels of the input image
+        bool swap_rb;
+        /// input image cropping
+        bool crop;
+    };
+
+    void set_blob_parameters(const struct BlobParameters &params) { m_blob_params = params; }
+
+    /**
      * @brief Read a network from a model and a config.
      * @param model Binary file containing trained weights.
      * @param config Text file containing network configuration.
@@ -65,7 +83,11 @@ public:
 private:
     /// Deep neural network
     cv::dnn::Net m_net;
-    /// Layer names have to be refreshed after \ref read_net was called.
+
+    /// Parameters for cv::blobFromImage
+    struct BlobParameters m_blob_params;
+
+    /// Layer names have to be refreshed after @ref read_net was called.
     bool m_refresh_layer_names;
 
     std::mutex m_target_mutex;
