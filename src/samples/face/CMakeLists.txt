@@ -1,4 +1,5 @@
 set(SAMPLES
+    hog_face_detector
     dnn_face_detector
     lbp_face_detector
     lbf_facemark_detector)

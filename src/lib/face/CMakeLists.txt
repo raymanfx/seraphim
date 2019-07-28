@@ -5,6 +5,7 @@ set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
     src/module.cpp
+    src/hog_face_detector.cpp
     src/lbp_face_detector.cpp
     src/lbp_face_recognizer.cpp
     src/lbf_facemark_detector.cpp
@@ -16,6 +17,7 @@ set(HEADERS
     include/seraphim/face/face_detector.h
     include/seraphim/face/face_recognizer.h
     include/seraphim/face/facemark_detector.h
+    include/seraphim/face/hog_face_detector.h
     include/seraphim/face/lbf_facemark_detector.h
     include/seraphim/face/lbp_face_detector.h
     include/seraphim/face/lbp_face_recognizer.h
@@ -42,6 +44,10 @@ target_include_directories(${MODULE_NAME} PUBLIC
 find_package(OpenCV COMPONENTS opencv_core opencv_face opencv_imgproc REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_face opencv_imgproc)
+
+# dlib dependency
+find_library(DLIB_LIBRARY dlib)
+target_link_libraries(${MODULE_NAME} PUBLIC dlib)
 
 target_link_libraries(${MODULE_NAME} PUBLIC seraphim_core)
 
