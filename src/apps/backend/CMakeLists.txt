@@ -1,6 +1,6 @@
 # We include OpenCV headers in some classes, so make sure we include their
 # locations globally during compilation.
-find_package(OpenCV COMPONENTS opencv_core opencv_face REQUIRED)
+find_package(OpenCV COMPONENTS opencv_core REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 set(COMPONENT_NAME seraphim_services)
