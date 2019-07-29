@@ -23,6 +23,11 @@ static bool Image2QImage(const Image &src, QImage &dst) {
 
     // https://doc.qt.io/qt-5/qvideoframe.html#PixelFormat-enum
     switch (src.pixelformat()) {
+    case Image::Pixelformat::FMT_BGR24:
+        dst = QImage(bytes, static_cast<int>(src.width()), static_cast<int>(src.height()),
+                     QImage::Format_RGB888)
+                  .rgbSwapped();
+        break;
     case Image::Pixelformat::FMT_RGB24:
         dst = QImage(bytes, static_cast<int>(src.width()), static_cast<int>(src.height()),
                      QImage::Format_RGB888);
@@ -30,8 +35,7 @@ static bool Image2QImage(const Image &src, QImage &dst) {
     case Image::Pixelformat::FMT_MJPG:
         dst = QImage::fromData(bytes, static_cast<int>(src.data_size()), "mjpeg");
         break;
-    case Image::Pixelformat::FMT_YUYV:
-    case Image::Pixelformat::FMT_CUSTOM:
+    default:
         return false;
     }
 

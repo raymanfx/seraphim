@@ -22,6 +22,10 @@ static bool Image2Mat(const Image &src, cv::Mat &dst) {
 
     // https://github.com/opencv/opencv/blob/master/modules/videoio/src/cap_v4l.cpp
     switch (src.pixelformat()) {
+    case Image::Pixelformat::FMT_BGR24:
+        dst = cv::Mat(static_cast<int>(src.height()), static_cast<int>(src.width()), CV_8UC3,
+                      const_cast<void *>(src.data()));
+        break;
     case Image::Pixelformat::FMT_RGB24:
         cv::cvtColor(cv::Mat(static_cast<int>(src.height()), static_cast<int>(src.width()), CV_8UC3,
                              const_cast<void *>(src.data())),
@@ -37,7 +41,7 @@ static bool Image2Mat(const Image &src, cv::Mat &dst) {
             cv::Mat(1, static_cast<int>(src.data_size()), CV_8U, const_cast<void *>(src.data())),
             cv::IMREAD_COLOR, &dst);
         break;
-    case Image::Pixelformat::FMT_CUSTOM:
+    default:
         return false;
     }
 

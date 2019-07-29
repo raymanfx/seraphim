@@ -40,6 +40,7 @@ public:
 
     enum class Pixelformat {
         /* RGB formats */
+        FMT_BGR24 = fourcc('B', 'G', 'R', '3'),
         FMT_RGB24 = fourcc('R', 'G', 'B', '3'),
         /* Luminance Chrominance formats */
         FMT_YUYV = fourcc('Y', 'U', 'Y', 'V'),
