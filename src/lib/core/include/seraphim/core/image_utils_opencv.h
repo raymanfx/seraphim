@@ -49,10 +49,36 @@ static bool Image2Mat(const Image &src, cv::Mat &dst) {
 }
 
 static bool Mat2Image(cv::InputArray src, Image &dst) {
-    // TODO: implement
-    (void)src;
-    (void)dst;
-    return false;
+    cv::Mat mat;
+    sph::core::Image::Pixelformat fmt = sph::core::Image::Pixelformat::FMT_CUSTOM;
+
+    if (src.isMat()) {
+        mat = src.getMat();
+    } else if (src.isUMat()) {
+        mat = src.getUMat().getMat(cv::ACCESS_READ);
+    } else {
+        return false;
+    }
+
+    if (mat.empty()) {
+        return false;
+    }
+
+    // OpenCV images are always BGR
+    switch (mat.elemSize()) {
+    case 3:
+        if (mat.channels() == 3) {
+            fmt = sph::core::Image::Pixelformat::FMT_BGR24;
+        }
+        break;
+    default:
+        break;
+    }
+
+    dst = Image(static_cast<uint32_t>(mat.cols), static_cast<uint32_t>(mat.rows), 3 /* channels */);
+    dst.wrap_data(mat.data, mat.total() * mat.elemSize(), fmt);
+
+    return true;
 }
 
 } // namespace core
