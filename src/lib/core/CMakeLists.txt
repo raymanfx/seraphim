@@ -11,7 +11,8 @@ set(HEADERS
     include/seraphim/core/computable.h
     include/seraphim/core/image.h
     include/seraphim/core/image_buffer.h
-    include/seraphim/core/module.h)
+    include/seraphim/core/module.h
+    include/seraphim/core/polygon.h)
 
 # utilities that depend on 3rdparty libs
 find_package(OpenCV COMPONENTS opencv_core)
