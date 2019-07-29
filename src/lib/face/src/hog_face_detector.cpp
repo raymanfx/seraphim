@@ -7,9 +7,12 @@
 
 #include <dlib/image_io.h>
 #include <dlib/opencv/cv_image.h>
+#include <seraphim/core/image_utils_opencv.h>
+#include <seraphim/core/polygon.h>
 
 #include "seraphim/face/hog_face_detector.h"
 
+using namespace sph::core;
 using namespace sph::face;
 
 HOGFaceDetector::HOGFaceDetector() {
@@ -22,26 +25,24 @@ HOGFaceDetector::~HOGFaceDetector() {
     // dummy
 }
 
-bool HOGFaceDetector::detect_faces(cv::InputArray img, cv::OutputArray ROIs) {
+bool HOGFaceDetector::detect_faces(const Image &img, std::vector<Polygon<>> &faces) {
     // http://dlib.net/face_detection_ex.cpp.html
     dlib::array2d<dlib::bgr_pixel> dlib_bgr_image;
     dlib::array2d<unsigned char> dlib_gray_image;
     std::vector<dlib::rectangle> dets;
-    std::vector<cv::Rect> faces;
+    cv::Mat mat;
 
-    if (!img.isMat()) {
+    if (!Image2Mat(img, mat)) {
         return false;
     }
 
     // convert from cv to dlib image
-    switch (img.channels()) {
+    switch (mat.channels()) {
     case 1:
-        dlib::assign_image(dlib_gray_image,
-                           dlib::cv_image<unsigned char>(img.getMat()));
+        dlib::assign_image(dlib_gray_image, dlib::cv_image<unsigned char>(mat));
         break;
     case 3:
-        dlib::assign_image(dlib_bgr_image,
-                           dlib::cv_image<dlib::bgr_pixel>(img.getMat()));
+        dlib::assign_image(dlib_bgr_image, dlib::cv_image<dlib::bgr_pixel>(mat));
         break;
     default:
         return false;
@@ -56,7 +57,7 @@ bool HOGFaceDetector::detect_faces(cv::InputArray img, cv::OutputArray ROIs) {
     // again to find even smaller faces, but note that every time we
     // upsample the image we make the detector run slower since it must
     // process a larger image.
-    switch (img.channels()) {
+    switch (mat.channels()) {
     case 1:
         dlib::pyramid_up(dlib_gray_image);
         break;
@@ -69,7 +70,7 @@ bool HOGFaceDetector::detect_faces(cv::InputArray img, cv::OutputArray ROIs) {
 
     // Now tell the face detector to give us a list of bounding boxes
     // around all the faces it can find in the image.
-    switch (img.channels()) {
+    switch (mat.channels()) {
     case 1:
         dets = m_detector(dlib_gray_image);
         break;
@@ -81,11 +82,13 @@ bool HOGFaceDetector::detect_faces(cv::InputArray img, cv::OutputArray ROIs) {
     }
 
     for (auto const &box : dets) {
-        faces.push_back(cv::Rect(cv::Point(box.bl_corner().x(), box.bl_corner().y()),
-                                 cv::Point(box.tr_corner().x(), box.tr_corner().y())));
+        faces.emplace_back(Polygon<>(
+            { { static_cast<int>(box.bl_corner().x()), static_cast<int>(box.bl_corner().y()) },
+              { static_cast<int>(box.tl_corner().x()), static_cast<int>(box.tl_corner().y()) },
+              { static_cast<int>(box.tr_corner().x()), static_cast<int>(box.tr_corner().y()) },
+              { static_cast<int>(box.br_corner().x()), static_cast<int>(box.br_corner().y()) } }));
     }
 
-    cv::Mat(faces).copyTo(ROIs);
     return true;
 }
 

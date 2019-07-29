@@ -5,10 +5,13 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include <seraphim/core/image_utils_opencv.h>
+#include <seraphim/core/polygon.h>
 #include <utils.h>
 
 #include "face_detector_service.h"
 
+using namespace sph::core;
 using namespace sph::face;
 
 FaceDetectorService::FaceDetectorService(std::shared_ptr<sph::face::IFaceDetector> detector) {
@@ -32,15 +35,16 @@ bool FaceDetectorService::handle_request(const Seraphim::Request &req, Seraphim:
 bool FaceDetectorService::handle_detection_request(
     const Seraphim::Face::FaceDetector::DetectionRequest &req,
     Seraphim::Face::FaceDetector::DetectionResponse &res) {
-    cv::Mat image;
-    std::vector<cv::Rect> faces;
+    Image image(0, 0, 0);
+    std::vector<Polygon<>> faces;
+    cv::Mat mat;
     cv::Rect2i roi;
 
-    if (!sph::backend::Image2DtoMat(req.image(), image)) {
+    if (!sph::backend::Image2DtoMat(req.image(), mat)) {
         return false;
     }
 
-    roi = cv::Rect2i(0, 0, image.cols, image.rows);
+    roi = cv::Rect2i(0, 0, mat.cols, mat.rows);
 
     if (req.has_roi()) {
         roi.x = req.roi().x();
@@ -49,14 +53,19 @@ bool FaceDetectorService::handle_detection_request(
         roi.height = req.roi().h();
     }
 
-    m_detector->detect_faces(image(roi), faces);
+    mat = mat(roi);
+    if (!Mat2Image(mat, image)) {
+        return false;
+    }
 
-    for (size_t i = 0; i < faces.size(); i++) {
+    m_detector->detect_faces(image, faces);
+
+    for (const auto &poly : faces) {
         Seraphim::Types::Region2D *face = res.add_faces();
-        face->set_x(faces[i].x);
-        face->set_y(faces[i].y);
-        face->set_w(faces[i].width);
-        face->set_h(faces[i].height);
+        face->set_x(poly.bl().x);
+        face->set_y(poly.bl().y);
+        face->set_w(poly.width());
+        face->set_h(poly.height());
     }
 
     return true;

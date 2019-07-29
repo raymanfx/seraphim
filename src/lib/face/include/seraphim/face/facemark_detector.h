@@ -8,7 +8,8 @@
 #ifndef SPH_FACEMARK_DETECTOR_H
 #define SPH_FACEMARK_DETECTOR_H
 
-#include <opencv2/opencv.hpp>
+#include <seraphim/core/image.h>
+#include <seraphim/core/polygon.h>
 #include <vector>
 
 namespace sph {
@@ -28,10 +29,11 @@ public:
      */
     struct Facemarks {
         /// all the point positions for each facemark of a face
-        std::vector<std::pair<FacemarkType, std::vector<cv::Point>>> landmarks;
+        std::vector<std::pair<FacemarkType, std::vector<sph::core::Polygon<>::Point>>> landmarks;
     };
 
-    virtual bool detect_facemarks(cv::InputArray img, cv::InputArray faces,
+    virtual bool detect_facemarks(const sph::core::Image &img,
+                                  const std::vector<sph::core::Polygon<>> &faces,
                                   std::vector<Facemarks> &facemarks) = 0;
 };
 

@@ -9,6 +9,8 @@
 #include <getopt.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/videoio.hpp>
+#include <seraphim/core/image_utils_opencv.h>
+#include <seraphim/core/polygon.h>
 #include <seraphim/face/lbf_facemark_detector.h>
 #include <seraphim/face/lbp_face_detector.h>
 
@@ -85,8 +87,9 @@ int main(int argc, char **argv) {
     std::shared_ptr<LBPFaceDetector> face_detector =
         std::shared_ptr<LBPFaceDetector>(new LBPFaceDetector());
     LBFFacemarkDetector facemark_detector(face_detector);
-    std::vector<cv::Rect> faces;
+    std::vector<sph::core::Polygon<>> faces;
     std::vector<IFacemarkDetector::Facemarks> facemarks;
+    sph::core::Image image(0, 0, 0);
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;
     std::chrono::high_resolution_clock::time_point t_frame_captured;
@@ -160,9 +163,14 @@ int main(int argc, char **argv) {
 
         faces.clear();
         facemarks.clear();
-        face_detector->detect_faces(frame, faces);
+        if (!sph::core::Mat2Image(frame, image)) {
+            std::cout << "[ERROR] Failed to convert Mat to Image" << std::endl;
+            continue;
+        }
+
+        face_detector->detect_faces(image, faces);
         if (faces.size() > 0) {
-            facemark_detector.detect_facemarks(frame, faces, facemarks);
+            facemark_detector.detect_facemarks(image, faces, facemarks);
         }
         process_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                            std::chrono::high_resolution_clock::now() - t_frame_captured)
@@ -171,7 +179,7 @@ int main(int argc, char **argv) {
         for (const auto &face : facemarks) {
             for (const auto &landmark : face.landmarks) {
                 for (const auto &point : landmark.second) {
-                    cv::circle(frame, point, 1, cv::Scalar(0, 255, 0), 2);
+                    cv::circle(frame, cv::Point(point.x, point.y), 1, cv::Scalar(0, 255, 0), 2);
                 }
             }
         }

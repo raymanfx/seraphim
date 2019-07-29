@@ -5,8 +5,12 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include <seraphim/core/image_utils_opencv.h>
+#include <seraphim/core/polygon.h>
+
 #include "seraphim/face/lbp_face_recognizer.h"
 
+using namespace sph::core;
 using namespace sph::face;
 
 LBPFaceRecognizer::LBPFaceRecognizer() {
@@ -19,7 +23,8 @@ LBPFaceRecognizer::~LBPFaceRecognizer() {
     // dummy
 }
 
-void LBPFaceRecognizer::train(cv::InputArrayOfArrays imgs, const std::vector<int> &labels) {
+void LBPFaceRecognizer::train(const std::vector<sph::core::Image> &imgs,
+                              const std::vector<int> &labels) {
     std::vector<cv::Mat> gray_imgs;
 
     // invalidate old faces
@@ -27,7 +32,11 @@ void LBPFaceRecognizer::train(cv::InputArrayOfArrays imgs, const std::vector<int
 
     // deep copy of new faces
     for (size_t i = 0; i < labels.size(); i++) {
-        imgs.getMatVector(m_faces[labels[i]]);
+        cv::Mat tmp;
+        if (!Image2Mat(imgs[i], tmp)) {
+            return;
+        }
+        m_faces[labels[i]].push_back(tmp);
     }
 
     // convert to 8-bit single channel if necessary
@@ -45,19 +54,21 @@ void LBPFaceRecognizer::train(cv::InputArrayOfArrays imgs, const std::vector<int
     m_impl->train(gray_imgs, labels);
 }
 
-void LBPFaceRecognizer::update(cv::InputArrayOfArrays imgs, const std::vector<int> &labels,
-                               bool invalidate) {
+void LBPFaceRecognizer::update(const std::vector<sph::core::Image> &imgs,
+                               const std::vector<int> &labels, bool invalidate) {
     std::vector<cv::Mat> gray_imgs;
-    std::vector<cv::Mat> images;
 
     // convert to 8-bit single channel if necessary
-    imgs.getMatVector(images);
-    for (const auto &face_img : images) {
+    for (const auto &face_img : imgs) {
+        cv::Mat mat;
+        if (!Image2Mat(face_img, mat)) {
+            return;
+        }
         gray_imgs.push_back(cv::Mat());
-        if (face_img.channels() > 1) {
-            cv::cvtColor(face_img, gray_imgs[gray_imgs.size() - 1], cv::COLOR_BGR2GRAY);
+        if (mat.channels() > 1) {
+            cv::cvtColor(mat, gray_imgs[gray_imgs.size() - 1], cv::COLOR_BGR2GRAY);
         } else {
-            gray_imgs[gray_imgs.size() - 1] = face_img;
+            gray_imgs[gray_imgs.size() - 1] = mat;
         }
     }
 
@@ -94,27 +105,29 @@ void LBPFaceRecognizer::update(cv::InputArrayOfArrays imgs, const std::vector<in
     }
 }
 
-bool LBPFaceRecognizer::predict(cv::InputArray img, std::vector<Prediction> &preds) {
+bool LBPFaceRecognizer::predict(const sph::core::Image &img, std::vector<Prediction> &preds) {
     Prediction pred = {};
     cv::Mat gray;
     cv::UMat gray_umat;
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
     // preprocessing stage: create the appropriate input buffer
+    if (!Image2Mat(img, gray)) {
+        return false;
+    }
+
     // convert to 8-bit single channel if necessary
     switch (m_target) {
     case TARGET_CPU:
-        if (img.channels() > 1) {
-            cv::cvtColor(img, gray, cv::COLOR_BGR2GRAY);
-        } else {
-            gray = img.getMat(cv::ACCESS_READ);
+        if (gray.channels() > 1) {
+            cv::cvtColor(gray, gray, cv::COLOR_BGR2GRAY);
         }
         break;
     case TARGET_OPENCL:
-        if (img.channels() > 1) {
-            cv::cvtColor(img, gray_umat, cv::COLOR_BGR2GRAY);
+        if (gray.channels() > 1) {
+            cv::cvtColor(gray, gray_umat, cv::COLOR_BGR2GRAY);
         } else {
-            gray_umat = img.getUMat(cv::ACCESS_READ | cv::ACCESS_FAST);
+            gray_umat = gray.getUMat(cv::ACCESS_READ | cv::ACCESS_FAST);
         }
         break;
     default:
@@ -123,7 +136,10 @@ bool LBPFaceRecognizer::predict(cv::InputArray img, std::vector<Prediction> &pre
     }
 
     preds.clear();
-    pred.rect = cv::Rect();
+
+    // TODO: add rectangular region prediction
+    Polygon<>::Point p = { 0, 0 };
+    pred.poly = Polygon<>({ p, p, p, p });
 
     if (m_faces.size() == 0) {
         return false;

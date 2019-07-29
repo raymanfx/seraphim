@@ -5,10 +5,12 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include <seraphim/core/image_utils_opencv.h>
 #include <utils.h>
 
 #include "facemark_detector_service.h"
 
+using namespace sph::core;
 using namespace sph::face;
 
 FacemarkDetectorService::FacemarkDetectorService(
@@ -36,16 +38,17 @@ bool FacemarkDetectorService::handle_request(const Seraphim::Request &req,
 bool FacemarkDetectorService::handle_detection_request(
     const Seraphim::Face::FacemarkDetector::DetectionRequest &req,
     Seraphim::Face::FacemarkDetector::DetectionResponse &res) {
-    cv::Mat image;
-    std::vector<cv::Rect> faces;
+    Image image(0, 0, 0);
+    std::vector<Polygon<>> faces;
+    cv::Mat mat;
     std::vector<sph::face::IFacemarkDetector::Facemarks> facemarks;
     cv::Rect2i roi;
 
-    if (!sph::backend::Image2DtoMat(req.image(), image)) {
+    if (!sph::backend::Image2DtoMat(req.image(), mat)) {
         return false;
     }
 
-    roi = cv::Rect2i(0, 0, image.cols, image.rows);
+    roi = cv::Rect2i(0, 0, mat.cols, mat.rows);
 
     if (req.has_roi()) {
         roi.x = req.roi().x();
@@ -54,15 +57,19 @@ bool FacemarkDetectorService::handle_detection_request(
         roi.height = req.roi().h();
     }
 
-    m_face_detector->detect_faces(image(roi), faces);
-    m_facemark_detector->detect_facemarks(image(roi), faces, facemarks);
+    mat = mat(roi);
+    if (!Mat2Image(mat, image)) {
+        return false;
+    }
 
-    for (size_t i = 0; i < faces.size(); i++) {
+    m_face_detector->detect_faces(image, faces);
+    m_facemark_detector->detect_facemarks(image, faces, facemarks);
+    for (const auto &poly : faces) {
         Seraphim::Types::Region2D *face = res.add_faces();
-        face->set_x(faces[i].x);
-        face->set_y(faces[i].y);
-        face->set_w(faces[i].width);
-        face->set_h(faces[i].height);
+        face->set_x(poly.bl().x);
+        face->set_y(poly.bl().y);
+        face->set_w(poly.width());
+        face->set_h(poly.height());
     }
 
     for (const auto &face : facemarks) {

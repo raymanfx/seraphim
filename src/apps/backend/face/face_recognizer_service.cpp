@@ -5,11 +5,13 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include <seraphim/core/image_utils_opencv.h>
 #include <seraphim/face/utils.h>
 #include <utils.h>
 
 #include "face_recognizer_service.h"
 
+using namespace sph::core;
 using namespace sph::face;
 
 FaceRecognizerService::FaceRecognizerService(
@@ -46,11 +48,17 @@ bool FaceRecognizerService::handle_request(const Seraphim::Request &req, Seraphi
 bool FaceRecognizerService::handle_training_request(
     const Seraphim::Face::FaceRecognizer::TrainingRequest &req,
     Seraphim::Face::FaceRecognizer::TrainingResponse &res) {
-    cv::Mat image;
-    std::vector<cv::Mat> images;
+    Image image(0, 0, 0);
+    std::vector<Image> images;
+    std::vector<Polygon<>> faces;
+    cv::Mat mat;
     std::vector<int> labels;
 
-    if (!sph::backend::Image2DtoMat(req.image(), image)) {
+    if (!sph::backend::Image2DtoMat(req.image(), mat)) {
+        return false;
+    }
+
+    if (!Mat2Image(mat, image)) {
         return false;
     }
 
@@ -60,10 +68,9 @@ bool FaceRecognizerService::handle_training_request(
     cv::Mat alignedFace;
     cv::RotatedRect alignedROI;
 
-    image.copyTo(alignedFace);
+    mat.copyTo(alignedFace);
 
     // compute centers of the eyes
-    std::vector<cv::Rect> faces;
     std::vector<IFacemarkDetector::Facemarks> facemarks;
     std::vector<cv::Point2f> eyes;
     m_face_detector->detect_faces(image, faces);
@@ -73,10 +80,10 @@ bool FaceRecognizerService::handle_training_request(
     } else {
         Seraphim::Types::Region2D *face = res.mutable_face();
 
-        face->set_x(faces.at(0).x);
-        face->set_y(faces.at(0).y);
-        face->set_w(faces.at(0).width);
-        face->set_h(faces.at(0).height);
+        face->set_x(faces.at(0).bl().x);
+        face->set_y(faces.at(0).bl().y);
+        face->set_w(faces.at(0).width());
+        face->set_h(faces.at(0).height());
 
         // search in the region of the previously detected face
         m_facemark_detector->detect_facemarks(image, faces, facemarks);
@@ -109,7 +116,10 @@ bool FaceRecognizerService::handle_training_request(
         std::cout << "rot angle: " << angle << std::endl;
 
         // rotate the face ROI by the same angle
-        alignedROI = cv::RotatedRect((faces[0].br() + faces[0].tl()) * 0.5, faces[0].size(),
+        alignedROI = cv::RotatedRect((cv::Point(faces[0].br().x, faces[0].br().y) +
+                                      cv::Point(faces[0].tl().x, faces[0].tl().y)) *
+                                         0.5,
+                                     cv::Size(faces[0].width(), faces[0].height()),
                                      static_cast<float>(angle));
 
         if (alignedROI.boundingRect().width > alignedFace.size().width ||
@@ -122,7 +132,10 @@ bool FaceRecognizerService::handle_training_request(
         // bounding rect
         alignedFace = alignedFace(alignedROI.boundingRect());
 
-        images.push_back(alignedFace);
+        if (!Mat2Image(alignedFace, image)) {
+            return false;
+        }
+        images.push_back(image);
         m_face_recognizer->update(images, labels, req.invalidate());
         res.set_label(req.label());
     }
@@ -133,16 +146,17 @@ bool FaceRecognizerService::handle_training_request(
 bool FaceRecognizerService::handle_recognition_request(
     const Seraphim::Face::FaceRecognizer::RecognitionRequest &req,
     Seraphim::Face::FaceRecognizer::RecognitionResponse &res) {
-    cv::Mat image;
-    std::vector<cv::Rect> faces;
+    Image image(0, 0, 0);
+    std::vector<Polygon<>> faces;
+    cv::Mat mat;
     cv::Rect2i roi;
     std::vector<sph::face::IFaceRecognizer::Prediction> preds;
 
-    if (!sph::backend::Image2DtoMat(req.image(), image)) {
+    if (!sph::backend::Image2DtoMat(req.image(), mat)) {
         return false;
     }
 
-    roi = cv::Rect2i(0, 0, image.cols, image.rows);
+    roi = cv::Rect2i(0, 0, mat.cols, mat.rows);
 
     if (req.has_roi()) {
         roi.x = req.roi().x();
@@ -151,9 +165,19 @@ bool FaceRecognizerService::handle_recognition_request(
         roi.height = req.roi().h();
     }
 
-    m_face_detector->detect_faces(image(roi), faces);
+    mat = mat(roi);
+    if (!Mat2Image(mat, image)) {
+        return false;
+    }
+
+    m_face_detector->detect_faces(image, faces);
     for (size_t i = 0; i < faces.size(); i++) {
-        m_face_recognizer->predict(image(faces[i]), preds);
+        cv::Rect face_region(faces[i].bl().x, faces[i].bl().y, faces[i].width(), faces[i].height());
+        if (!Mat2Image(mat(face_region), image)) {
+            return false;
+        }
+
+        m_face_recognizer->predict(image, preds);
         Seraphim::Types::Region2D *roi = res.add_rois();
         for (size_t j = 0; j < preds.size(); j++) {
             // filter results if a global threshold is set
@@ -164,10 +188,10 @@ bool FaceRecognizerService::handle_recognition_request(
 
             res.add_labels(preds.at(j).label);
             res.add_distances(preds.at(j).confidence);
-            roi->set_x(faces.at(i).x);
-            roi->set_y(faces.at(i).y);
-            roi->set_w(faces.at(i).width);
-            roi->set_h(faces.at(i).height);
+            roi->set_x(faces.at(0).bl().x);
+            roi->set_y(faces.at(0).bl().y);
+            roi->set_w(faces.at(0).width());
+            roi->set_h(faces.at(0).height());
         }
     }
 

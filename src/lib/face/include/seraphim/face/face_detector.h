@@ -8,7 +8,8 @@
 #ifndef SPH_FACE_DETECTOR_H
 #define SPH_FACE_DETECTOR_H
 
-#include <opencv2/opencv.hpp>
+#include <seraphim/core/image.h>
+#include <seraphim/core/polygon.h>
 #include <vector>
 
 namespace sph {
@@ -18,7 +19,8 @@ class IFaceDetector {
 public:
     virtual ~IFaceDetector() = default;
 
-    virtual bool detect_faces(cv::InputArray img, cv::OutputArray faces) = 0;
+    virtual bool detect_faces(const sph::core::Image &img,
+                              std::vector<sph::core::Polygon<>> &faces) = 0;
 
     float confidence_threshold() const { return m_confidence_threshold; }
     void set_confidence_threshold(const float &threshold) { m_confidence_threshold = threshold; }

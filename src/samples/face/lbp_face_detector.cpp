@@ -9,6 +9,8 @@
 #include <getopt.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/videoio.hpp>
+#include <seraphim/core/image_utils_opencv.h>
+#include <seraphim/core/polygon.h>
 #include <seraphim/face/lbp_face_detector.h>
 
 using namespace sph::face;
@@ -80,7 +82,8 @@ int main(int argc, char **argv) {
     int camera_index = 0;
     std::string cascade_path;
     ::LBPFaceDetector detector;
-    std::vector<cv::Rect> faces;
+    std::vector<sph::core::Polygon<>> faces;
+    sph::core::Image image(0, 0, 0);
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;
     std::chrono::high_resolution_clock::time_point t_frame_captured;
@@ -144,13 +147,19 @@ int main(int argc, char **argv) {
                          .count();
 
         faces.clear();
-        detector.detect_faces(frame, faces);
+        if (!sph::core::Mat2Image(frame, image)) {
+            std::cout << "[ERROR] Failed to convert Mat to Image" << std::endl;
+            continue;
+        }
+
+        detector.detect_faces(image, faces);
         process_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                            std::chrono::high_resolution_clock::now() - t_frame_captured)
                            .count();
 
-        for (const auto &rect : faces) {
-            cv::rectangle(frame, rect, cv::Scalar(0, 255, 0), 2);
+        for (const auto &poly : faces) {
+            cv::rectangle(frame, cv::Rect(poly.bl().x, poly.bl().y, poly.width(), poly.height()),
+                          cv::Scalar(0, 255, 0), 2);
         }
 
         fps = 1000 / std::chrono::duration_cast<std::chrono::milliseconds>(

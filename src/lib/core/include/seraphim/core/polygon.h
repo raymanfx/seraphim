@@ -178,16 +178,12 @@ public:
      * @brief Width of the polygon.
      * @return Width as type T.
      */
-    T width() const {
-        return br().x - bl().x;
-    }
+    T width() const { return br().x - bl().x; }
     /**
      * @brief Height of the polygon.
      * @return Height as type T.
      */
-    T height() const {
-        return tl().y - bl().y;
-    }
+    T height() const { return tl().y - bl().y; }
     /**
      * @brief Bounding rectangle.
      * @return Rectangle as polygon with type T.

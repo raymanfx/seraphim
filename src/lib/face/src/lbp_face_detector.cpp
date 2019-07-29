@@ -6,7 +6,9 @@
  */
 
 #include "seraphim/face/lbp_face_detector.h"
+#include "seraphim/core/image_utils_opencv.h"
 
+using namespace sph::core;
 using namespace sph::face;
 
 LBPFaceDetector::LBPFaceDetector() {
@@ -81,12 +83,31 @@ bool LBPFaceDetector::load_face_cascade(const std::string &path) {
     return m_face_cascade.load(path);
 }
 
-bool LBPFaceDetector::detect_faces(cv::InputArray img, cv::OutputArray ROIs) {
+bool LBPFaceDetector::detect_faces(const Image &img, std::vector<Polygon<>> &faces) {
+    cv::Mat mat;
+    std::vector<cv::Rect> faces_;
+
     if (m_face_cascade.empty()) {
         return false;
     }
 
-    return face_cascade_impl(img, ROIs);
+    if (!Image2Mat(img, mat)) {
+        return false;
+    }
+
+    if (!face_cascade_impl(mat, faces_)) {
+        return false;
+    }
+
+    faces.clear();
+    for (const auto &rect : faces_) {
+        faces.emplace_back(Polygon<>({ { rect.x, rect.y },
+                                       { rect.x, rect.y + rect.height },
+                                       { rect.x + rect.width, rect.y },
+                                       { rect.x + rect.width, rect.y + rect.height } }));
+    }
+
+    return true;
 }
 
 bool LBPFaceDetector::set_target(const target_t &target) {

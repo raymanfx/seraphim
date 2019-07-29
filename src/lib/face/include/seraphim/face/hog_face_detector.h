@@ -11,6 +11,7 @@
 #include <dlib/image_processing/frontal_face_detector.h>
 #include <mutex>
 #include <seraphim/core/computable.h>
+#include <seraphim/core/polygon.h>
 #include <vector>
 
 #include "face_detector.h"
@@ -23,7 +24,8 @@ public:
     HOGFaceDetector();
     ~HOGFaceDetector() override;
 
-    bool detect_faces(cv::InputArray img, cv::OutputArray faces) override;
+    bool detect_faces(const sph::core::Image &img,
+                      std::vector<sph::core::Polygon<>> &faces) override;
 
     bool set_target(const target_t &target) override;
 

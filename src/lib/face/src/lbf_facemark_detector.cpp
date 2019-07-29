@@ -6,7 +6,9 @@
  */
 
 #include "seraphim/face/lbf_facemark_detector.h"
+#include "seraphim/core/image_utils_opencv.h"
 
+using namespace sph::core;
 using namespace sph::face;
 
 static constexpr std::pair<IFacemarkDetector::FacemarkType, std::pair<size_t, size_t>>
@@ -42,8 +44,10 @@ bool LBFFacemarkDetector::load_facemark_model(const std::string &path) {
     return true;
 }
 
-bool LBFFacemarkDetector::detect_facemarks(cv::InputArray img, cv::InputArray faces,
+bool LBFFacemarkDetector::detect_facemarks(const sph::core::Image &img,
+                                           const std::vector<sph::core::Polygon<>> &faces,
                                            std::vector<Facemarks> &facemarks) {
+    std::vector<cv::Rect> faces_;
     std::vector<std::vector<cv::Point2f>> landmarks;
     cv::Mat mat;
     cv::UMat umat;
@@ -55,21 +59,18 @@ bool LBFFacemarkDetector::detect_facemarks(cv::InputArray img, cv::InputArray fa
     // prepare the compute buffer
     switch (m_target) {
     case TARGET_CPU:
-        if (img.isMat()) {
-            mat = img.getMat();
-        } else {
-            img.copyTo(mat);
+        if (!Image2Mat(img, mat)) {
+            return false;
         }
         break;
     case TARGET_OPENCL:
-        if (img.isUMat()) {
-            umat = img.getUMat(cv::ACCESS_READ);
-        } else {
-            img.copyTo(umat);
+        if (!Image2Mat(img, mat)) {
+            return false;
         }
+        mat.copyTo(umat);
         break;
     default:
-        break;
+        return false;
     }
 
     if (m_facemark_impl.empty()) {
@@ -78,24 +79,24 @@ bool LBFFacemarkDetector::detect_facemarks(cv::InputArray img, cv::InputArray fa
         return false;
     }
 
+    for (const auto &poly : faces) {
+        faces_.emplace_back(cv::Rect(poly.bl().x, poly.bl().y, poly.width(), poly.height()));
+    }
+
     // perform the actual detection
     switch (m_target) {
     case TARGET_CPU:
-        if (!m_facemark_impl->fit(mat, faces, landmarks)) {
+        if (!m_facemark_impl->fit(mat, faces_, landmarks)) {
             return false;
         }
         break;
     case TARGET_OPENCL:
-        if (!m_facemark_impl->fit(umat, faces, landmarks)) {
+        if (!m_facemark_impl->fit(umat, faces_, landmarks)) {
             return false;
         }
         break;
     default:
-        // make no assumptions and compute right on the input data
-        if (!m_facemark_impl->fit(img, faces, landmarks)) {
-            return false;
-        }
-        break;
+        return false;
     }
 
     facemarks.clear();
@@ -103,10 +104,11 @@ bool LBFFacemarkDetector::detect_facemarks(cv::InputArray img, cv::InputArray fa
         Facemarks marks;
 
         for (const auto &elem : Facemark_LUT) {
-            std::vector<cv::Point> points;
+            std::vector<sph::core::Polygon<>::Point> points;
 
             for (size_t i = elem.second.first; i <= elem.second.second; i++) {
-                points.push_back(facepoints[i]);
+                points.push_back(
+                    { static_cast<int>(facepoints[i].x), static_cast<int>(facepoints[i].y) });
             }
             marks.landmarks.emplace_back(std::make_pair(elem.first, points));
         }

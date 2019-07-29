@@ -10,6 +10,7 @@
 
 #include <Types.pb.h>
 #include <opencv2/core/mat.hpp>
+#include <seraphim/core/image.h>
 
 namespace sph {
 namespace backend {

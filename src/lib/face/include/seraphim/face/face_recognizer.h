@@ -8,7 +8,8 @@
 #ifndef SPH_FACE_RECOGNIZER_H
 #define SPH_FACE_RECOGNIZER_H
 
-#include <opencv2/opencv.hpp>
+#include <seraphim/core/image.h>
+#include <seraphim/core/polygon.h>
 #include <vector>
 
 namespace sph {
@@ -20,13 +21,14 @@ public:
 
     struct Prediction {
         int label;
-        cv::Rect rect;
+        sph::core::Polygon<> poly;
         double confidence;
     };
 
-    virtual void train(cv::InputArrayOfArrays imgs, const std::vector<int> &labels) = 0;
-    virtual bool predict(cv::InputArray img, std::vector<Prediction> &preds) = 0;
-    virtual void update(cv::InputArrayOfArrays imgs, const std::vector<int> &labels,
+    virtual void train(const std::vector<sph::core::Image> &imgs,
+                       const std::vector<int> &labels) = 0;
+    virtual bool predict(const sph::core::Image &img, std::vector<Prediction> &preds) = 0;
+    virtual void update(const std::vector<sph::core::Image> &imgs, const std::vector<int> &labels,
                         bool invalidate = false) = 0;
 };
 
