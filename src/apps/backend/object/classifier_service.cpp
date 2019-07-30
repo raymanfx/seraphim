@@ -5,6 +5,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include <seraphim/core/image_utils_opencv.h>
 #include <utils.h>
 
 #include "classifier_service.h"
@@ -32,15 +33,16 @@ bool ClassifierService::handle_request(const Seraphim::Request &req, Seraphim::R
 bool ClassifierService::handle_classification_request(
     const Seraphim::Object::Classifier::ClassificationRequest &req,
     Seraphim::Object::Classifier::ClassificationResponse &res) {
-    cv::Mat image;
+    sph::core::Image image(0, 0, 0);
+    cv::Mat mat;
     cv::Rect2i roi;
     std::vector<sph::object::Classifier::Prediction> predictions;
 
-    if (!sph::backend::Image2DtoMat(req.image(), image)) {
+    if (!sph::backend::Image2DtoMat(req.image(), mat)) {
         return false;
     }
 
-    roi = cv::Rect2i(0, 0, image.cols, image.rows);
+    roi = cv::Rect2i(0, 0, mat.cols, mat.rows);
 
     if (req.has_roi()) {
         roi.x = req.roi().x();
@@ -49,7 +51,12 @@ bool ClassifierService::handle_classification_request(
         roi.height = req.roi().h();
     }
 
-    m_recognizer->predict(image(roi), predictions);
+    mat = mat(roi);
+    if (!sph::core::Mat2Image(mat, image)) {
+        return false;
+    }
+
+    m_recognizer->predict(image, predictions);
     for (size_t i = 0; i < predictions.size(); i++) {
         // filter results if a global threshold is set
         if (req.confidence() > 0.0f && predictions[i].confidence < req.confidence()) {
@@ -59,10 +66,10 @@ bool ClassifierService::handle_classification_request(
         res.add_labels(predictions[i].class_id);
         res.add_confidences(predictions[i].confidence);
         Seraphim::Types::Region2D *roi = res.add_rois();
-        roi->set_x(predictions[i].rect.x);
-        roi->set_y(predictions[i].rect.y);
-        roi->set_w(predictions[i].rect.width);
-        roi->set_h(predictions[i].rect.height);
+        roi->set_x(predictions[i].poly.bl().x);
+        roi->set_y(predictions[i].poly.bl().y);
+        roi->set_w(predictions[i].poly.width());
+        roi->set_h(predictions[i].poly.height());
     }
 
     return true;

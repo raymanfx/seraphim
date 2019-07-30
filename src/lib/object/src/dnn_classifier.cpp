@@ -6,7 +6,9 @@
  */
 
 #include "seraphim/object/dnn_classifier.h"
+#include "seraphim/core/image_utils_opencv.h"
 
+using namespace sph::core;
 using namespace sph::object;
 
 DNNClassifier::DNNClassifier() {
@@ -73,7 +75,8 @@ bool DNNClassifier::set_target(const target_t &target) {
     return true;
 }
 
-bool DNNClassifier::predict(cv::InputArray img, std::vector<Prediction> &preds) {
+bool DNNClassifier::predict(const Image &img, std::vector<Prediction> &preds) {
+    cv::Mat mat;
     cv::Mat blob;
     std::vector<cv::Mat> outputs;
     std::vector<int> out_layers;
@@ -84,12 +87,16 @@ bool DNNClassifier::predict(cv::InputArray img, std::vector<Prediction> &preds) 
     std::vector<cv::Rect> boxes;
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
+    if (!Image2Mat(img, mat)) {
+        return false;
+    }
+
     preds.clear();
 
     // create a 4D blob and feed it to the net
     // in most common cases, RGB images are used for training, but OpenCV always stores images in
     // BGR order, so we set swapRB to "true" by default
-    cv::dnn::blobFromImage(img, blob, m_blob_params.scalefactor, m_blob_params.size,
+    cv::dnn::blobFromImage(mat, blob, m_blob_params.scalefactor, m_blob_params.size,
                            m_blob_params.mean, m_blob_params.swap_rb, m_blob_params.crop);
     m_net.setInput(blob);
 
@@ -120,10 +127,10 @@ bool DNNClassifier::predict(cv::InputArray img, std::vector<Prediction> &preds) 
                 int width = right - left + 1;
                 int height = bottom - top + 1;
                 if (width * height <= 1) {
-                    left = static_cast<int>(data[i + 3] * img.cols());
-                    top = static_cast<int>(data[i + 4] * img.rows());
-                    right = static_cast<int>(data[i + 5] * img.cols());
-                    bottom = static_cast<int>(data[i + 6] * img.rows());
+                    left = static_cast<int>(data[i + 3] * mat.cols);
+                    top = static_cast<int>(data[i + 4] * mat.rows);
+                    right = static_cast<int>(data[i + 5] * mat.cols);
+                    bottom = static_cast<int>(data[i + 6] * mat.rows);
                     width = right - left + 1;
                     height = bottom - top + 1;
                 }
@@ -144,10 +151,10 @@ bool DNNClassifier::predict(cv::InputArray img, std::vector<Prediction> &preds) 
                 cv::Point class_id_point;
                 double confidence;
                 minMaxLoc(scores, nullptr, &confidence, nullptr, &class_id_point);
-                int centerX = static_cast<int>(data[0] * img.cols());
-                int centerY = static_cast<int>(data[1] * img.rows());
-                int width = static_cast<int>(data[2] * img.cols());
-                int height = static_cast<int>(data[3] * img.rows());
+                int centerX = static_cast<int>(data[0] * mat.cols);
+                int centerY = static_cast<int>(data[1] * mat.rows);
+                int width = static_cast<int>(data[2] * mat.cols);
+                int height = static_cast<int>(data[3] * mat.rows);
                 int left = centerX - width / 2;
                 int top = centerY - height / 2;
 
@@ -169,7 +176,11 @@ bool DNNClassifier::predict(cv::InputArray img, std::vector<Prediction> &preds) 
         Prediction pred = {};
         pred.class_id = class_ids[idx];
         pred.confidence = confidences[idx];
-        pred.rect = boxes[idx];
+        pred.poly =
+            Polygon<>({ { boxes[idx].x, boxes[idx].y },
+                        { boxes[idx].x, boxes[idx].y + boxes[idx].height },
+                        { boxes[idx].x + boxes[idx].width, boxes[idx].y },
+                        { boxes[idx].x + boxes[idx].width, boxes[idx].y + boxes[idx].height } });
         preds.push_back(pred);
     }
 

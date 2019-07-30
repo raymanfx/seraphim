@@ -78,7 +78,7 @@ public:
 
     bool set_target(const target_t &target) override;
 
-    bool predict(cv::InputArray img, std::vector<Prediction> &preds) override;
+    bool predict(const sph::core::Image &img, std::vector<Prediction> &preds) override;
 
 private:
     /// Deep neural network

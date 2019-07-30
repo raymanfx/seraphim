@@ -9,6 +9,8 @@
 #include <getopt.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/videoio.hpp>
+#include <seraphim/core/image_utils_opencv.h>
+#include <seraphim/core/polygon.h>
 #include <seraphim/object/dnn_classifier.h>
 
 static bool main_loop = true;
@@ -82,6 +84,7 @@ int main(int argc, char **argv) {
     std::string model_config_path;
     sph::object::DNNClassifier classifier;
     std::vector<sph::object::Classifier::Prediction> predictions;
+    sph::core::Image image(0, 0, 0);
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;
     std::chrono::high_resolution_clock::time_point t_frame_captured;
@@ -151,7 +154,12 @@ int main(int argc, char **argv) {
                          .count();
 
         predictions.clear();
-        classifier.predict(frame, predictions);
+        if (!sph::core::Mat2Image(frame, image)) {
+            std::cout << "[ERROR] Failed to convert Mat to Image" << std::endl;
+            continue;
+        }
+
+        classifier.predict(image, predictions);
         process_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                            std::chrono::high_resolution_clock::now() - t_frame_captured)
                            .count();
@@ -171,15 +179,18 @@ int main(int argc, char **argv) {
                     color = cv::Scalar(0, 0, 255);
                 }
 
-                cv::rectangle(frame, pred.rect.br(), pred.rect.tl(), color, 2);
+                cv::rectangle(frame,
+                              cv::Rect(pred.poly.bl().x, pred.poly.bl().y, pred.poly.width(),
+                                       pred.poly.height()),
+                              cv::Scalar(0, 255, 0), 2);
                 std::string label = cv::format("%.2f", pred.confidence);
                 // if (MOBILENET_V2_COCO_2018_03_29.find(classId) !=
                 // MOBILENET_V2_COCO_2018_03_29.end()) {
                 //    label = MOBILENET_V2_COCO_2018_03_29.at(classId) + ": " + label;
                 //}
                 int baseLine;
-                int top = pred.rect.y;
-                int left = pred.rect.x;
+                int top = pred.poly.tl().y;
+                int left = pred.poly.tl().x;
                 cv::Size labelSize =
                     cv::getTextSize(label, cv::FONT_HERSHEY_DUPLEX, 1.0, 1, &baseLine);
                 top = cv::max(top, labelSize.height);

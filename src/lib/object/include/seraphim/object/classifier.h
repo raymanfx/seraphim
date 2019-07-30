@@ -8,7 +8,8 @@
 #ifndef SPH_OBJECT_CLASSIFIER_H
 #define SPH_OBJECT_CLASSIFIER_H
 
-#include <opencv2/opencv.hpp>
+#include <seraphim/core/image.h>
+#include <seraphim/core/polygon.h>
 #include <vector>
 
 namespace sph {
@@ -31,8 +32,8 @@ public:
     struct Prediction {
         /// class id (taken from the dataset that was used in @ref predict)
         int class_id;
-        /// bounding rectangle, relative to the input image
-        cv::Rect rect;
+        /// bounding polygon, relative to the input image
+        sph::core::Polygon<> poly;
         /// confidence (value between 0 and 1)
         float confidence;
     };
@@ -43,7 +44,7 @@ public:
      * @param preds Output vector containing @ref Prediction instances.
      * @return Whether prediction was successful.
      */
-    virtual bool predict(cv::InputArray img, std::vector<Prediction> &preds) = 0;
+    virtual bool predict(const sph::core::Image &img, std::vector<Prediction> &preds) = 0;
 
 protected:
     Classifier() = default;
