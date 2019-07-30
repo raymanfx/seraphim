@@ -21,8 +21,10 @@ static struct option long_opts[] = {
     { "help", no_argument, 0, 'h' },         { 0, 0, 0, 0 }
 };
 
-static char const *long_opts_desc[] = { "Camera index", "Model config path", "Model path",
-                                        "Show help" };
+static char const *long_opts_desc[] = { "Camera index",
+                                        "Detection threshold",
+                                        "Model config path",
+                                        "Model path", "Show help" };
 
 static void print_usage(int print_description) {
     unsigned int max_name_len = 0, max_desc_len = 0;
