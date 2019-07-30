@@ -41,7 +41,7 @@ static void print_usage(int print_description) {
         }
     }
 
-    printf("%s\n\n", "ez_lane_detector [flags]");
+    printf("%s\n\n", "dnn_classifier [flags]");
     for (size_t i = 0; i < sizeof(long_opts) / sizeof(long_opts[0]) - 1; i++) {
         const struct option opt = long_opts[i];
 
