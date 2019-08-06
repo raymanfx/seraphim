@@ -8,60 +8,109 @@
 #ifndef SPH_CORE_IMAGE_H
 #define SPH_CORE_IMAGE_H
 
-#include <vector>
-
 #include "image_buffer.h"
 
 namespace sph {
 namespace core {
 
 /**
- * @brief Image class, represents an image buffer with additional metadata.
+ * @brief Image interface.
  *
- * An image can have two dimensions (flat camera image), three dimensions (stereo camera image) or
- * any arbitrary number of dimensions really, as long as their meaning is defined.
- * For now, only 2D images are supported.
+ * An image always has two dimensions for the time being.
+ * If you need more dimensions, you should create a new class and describe the third dimension
+ * in a meaningful way (e.g. time, pixel (voxel), etc).
  */
-class Image : public ImageBuffer {
+class IImage {
 public:
-    Image(const size_t &width, const size_t &height, const int &channels);
-    ~Image();
+    virtual ~IImage() = default;
 
-    struct Metadata {
-        /// image channels, e.g. 1 for a grayscale image
-        int channels;
-        /// image dimensions, [0] -> x-axis, [1] -> y-axis, etc
-        std::vector<size_t> dimensions;
+    /**
+     * @brief Check whether the buffer is empty.
+     * @return True if no buffer is set.
+     */
+    virtual bool empty() const = 0;
+
+    /**
+     * @brief Width of the image.
+     * @return Width in pixels.
+     */
+    virtual size_t width() const = 0;
+
+    /**
+     * @brief Height of the image.
+     * @return Height in pixels.
+     */
+    virtual size_t height() const = 0;
+
+    /**
+     * @brief The number of bits for each channel.
+     *        E.g. for RGB32 this would return 32.
+     * @return
+     */
+    virtual int depth() const = 0;
+
+    /**
+     * @brief The number of channels of the image.
+     * @return 1 for grayscale, 3 for BGR, 4 for BGRA.
+     */
+    virtual int channels() const = 0;
+
+    /**
+     * @brief RGB Pixel data.
+     */
+    struct RGBPixel {
+        /// red [0, 255]
+        int r;
+        /// green [0, 255]
+        int g;
+        /// blue [0, 255]
+        int b;
+        /// transparency, 0 is opaque, 255 is transparent
+        int a;
     };
 
     /**
-     * @brief Convenience API, checks whether all dimensions have size zero.
-     * @return True if the image has no size, false otherwise.
+     * @brief Read RGB pixel intensities at the specified offsets.
+     * @param x X offset.
+     * @param y Y offset.
+     * @return Pixel intensities.
      */
-    bool empty() const;
+    virtual struct RGBPixel rgb(const uint32_t &x, const uint32_t &y) const = 0;
+};
+
+/**
+ * @brief Image reference implementation class, buffered image with additional metadata.
+ *
+ * The buffer can either load (hold) data which means it owns it or assign data, which means
+ * the data was gathered from any memory location and may be used, but not altered.
+ */
+class Image : public IImage {
+public:
+    Image() = default;
+    explicit Image(const ImageBuffer &buf);
+
+    bool empty() const override { return m_buffer.empty(); }
+    size_t width() const override { return m_buffer.format().width; }
+    size_t height() const override { return m_buffer.format().height; }
+    int depth() const override;
+    int channels() const override;
+    struct RGBPixel rgb(const uint32_t &x, const uint32_t &y) const override;
 
     /**
-     * @brief Convenience API, checks whether the image is valid.
-     * @return True if the image has a backing buffer, valid dimensions, false otherwise.
+     * @brief Const reference to the underlying pixel buffer.
+     * @return The pixel buffer instance.
      */
-    bool valid() const;
+    const ImageBuffer &buffer() const { return m_buffer; }
 
     /**
-     * @brief Convenience API, returns the size of the first dimension (x axis).
-     * @return Size in pixels.
+     * @brief Mutable reference to the underlying pixel buffer.
+     * @return The pixel buffer instance.
      */
-    size_t width() const { return m_metadata.dimensions.size() > 0 ? m_metadata.dimensions[0] : 0; }
-
-    /**
-     * @brief Convenience API, returns the size of the second dimension (y axis).
-     * @return Size in pixels.
-     */
-    size_t height() const {
-        return m_metadata.dimensions.size() > 1 ? m_metadata.dimensions[1] : 0;
-    }
+    ImageBuffer &mutable_buffer() { return m_buffer; }
 
 private:
-    struct Metadata m_metadata;
+    /// buffer to hold the underlying pixel data
+    ImageBuffer m_buffer;
 };
 
 } // namespace core

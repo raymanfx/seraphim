@@ -5,35 +5,34 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SPH_CORE_IMAGE_UTILS_QT_H
-#define SPH_CORE_IMAGE_UTILS_QT_H
+#ifndef SPH_FRONTEND_IMAGE_UTILS_QT_H
+#define SPH_FRONTEND_IMAGE_UTILS_QT_H
 
 #include <QImage>
 #include <seraphim/core/image.h>
 
 namespace sph {
-namespace core {
+namespace frontend {
 
-static bool Image2QImage(const Image &src, QImage &dst) {
-    const uchar *bytes = static_cast<const uchar *>(src.data());
+static bool Image2QImage(const sph::core::Image &src, QImage &dst) {
+    const uchar *bytes = static_cast<const uchar *>(src.buffer().data());
 
-    if (!src.valid()) {
+    if (src.empty()) {
         return false;
     }
 
     // https://doc.qt.io/qt-5/qvideoframe.html#PixelFormat-enum
-    switch (src.pixelformat()) {
-    case Image::Pixelformat::FMT_BGR24:
+    switch (src.buffer().format().pixfmt) {
+    case sph::core::ImageBuffer::Pixelformat::BGR24:
+    case sph::core::ImageBuffer::Pixelformat::BGR32:
         dst = QImage(bytes, static_cast<int>(src.width()), static_cast<int>(src.height()),
                      QImage::Format_RGB888)
                   .rgbSwapped();
         break;
-    case Image::Pixelformat::FMT_RGB24:
+    case sph::core::ImageBuffer::Pixelformat::RGB24:
+    case sph::core::ImageBuffer::Pixelformat::RGB32:
         dst = QImage(bytes, static_cast<int>(src.width()), static_cast<int>(src.height()),
                      QImage::Format_RGB888);
-        break;
-    case Image::Pixelformat::FMT_MJPG:
-        dst = QImage::fromData(bytes, static_cast<int>(src.data_size()), "mjpeg");
         break;
     default:
         return false;
@@ -42,14 +41,14 @@ static bool Image2QImage(const Image &src, QImage &dst) {
     return true;
 }
 
-static bool QImage2Image(QImage &src, Image &dst) {
+static bool QImage2Image(QImage &src, sph::core::Image &dst) {
     // TODO: implement
     (void)src;
     (void)dst;
     return false;
 }
 
-} // namespace core
+} // namespace frontend
 } // namespace sph
 
-#endif // SPH_CORE_IMAGE_UTILS_QT_H
+#endif // SPH_FRONTEND_IMAGE_UTILS_QT_H

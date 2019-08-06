@@ -14,11 +14,17 @@
 #include "utils.h"
 
 bool sph::backend::Image2DtoImage(const Seraphim::Types::Image2D &src, sph::core::Image &dst) {
-    sph::core::Image img(src.width(), src.height(), 3 /* channels */);
-    sph::core::Image::Pixelformat fmt = sph::core::Image::as_pixelformat(src.fourcc());
+    sph::core::Image img;
+    sph::core::ImageBuffer::Format fmt = {};
 
-    if (!img.wrap_data(const_cast<void *>(reinterpret_cast<const void *>(src.data().c_str())),
-                       src.data().size(), fmt)) {
+    fmt.width = src.width();
+    fmt.height = src.height();
+    fmt.pixfmt = sph::core::ImageBuffer::as_pixelformat(src.fourcc());
+
+    if (!img.mutable_buffer().assign(
+            const_cast<unsigned char *>(
+                reinterpret_cast<const unsigned char *>(src.data().c_str())),
+            fmt, false)) {
         return false;
     }
 
@@ -28,11 +34,9 @@ bool sph::backend::Image2DtoImage(const Seraphim::Types::Image2D &src, sph::core
 
 bool sph::backend::Image2DtoMat(const Seraphim::Types::Image2D &src, cv::Mat &dst) {
     // create intermediate wrapper
-    sph::core::Image img(src.width(), src.height(), 3 /* channels */);
-    sph::core::Image::Pixelformat fmt = sph::core::Image::as_pixelformat(src.fourcc());
+    sph::core::Image img;
 
-    if (!img.wrap_data(const_cast<void *>(reinterpret_cast<const void *>(src.data().c_str())),
-                       src.data().size(), fmt)) {
+    if (!Image2DtoImage(src, img)) {
         return false;
     }
 

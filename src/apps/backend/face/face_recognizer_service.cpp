@@ -48,7 +48,7 @@ bool FaceRecognizerService::handle_request(const Seraphim::Request &req, Seraphi
 bool FaceRecognizerService::handle_training_request(
     const Seraphim::Face::FaceRecognizer::TrainingRequest &req,
     Seraphim::Face::FaceRecognizer::TrainingResponse &res) {
-    Image image(0, 0, 0);
+    Image image;
     std::vector<Image> images;
     std::vector<Polygon<>> faces;
     cv::Mat mat;
@@ -146,7 +146,7 @@ bool FaceRecognizerService::handle_training_request(
 bool FaceRecognizerService::handle_recognition_request(
     const Seraphim::Face::FaceRecognizer::RecognitionRequest &req,
     Seraphim::Face::FaceRecognizer::RecognitionResponse &res) {
-    Image image(0, 0, 0);
+    Image image;
     std::vector<Polygon<>> faces;
     cv::Mat mat;
     cv::Rect2i roi;

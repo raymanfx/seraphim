@@ -13,23 +13,13 @@
 #include <cstring>
 #include <string>
 
+#include "image_buffer_converter.h"
+
 namespace sph {
 namespace core {
 
-static inline constexpr uint32_t fourcc(const char &a, const char &b, const char &c,
-                                        const char &d) {
-    return ((static_cast<uint32_t>(a) << 0) | (static_cast<uint32_t>(b) << 8) |
-            (static_cast<uint32_t>(c) << 16) | (static_cast<uint32_t>(d) << 24));
-}
-
-static inline std::string fourcc_str(uint32_t fourcc) {
-    char str[4];
-    std::strncpy(str, reinterpret_cast<char *>(&fourcc), 4);
-    return std::string(str);
-}
-
 /**
- * @brief Image buffer class, represents an object consisting of pixels.
+ * @brief Image buffer class, represents an object consisting of uncompressed pixels.
  * The pixelbuffer format is represented by a four character code similar
  * to Linux v4l2: https://linuxtv.org/downloads/v4l-dvb-apis/uapi/v4l/pixfmt.html.
  */
@@ -38,69 +28,50 @@ public:
     ImageBuffer();
     ~ImageBuffer();
 
+    /**
+     * @brief Pixelformat of an image buffer.
+     * This is basically a listing of our internal types that we know and support.
+     * That means we know the bits per pixel and other such properties.
+     */
     enum class Pixelformat {
         /* RGB formats */
-        FMT_BGR24 = fourcc('B', 'G', 'R', '3'),
-        FMT_RGB24 = fourcc('R', 'G', 'B', '3'),
+        BGR24,
+        BGR32,
+        RGB24,
+        RGB32,
         /* Luminance Chrominance formats */
-        FMT_YUYV = fourcc('Y', 'U', 'Y', 'V'),
-        /* Compressed formats */
-        FMT_MJPG = fourcc('M', 'J', 'P', 'G'),
+        Y16,
         /* Unspecified format */
-        FMT_CUSTOM
+        UNKNOWN
     };
 
     /**
      * @brief Convert an arbitrary four character code to a known pixelformat.
-     * If none of the internal formats can be matched, FMT_CUSTOM is used.
+     * If none of the internal formats can be matched, FMT_UNKNOWN is used.
      * @param fourcc The four character code.
      * @return A known format or FMT_CUSTOM if we cannot handle it.
      */
     static Pixelformat as_pixelformat(const uint32_t &fourcc);
 
     /**
-     * @brief Copy an image buffer so this instance owns the data.
-     * @param src Address of the source buffer.
-     * @param len Length of the source buffer.
-     * @param fmt Pixelformat of the source buffer.
-     * @return True on success, false otherwise.
+     * @brief Image format description.
      */
-    bool copy_data(void *src, const size_t &len, const Pixelformat &fmt);
-
-    /**
-     * @brief Wrap an image buffer and optionally pass ownership to the instance.
-     * @param src Address of the source buffer.
-     * @param len Length of the source buffer.
-     * @param fmt Pixelformat of the source buffer.
-     * @param ownership Whether the image instance shall own the data (and free it later).
-     * @return True on success, false otherwise.
-     */
-    bool wrap_data(void *src, const size_t &len, const Pixelformat &fmt,
-                   const bool &ownership = false);
-
-    /**
-     * @brief Pointer to the internal pixel buffer.
-     * @return Pixel buffer as bytes.
-     */
-    const void *data() const { return m_data; }
-
-    /**
-     * @brief Internal pixel buffer size.
-     * @return Pixel buffer size in bytes.
-     */
-    size_t data_size() const { return m_data_size; }
-
-    /**
-     * @brief Buffer pixelformat description.
-     * @return @ref Pixelformat.
-     */
-    Pixelformat pixelformat() const { return m_pixelformat; }
+    struct Format {
+        /// width in pixels
+        uint32_t width;
+        /// height in pixels
+        uint32_t height;
+        /// pixel row padding
+        uint32_t padding = 0;
+        /// pixelformat
+        Pixelformat pixfmt = Pixelformat::UNKNOWN;
+    };
 
     /**
      * @brief Check whether the buffer is empty.
      * @return True if no buffer is set or its size is zero.
      */
-    bool empty() const { return (m_data == nullptr) || (m_data_size == 0); }
+    bool empty() const { return (m_data == nullptr) || (m_size == 0); }
 
     /**
      * @brief Yields information on whether or not the instance holds allocated pixel data.
@@ -108,16 +79,89 @@ public:
      */
     bool owns_data() const { return m_data_owned; }
 
+    /**
+     * @brief Clear the buffer, freeing any allocated resources.
+     */
+    void reset();
+
+    /**
+     * @brief Copy an image buffer so this instance owns the data.
+     * @param src Address of the source buffer.
+     * @param fmt Pixelformat of the source buffer.
+     * @return True on success, false otherwise.
+     */
+    bool load(unsigned char *src, const Format &fmt);
+
+    /**
+     * @brief Copy an image buffer so this instance owns the data.
+     *        Convert the buffer if necessary prior to loading it.
+     * @param src Address of the source buffer.
+     * @param src_fmt Pixelformat of the source buffer.
+     * @param pixfmt Pixelformat of the target buffer.
+     * @return True on success, false otherwise.
+     */
+    bool load(unsigned char *src, const ImageBufferConverter::SourceFormat &src_fmt,
+              const Pixelformat &pixfmt);
+
+    /**
+     * @brief Wrap an image buffer and optionally pass ownership to the instance.
+     * @param src Address of the source buffer.
+     * @param fmt Pixelformat of the source buffer.
+     * @param ownership Whether the image instance shall own the data (and free it later).
+     * @return True on success, false otherwise.
+     */
+    bool assign(unsigned char *src, const Format &fmt, const bool &ownership = false);
+
+    /**
+     * @brief Pointer to the internal pixel buffer.
+     * @return Pixel buffer as bytes.
+     */
+    const unsigned char *data() const { return m_data; }
+
+    /**
+     * @brief Internal pixel buffer size.
+     * @return Pixel buffer size in bytes.
+     */
+    size_t size() const { return m_size; }
+
+    /**
+     * @brief Buffer format description.
+     * @return @ref Format struct.
+     */
+    Format format() const { return m_format; }
+
+    /**
+     * @brief Get the scanline position in memory.
+     * @param y Y offset.
+     * @return Pixel scanline address in memory.
+     */
+    unsigned char *scanline(const uint32_t &y) const;
+
+    /**
+     * @brief Get the pixel position in memory.
+     * @param x X offset.
+     * @param y Y offset.
+     * @return Pixel address in memory.
+     */
+    unsigned char *pixel(const uint32_t &x, const uint32_t &y) const;
+
+    /**
+     * @brief Convert between internal formats.
+     * @param target Target pixel format.
+     * @return True on success, false otherwise.
+     */
+    bool convert(const Pixelformat &target);
+
 protected:
     /// pixel buffer address, must reside in host memory (DRAM) for now
-    void *m_data;
+    unsigned char *m_data;
     /// size of the pixel buffer in bytes
-    size_t m_data_size;
+    size_t m_size;
     /// whether the instance owns the buffer
     bool m_data_owned;
 
-    /// buffer pixel format
-    Pixelformat m_pixelformat;
+    /// buffer format
+    Format m_format;
 };
 
 } // namespace core

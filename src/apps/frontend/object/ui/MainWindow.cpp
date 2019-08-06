@@ -2,10 +2,10 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <ImageUtilsQt.h>
 #include <QCameraCaptureStream/QCameraCaptureStream.h>
 #include <Seraphim.pb.h>
 #include <seraphim/core/image.h>
-#include <seraphim/core/image_utils_qt.h>
 #include <seraphim/ipc/transport_factory.h>
 
 #include "MainWindow.h"
@@ -188,14 +188,19 @@ void MainWindow::updateBuffer(const ICaptureStream::Buffer &buf) {
     mCaptureBuffer = buf;
 
     // get the QImage wrapper representation
-    sph::core::Image img(buf.format.width, buf.format.height, 3 /* channels */);
-    sph::core::Image::Pixelformat fmt = sph::core::Image::as_pixelformat(buf.format.fourcc);
+    sph::core::Image img;
+    sph::core::ImageBuffer::Format fmt = {};
 
-    if (!img.wrap_data(buf.start, buf.bytesused, fmt)) {
+    fmt.width = buf.format.width;
+    fmt.height = buf.format.height;
+    fmt.padding = 0;
+    fmt.pixfmt = sph::core::ImageBuffer::as_pixelformat(buf.format.fourcc);
+
+    if (!img.mutable_buffer().assign(static_cast<unsigned char *>(buf.start), fmt, false)) {
         return;
     }
 
-    if (!sph::core::Image2QImage(img, mFrame)) {
+    if (!sph::frontend::Image2QImage(img, mFrame)) {
         return;
     }
 }

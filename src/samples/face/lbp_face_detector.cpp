@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
     std::string cascade_path;
     ::LBPFaceDetector detector;
     std::vector<sph::core::Polygon<>> faces;
-    sph::core::Image image(0, 0, 0);
+    sph::core::Image image;
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;
     std::chrono::high_resolution_clock::time_point t_frame_captured;

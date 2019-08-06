@@ -5,36 +5,20 @@ set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
     src/image.cpp
-    src/image_buffer.cpp)
+    src/image_buffer.cpp
+    src/image_buffer_converter.cpp)
 
 set(HEADERS
     include/seraphim/core/computable.h
+    include/seraphim/core/fourcc.h
     include/seraphim/core/image.h
     include/seraphim/core/image_buffer.h
+    include/seraphim/core/image_buffer_converter.h
+    include/seraphim/core/image_utils_opencv.h
     include/seraphim/core/module.h
     include/seraphim/core/polygon.h)
 
-# utilities that depend on 3rdparty libs
-find_package(OpenCV COMPONENTS opencv_core)
-if (OpenCV_FOUND)
-    set(HEADERS ${HEADERS} include/seraphim/core/image_utils_opencv.h)
-endif ()
-find_package(Qt5 COMPONENTS Multimedia)
-if (Qt5_FOUND)
-    set(HEADERS ${HEADERS} include/seraphim/core/image_utils_qt.h)
-endif ()
-
 add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})
-
-# utilities that depend on 3rdparty libs
-find_package(OpenCV COMPONENTS opencv_core)
-if (OpenCV_FOUND)
-    target_link_libraries(${MODULE_NAME} PUBLIC opencv_core)
-endif ()
-find_package(Qt5 COMPONENTS Multimedia)
-if (Qt5_FOUND)
-    target_link_libraries(${MODULE_NAME} PUBLIC Qt5::Multimedia)
-endif ()
 
 # set the shared lib name
 set_target_properties(${MODULE_NAME} PROPERTIES OUTPUT_NAME ${MODULE_NAME})

@@ -32,7 +32,7 @@ bool HOGFaceDetector::detect_faces(const Image &img, std::vector<Polygon<>> &fac
     std::vector<dlib::rectangle> dets;
     cv::Mat mat;
 
-    if (!Image2Mat(img, mat)) {
+    if (!sph::core::Image2Mat(img, mat)) {
         return false;
     }
 

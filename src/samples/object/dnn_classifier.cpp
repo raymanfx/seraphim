@@ -21,9 +21,7 @@ static struct option long_opts[] = {
     { "help", no_argument, 0, 'h' },         { 0, 0, 0, 0 }
 };
 
-static char const *long_opts_desc[] = { "Camera index",
-                                        "Detection threshold",
-                                        "Model config path",
+static char const *long_opts_desc[] = { "Camera index", "Detection threshold", "Model config path",
                                         "Model path", "Show help" };
 
 static void print_usage(int print_description) {
@@ -86,7 +84,7 @@ int main(int argc, char **argv) {
     std::string model_config_path;
     sph::object::DNNClassifier classifier;
     std::vector<sph::object::Classifier::Prediction> predictions;
-    sph::core::Image image(0, 0, 0);
+    sph::core::Image image;
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;
     std::chrono::high_resolution_clock::time_point t_frame_captured;

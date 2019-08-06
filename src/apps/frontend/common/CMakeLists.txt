@@ -10,6 +10,7 @@ set(SOURCES
 
 set(HEADERS
     ICaptureStream/ICaptureStream.h
+    ImageUtilsQt.h
     QCameraCaptureStream/QCameraCaptureStream.h
     QImageProvider/QImageProvider.h
     QVideoCaptureStream/QVideoCaptureStream.h)
@@ -35,3 +36,5 @@ target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 # Qt components
 find_package(Qt5 COMPONENTS Core Multimedia Quick REQUIRED)
 target_link_libraries(${MODULE_NAME} PRIVATE Qt5::Core Qt5::Multimedia Qt5::Quick)
+
+target_link_libraries(${MODULE_NAME} PRIVATE seraphim_core)
