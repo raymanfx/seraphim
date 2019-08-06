@@ -74,104 +74,80 @@ public:
      * @return Point as set of coordinates with type T.
      */
     Point bl() const {
-        T smallest_x;
-        T smallest_y;
+        Point p = m_points[0];
+        Polygon rect = bounding_rect();
+        Point rect_bl = rect.points()[0];
 
-        if (m_points.size() == 0) {
-            return { smallest_x, smallest_y };
-        }
-
-        smallest_x = m_points[0].x;
-        smallest_y = m_points[0].y;
-
-        for (const auto &p : m_points) {
-            if (smallest_x > p.x) {
-                smallest_x = p.x;
-            }
-            if (smallest_y > p.y) {
-                smallest_y = p.y;
+        for (const auto &p_ : m_points) {
+            // metric: absolute distance to bounding rect
+            T cur_dist = std::abs(p.x - rect_bl.x) + std::abs(p.y - rect_bl.y);
+            T new_dist = std::abs(p_.x - rect_bl.x) + std::abs(p_.y - rect_bl.y);
+            if (new_dist < cur_dist) {
+                p = p_;
             }
         }
 
-        return { smallest_x, smallest_y };
+        return p;
     }
     /**
      * @brief Top left point.
      * @return Point as set of coordinates with type T.
      */
     Point tl() const {
-        T smallest_x;
-        T largest_y;
+        Point p = m_points[0];
+        Polygon rect = bounding_rect();
+        Point rect_tl = rect.points()[1];
 
-        if (m_points.size() == 0) {
-            return { smallest_x, largest_y };
-        }
-
-        smallest_x = m_points[0].x;
-        largest_y = m_points[0].y;
-
-        for (const auto &p : m_points) {
-            if (smallest_x > p.x) {
-                smallest_x = p.x;
-            }
-            if (largest_y < p.y) {
-                largest_y = p.y;
+        for (const auto &p_ : m_points) {
+            // metric: absolute distance to bounding rect
+            T cur_dist = std::abs(p.x - rect_tl.x) + std::abs(p.y - rect_tl.y);
+            T new_dist = std::abs(p_.x - rect_tl.x) + std::abs(p_.y - rect_tl.y);
+            if (new_dist < cur_dist) {
+                p = p_;
             }
         }
 
-        return { smallest_x, largest_y };
+        return p;
     }
     /**
      * @brief Top right point.
      * @return Point as set of coordinates with type T.
      */
     Point tr() const {
-        T largest_x;
-        T largest_y;
+        Point p = m_points[0];
+        Polygon rect = bounding_rect();
+        Point rect_tr = rect.points()[2];
 
-        if (m_points.size() == 0) {
-            return { largest_x, largest_y };
-        }
-
-        largest_x = m_points[0].x;
-        largest_y = m_points[0].y;
-
-        for (const auto &p : m_points) {
-            if (largest_x < p.x) {
-                largest_x = p.x;
-            }
-            if (largest_y < p.y) {
-                largest_y = p.y;
+        for (const auto &p_ : m_points) {
+            // metric: absolute distance to bounding rect
+            T cur_dist = std::abs(p.x - rect_tr.x) + std::abs(p.y - rect_tr.y);
+            T new_dist = std::abs(p_.x - rect_tr.x) + std::abs(p_.y - rect_tr.y);
+            if (new_dist < cur_dist) {
+                p = p_;
             }
         }
 
-        return { largest_x, largest_y };
+        return p;
     }
     /**
      * @brief Bottom right point.
      * @return Point as set of coordinates with type T.
      */
     Point br() const {
-        T largest_x;
-        T smallest_y;
+        Point p = m_points[0];
+        Polygon rect = bounding_rect();
+        Point rect_br = rect.points()[3];
 
-        if (m_points.size() == 0) {
-            return { largest_x, smallest_y };
-        }
-
-        largest_x = m_points[0].x;
-        smallest_y = m_points[0].y;
-
-        for (const auto &p : m_points) {
-            if (smallest_y > p.y) {
-                smallest_y = p.y;
-            }
-            if (largest_x < p.x) {
-                largest_x = p.x;
+        for (const auto &p_ : m_points) {
+            // metric: absolute distance to bounding rect
+            T cur_dist = std::abs(p.x - rect_br.x) + std::abs(p.y - rect_br.y);
+            T new_dist = std::abs(p_.x - rect_br.x) + std::abs(p_.y - rect_br.y);
+            if (new_dist < cur_dist) {
+                p = p_;
             }
         }
 
-        return { largest_x, smallest_y };
+        return p;
     }
 
     /**
@@ -184,11 +160,12 @@ public:
      * @return Height as type T.
      */
     T height() const { return tl().y - bl().y; }
+
     /**
      * @brief Bounding rectangle.
      * @return Rectangle as polygon with type T.
      */
-    Polygon<T> bounding_rect() const {
+    Polygon bounding_rect() const {
         T min_x, max_x;
         T min_y, max_y;
 
@@ -208,8 +185,7 @@ public:
             }
         }
 
-        return Polygon<T>(
-            { { min_x, min_y }, { min_x, max_y }, { max_x, max_y }, { max_x, min_y } });
+        return Polygon({ { min_x, min_y }, { min_x, max_y }, { max_x, max_y }, { max_x, min_y } });
     }
 
 private:
