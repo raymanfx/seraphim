@@ -188,7 +188,29 @@ public:
      * @brief Bounding rectangle.
      * @return Rectangle as polygon with type T.
      */
-    Polygon<T> bounding_rect() const;
+    Polygon<T> bounding_rect() const {
+        T min_x, max_x;
+        T min_y, max_y;
+
+        min_x = max_x = m_points[0].x;
+        min_y = max_y = m_points[0].y;
+
+        for (const auto &p : m_points) {
+            if (min_x > p.x) {
+                min_x = p.x;
+            } else if (max_x < p.x) {
+                max_x = p.x;
+            }
+            if (min_y > p.y) {
+                min_y = p.y;
+            } else if (max_y < p.y) {
+                max_y = p.y;
+            }
+        }
+
+        return Polygon<T>(
+            { { min_x, min_y }, { min_x, max_y }, { max_x, max_y }, { max_x, min_y } });
+    }
 
 private:
     /// Points defining the polygon in 2D (euclidian) space.
