@@ -1,7 +1,8 @@
 # the samples to build
-set(SERAPHIM_SAMPLES "car" "face" "object")
+set(SERAPHIM_SAMPLES "core" "car" "face" "object")
 
 # dependencies
+set(SERAPHIM_SAMPLES_DEPENDENCIES_core "core")
 set(SERAPHIM_SAMPLES_DEPENDENCIES_car "car")
 set(SERAPHIM_SAMPLES_DEPENDENCIES_face "face" "object")
 set(SERAPHIM_SAMPLES_DEPENDENCIES_object "object")
