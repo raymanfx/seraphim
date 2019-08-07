@@ -28,7 +28,7 @@ set_target_properties(${MODULE_NAME} PROPERTIES SOVERSION
 # when other libraries or executables link to it
 target_include_directories(${MODULE_NAME} PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-                           $<INSTALL_INTERFACE:include>)
+                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 # OpenCV dependency
 find_package(OpenCV COMPONENTS opencv_core opencv_imgproc REQUIRED)
@@ -38,8 +38,8 @@ target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_imgproc)
 target_link_libraries(${MODULE_NAME} PUBLIC seraphim_core)
 
 # install shared lib and headers
-install(DIRECTORY include/seraphim DESTINATION include)
-install(TARGETS ${MODULE_NAME} EXPORT ${MODULE_NAME} DESTINATION lib)
+install(DIRECTORY include/seraphim DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(TARGETS ${MODULE_NAME} EXPORT ${MODULE_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # add cmake install target
-install(EXPORT ${MODULE_NAME} DESTINATION lib/seraphim)
+install(EXPORT ${MODULE_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR}/seraphim)

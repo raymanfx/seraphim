@@ -38,10 +38,10 @@ add_library(${COMPONENT_NAME} STATIC ${PROTO_FILES} ${PROTO_SRCS} ${PROTO_HDRS})
 # when other libraries or executables link to it
 target_include_directories(${COMPONENT_NAME} PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/data>
-                           $<INSTALL_INTERFACE:include/seraphim/ipc/data>)
+                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/seraphim/ipc/data>)
 
 # shared libraries need PIC
 set_property(TARGET ${COMPONENT_NAME} PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # Install generated headers
-install(FILES ${PROTO_HDRS} DESTINATION include/seraphim/ipc/data)
+install(FILES ${PROTO_HDRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/seraphim/ipc/data)

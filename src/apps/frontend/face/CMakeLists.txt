@@ -32,4 +32,4 @@ target_link_libraries(${COMPONENT_NAME} PRIVATE frontend_common)
 target_link_libraries(${COMPONENT_NAME} PRIVATE seraphim_core)
 target_link_libraries(${COMPONENT_NAME} PRIVATE seraphim_ipc)
 
-install(TARGETS ${COMPONENT_NAME} DESTINATION bin)
+install(TARGETS ${COMPONENT_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})

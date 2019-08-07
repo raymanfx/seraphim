@@ -50,4 +50,4 @@ target_link_libraries(${COMPONENT_NAME} Threads::Threads)
 target_link_libraries(${COMPONENT_NAME} seraphim_ipc)
 target_link_libraries(${COMPONENT_NAME} seraphim_services)
 
-install(TARGETS ${COMPONENT_NAME} DESTINATION bin)
+install(TARGETS ${COMPONENT_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})

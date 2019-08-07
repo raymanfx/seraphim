@@ -56,13 +56,13 @@ target_link_libraries(${MODULE_NAME} PUBLIC seraphim_core)
 target_include_directories(${MODULE_NAME} PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/data>
-                           $<INSTALL_INTERFACE:include>
-                           $<INSTALL_INTERFACE:include/seraphim/ipc/data>)
+                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/seraphim/ipc/data>)
 
 # install shared lib and headers
-install(FILES ${PROTO_HDRS} DESTINATION include/seraphim/ipc/data)
+install(FILES ${PROTO_HDRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/seraphim/ipc/data)
 install(DIRECTORY include/seraphim DESTINATION include)
-install(TARGETS ${MODULE_NAME} EXPORT ${MODULE_NAME} DESTINATION lib)
+install(TARGETS ${MODULE_NAME} EXPORT ${MODULE_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # add cmake install target
-install(EXPORT ${MODULE_NAME} DESTINATION lib/seraphim)
+install(EXPORT ${MODULE_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR}/seraphim)

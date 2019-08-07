@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
+include(GNUInstallDirs)
 
 project(Seraphim VERSION 0.0.0)
 
@@ -16,4 +17,4 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/seraphim.pc.cmakein
                ${CMAKE_CURRENT_BINARY_DIR}/seraphim.pc @ONLY)
 
 # Install cmake config
-install(FILES seraphim-config.cmake DESTINATION lib/seraphim)
+install(FILES seraphim-config.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/seraphim)
