@@ -11,6 +11,7 @@
 #include <seraphim/face/face_detector.h>
 #include <seraphim/face/face_recognizer.h>
 #include <seraphim/face/facemark_detector.h>
+#include <seraphim/face/hog_face_detector.h>
 #include <seraphim/face/lbf_facemark_detector.h>
 #include <seraphim/face/lbp_face_detector.h>
 #include <seraphim/face/lbp_face_recognizer.h>

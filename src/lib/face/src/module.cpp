@@ -23,6 +23,8 @@ extern "C" void *create(int clazz, ...) {
     case CLASS_LBFFacemarkDetector:
         return new LBFFacemarkDetector(
             std::shared_ptr<IFaceDetector>(static_cast<IFaceDetector *>(va_arg(args, void *))));
+    case CLASS_HOGFaceDetector:
+        return new HOGFaceDetector;
     }
 
     return nullptr;
@@ -38,6 +40,9 @@ extern "C" void destroy(int clazz, void *ptr) {
         break;
     case CLASS_LBFFacemarkDetector:
         delete reinterpret_cast<LBFFacemarkDetector *>(ptr);
+        break;
+    case CLASS_HOGFaceDetector:
+        delete reinterpret_cast<HOGFaceDetector *>(ptr);
         break;
     }
 }
