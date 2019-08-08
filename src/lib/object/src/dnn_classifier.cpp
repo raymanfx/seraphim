@@ -111,7 +111,6 @@ bool DNNClassifier::predict(const Image &img, std::vector<Prediction> &preds) {
     out_layers = m_net.getUnconnectedOutLayers();
     out_layer_types.push_back(m_net.getLayer(out_layers[0])->type);
 
-    std::cout << "OUT LAYER NAME: " << out_layer_types[0] << std::endl;
     if (out_layer_types[0] == "DetectionOutput") {
         // Network produces output blob with a shape 1x1xNx7 where N is a number
         // of detections and an every detection is a vector of values [batchId,
