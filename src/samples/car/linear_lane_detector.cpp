@@ -9,6 +9,8 @@
 #include <getopt.h>
 #include <opencv2/videoio.hpp>
 #include <seraphim/car/linear_lane_detector.h>
+#include <seraphim/core/image_utils_opencv.h>
+#include <seraphim/core/polygon.h>
 
 static bool main_loop = true;
 
@@ -74,7 +76,8 @@ void signal_handler(int signal) {
 int main(int argc, char **argv) {
     std::string file_path;
     sph::car::LinearLaneDetector lane_detector;
-    std::vector<sph::car::ILaneDetector::Lane> lanes;
+    std::vector<sph::core::Polygon<>> lanes;
+    sph::core::Image image;
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;
     std::chrono::high_resolution_clock::time_point t_frame_captured;
@@ -113,6 +116,25 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    if (!cap.read(frame)) {
+        std::cout << "[ERROR] Failed to read frame" << std::endl;
+        return 1;
+    }
+
+    // tune the ROI according to your input video
+    // in this case, use a 4-point polygon shape to match the "project_video.mp4"
+    // clip of the udacity course at https://github.com/udacity/CarND-Vehicle-Detection
+    sph::core::Polygon<> roi;
+    // bottom left
+    roi.add_point({ 210, frame.rows });
+    // top left
+    roi.add_point({ 550, 450 });
+    // top right
+    roi.add_point({ 717, 450 });
+    // bottom right
+    roi.add_point({ frame.cols, frame.rows });
+    lane_detector.set_roi(roi);
+
     while (main_loop) {
         t_loop_start = std::chrono::high_resolution_clock::now();
 
@@ -127,17 +149,22 @@ int main(int argc, char **argv) {
                          .count();
 
         lanes.clear();
-        lane_detector.detect(frame, lanes);
+        if (!sph::core::Mat2Image(frame, image)) {
+            std::cout << "[ERROR] Failed to convert Mat to Image" << std::endl;
+            continue;
+        }
+
+        lane_detector.detect(image, lanes);
         process_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                            std::chrono::high_resolution_clock::now() - t_frame_captured)
                            .count();
 
         if (lanes.size() > 0) {
             for (auto &lane : lanes) {
-                cv::line(frame, cv::Point(lane.bottomLeft.x, lane.bottomLeft.y),
-                         (cv::Point(lane.topLeft.x, lane.topLeft.y)), cv::Scalar(0, 0, 255), 3);
-                cv::line(frame, cv::Point(lane.bottomRight.x, lane.bottomRight.y),
-                         (cv::Point(lane.topRight.x, lane.topRight.y)), cv::Scalar(0, 0, 255), 3);
+                cv::line(frame, cv::Point(lane.points()[0].x, lane.points()[0].y),
+                         (cv::Point(lane.points()[1].x, lane.points()[1].y)), cv::Scalar(0, 0, 255), 3);
+                cv::line(frame, cv::Point(lane.points()[2].x, lane.points()[2].y),
+                         (cv::Point(lane.points()[3].x, lane.points()[3].y)), cv::Scalar(0, 0, 255), 3);
             }
         }
 

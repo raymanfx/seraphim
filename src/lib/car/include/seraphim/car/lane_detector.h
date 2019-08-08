@@ -8,7 +8,8 @@
 #ifndef SPH_CAR_LANE_DETECTOR_H
 #define SPH_CAR_LANE_DETECTOR_H
 
-#include <opencv2/opencv.hpp>
+#include <seraphim/core/image.h>
+#include <seraphim/core/polygon.h>
 #include <vector>
 
 namespace sph {
@@ -26,35 +27,21 @@ public:
     virtual ~ILaneDetector() = default;
 
     /**
-     * @brief Lane data struct.
-     */
-    struct Lane {
-        /// top left point of the left edge
-        cv::Point topLeft;
-        /// top right point of the right edge
-        cv::Point topRight;
-        /// bottom right point of the right edge
-        cv::Point bottomRight;
-        /// bottom left point of the left edge
-        cv::Point bottomLeft;
-    };
-
-    /**
      * @brief Detect lanes in an image.
      * Combines various steps into one image processing pipeline, including preprocessing,
      * edge and line detection and more.
      * @param img Input image.
-     * @param lanes Output vector containing @ref Lane instances.
+     * @param lanes Output vector containing polygon lane shapes.
      * @return Whether detection was successful.
      */
-    virtual bool detect(cv::InputArray img, std::vector<Lane> &lanes) = 0;
+    virtual bool detect(const sph::core::Image &img, std::vector<sph::core::Polygon<>> &lanes) = 0;
 
     /**
      * @brief Define a polygon-shaped region of interest for lane detection.
-     * @param polyroi A set of points forming a polygon.
+     * @param polyroi The polygon shape.
      * @return True on success, false otherwise.
      */
-    virtual bool set_roi(const std::vector<cv::Point> &polyroi) = 0;
+    virtual bool set_roi(const sph::core::Polygon<> &poly) = 0;
 
 protected:
     ILaneDetector() = default;

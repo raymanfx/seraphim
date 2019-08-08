@@ -61,7 +61,7 @@ MainWindow::MainWindow(QObject *parent) : QObject(parent) {
     if (!captureStream->setResolution(QSize(1280, 720))) {
         std::cout << "Failed to set capture res to 1280x720" << std::endl;
     }
-    if (!captureStream->open("/home/redqueen/Videos/FrontLeft1080.mp4")) {
+    if (!captureStream->open("/home/chris/Downloads/project_video.mp4")) {
         std::cout << "Failed to open video: "
                   << "project_video.mp4" << std::endl;
     }

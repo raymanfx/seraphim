@@ -90,10 +90,10 @@ public:
 
     bool set_target(const target_t &target) override;
 
-    bool detect(cv::InputArray img, std::vector<Lane> &lanes) override;
+    bool detect(const sph::core::Image &img, std::vector<sph::core::Polygon<>> &lanes) override;
 
-    bool set_roi(const std::vector<cv::Point> &polyroi) override {
-        m_roi = polyroi;
+    bool set_roi(const sph::core::Polygon<> &poly) override {
+        m_roi = poly;
         return true;
     }
 
@@ -102,7 +102,7 @@ private:
     Parameters m_params;
 
     // region of interest masking
-    std::vector<cv::Point> m_roi;
+    sph::core::Polygon<> m_roi;
 
     cv::Mat m_mat_buf;
     cv::UMat m_umat_buf;

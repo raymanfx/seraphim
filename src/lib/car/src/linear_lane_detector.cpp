@@ -5,8 +5,11 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include <seraphim/core/image_utils_opencv.h>
+
 #include "seraphim/car/linear_lane_detector.h"
 
+using namespace sph::core;
 using namespace sph::car;
 
 LinearLaneDetector::LinearLaneDetector() {
@@ -80,7 +83,9 @@ bool LinearLaneDetector::set_target(const target_t &target) {
     return true;
 }
 
-bool LinearLaneDetector::detect(cv::InputArray img, std::vector<Lane> &lanes) {
+bool LinearLaneDetector::detect(const Image &img, std::vector<Polygon<>> &lanes) {
+    cv::Mat mat;
+    std::vector<cv::Point> roi;
     std::vector<cv::Vec4i> segments;
     std::vector<cv::Point> left_points;
     std::vector<cv::Point> right_points;
@@ -89,17 +94,25 @@ bool LinearLaneDetector::detect(cv::InputArray img, std::vector<Lane> &lanes) {
     double slope_thresh = 0.3;
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
+    if (!Image2Mat(img, mat)) {
+        return false;
+    }
+
+    for (const auto &p : m_roi.points()) {
+        roi.emplace_back(cv::Point(p.x, p.y));
+    }
+
     switch (m_target) {
     case TARGET_CPU:
-        preprocess(img, m_mat_buf);
+        preprocess(mat, m_mat_buf);
         filter_edges(m_mat_buf, m_mat_buf);
-        apply_mask(m_mat_buf, m_mat_buf, m_roi);
+        apply_mask(m_mat_buf, m_mat_buf, roi);
         detect_lines(m_mat_buf, segments);
         break;
     case TARGET_OPENCL:
-        preprocess(img, m_umat_buf);
+        preprocess(mat, m_umat_buf);
         filter_edges(m_umat_buf, m_umat_buf);
-        apply_mask(m_umat_buf, m_umat_buf, m_roi);
+        apply_mask(m_umat_buf, m_umat_buf, roi);
         detect_lines(m_umat_buf, segments);
         break;
     default:
@@ -122,11 +135,11 @@ bool LinearLaneDetector::detect(cv::InputArray img, std::vector<Lane> &lanes) {
             continue;
         }
 
-        if (slope > 0.0 && p1.x > img.cols() / 2 && p2.x > img.cols() / 2) {
+        if (slope > 0.0 && p1.x > mat.cols / 2 && p2.x > mat.cols / 2) {
             // positive slope: right line
             left_points.push_back(p1);
             left_points.push_back(p2);
-        } else if (p1.x < img.cols() / 2 && p2.x < img.cols() / 2) {
+        } else if (p1.x < mat.cols / 2 && p2.x < mat.cols / 2) {
             // negative slope: left line
             right_points.push_back(p1);
             right_points.push_back(p2);
@@ -146,58 +159,65 @@ bool LinearLaneDetector::detect(cv::InputArray img, std::vector<Lane> &lanes) {
 
     // line params format: ([0], [1]) is a normalized vector colinear to the line,
     // ([2], [3]) is a point on the line
+    // that means the line equation looks like this:
+    // (x,y) = ([2], [3]) + t * ([0], [1]), where t is a scalar
 
-    Lane lane;
     // for the two bottom points of the lane (left and right lines), coordinates are determined by
     // the line parameters:
     // find the point on the line that intersects with the bottom line of the image going
     // from (0, rows) to (cols, rows)
+    Polygon<>::Point lane_bl;
+    Polygon<>::Point lane_tl;
+    Polygon<>::Point lane_tr;
+    Polygon<>::Point lane_br;
 
-    // algebra: y = m * x + b
-    // x = (y - b) / m
-    lane.bottomLeft.y = img.rows();
-    lane.bottomLeft.x = static_cast<int>((lane.bottomLeft.y - left_line_params[3]) /
-                                             (left_line_params[1] / left_line_params[0]) +
-                                         left_line_params[2]);
-    lane.bottomRight.y = img.rows();
-    lane.bottomRight.x = static_cast<int>((lane.bottomRight.y - right_line_params[3]) /
-                                              (right_line_params[1] / right_line_params[0]) +
-                                          right_line_params[2]);
+    // recall: (x,y) = ([2], [3]) + t * ([0], [1]), where t is a scalar
+    // find t by plugging in our y values and then scale [2] to find our final x
+    double bl_t;
+    double br_t;
+    lane_bl.y = mat.rows;
+    bl_t = (lane_bl.y - left_line_params[3]) / left_line_params[1];
+    lane_bl.x = static_cast<int>(left_line_params[2] + bl_t * left_line_params[0]);
+    lane_br.y = mat.rows;
+    br_t = (lane_br.y - right_line_params[3]) / right_line_params[1];
+    lane_br.x = static_cast<int>(right_line_params[2] + br_t * right_line_params[0]);
 
     // the two top points are determined from the top line segment points with respect to their
     // y coordinate
     // their x coordinates are then calculated by applying the line equation again
 
     // take the first point in the vector as starting point
-    lane.topLeft.y = left_points[0].y;
+    lane_tl.y = left_points[0].y;
     for (const cv::Point &p : left_points) {
         // use "<" here because the coordinate origin is in the top left corner for OpenCV
         // so if we are looking for the topmost point, it has to have the smallest y coordinate
-        if (p.y < lane.topLeft.y) {
-            lane.topLeft.y = p.y;
+        if (p.y < lane_tl.y) {
+            lane_tl.y = p.y;
         }
     }
-    lane.topRight.y = right_points[0].y;
+    lane_tr.y = right_points[0].y;
     for (const cv::Point &p : right_points) {
         // use "<" here because the coordinate origin is in the top left corner for OpenCV
         // so if we are looking for the topmost point, it has to have the smallest y coordinate
-        if (p.y < lane.topRight.y) {
-            lane.topRight.y = p.y;
+        if (p.y < lane_tr.y) {
+            lane_tr.y = p.y;
         }
     }
 
     // make sure we use the same y coordinate for the left and right line of the lane
-    lane.topLeft.y = std::max(lane.topLeft.y, lane.topRight.y);
-    lane.topRight.y = lane.topLeft.y;
+    lane_tl.y = std::max(lane_tl.y, lane_tr.y);
+    lane_tr.y = lane_tl.y;
 
-    lane.topLeft.x = static_cast<int>((lane.topLeft.y - left_line_params[3]) /
-                                          (left_line_params[1] / left_line_params[0]) +
-                                      left_line_params[2]);
-    lane.topRight.x = static_cast<int>((lane.topRight.y - right_line_params[3]) /
-                                           (right_line_params[1] / right_line_params[0]) +
-                                       right_line_params[2]);
+    // recall: (x,y) = ([2], [3]) + t * ([0], [1]), where t is a scalar
+    // find t by plugging in our y values and then scale [2] to find our final x
+    double tl_t;
+    double tr_t;
+    tl_t = (lane_tl.y - left_line_params[3]) / left_line_params[1];
+    lane_tl.x = static_cast<int>(left_line_params[2] + tl_t * left_line_params[0]);
+    tr_t = (lane_tr.y - right_line_params[3]) / right_line_params[1];
+    lane_tr.x = static_cast<int>(right_line_params[2] + tr_t * right_line_params[0]);
 
-    lanes.push_back(lane);
+    lanes.emplace_back(Polygon<>({ lane_bl, lane_tl, lane_tr, lane_br }));
 
     return true;
 }
