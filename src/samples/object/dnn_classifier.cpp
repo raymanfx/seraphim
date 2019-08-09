@@ -170,6 +170,11 @@ int main(int argc, char **argv) {
                     continue;
                 }
 
+                // skip id 0 (background)
+                if (pred.class_id == 0) {
+                    continue;
+                }
+
                 cv::Scalar color(0, 0, 0);
                 if (pred.class_id <= 30) {
                     color = cv::Scalar(255, 0, 0);
