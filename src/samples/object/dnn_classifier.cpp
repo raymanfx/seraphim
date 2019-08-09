@@ -140,6 +140,17 @@ int main(int argc, char **argv) {
     }
     classifier.set_target(sph::core::IComputable::TARGET_CPU);
 
+    // set parameters for MobileNet V2 (2018_03_29)
+    // see https://github.com/opencv/opencv/wiki/TensorFlow-Object-Detection-API
+    // see https://github.com/opencv/opencv/blob/master/samples/dnn/models.yml
+    sph::object::DNNClassifier::BlobParameters params = {};
+    params.scalefactor = 1.0;
+    params.size = cv::Size(300, 300);
+    params.mean = cv::Scalar();
+    params.swap_rb = true;
+    params.crop = false;
+    classifier.set_blob_parameters(params);
+
     while (main_loop) {
         t_loop_start = std::chrono::high_resolution_clock::now();
 
