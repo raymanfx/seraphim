@@ -9,11 +9,10 @@ Image::Image(const ImageBuffer &buf) {
 int Image::depth() const {
     switch (m_buffer.format().pixfmt) {
     case ImageBuffer::Pixelformat::BGR24:
-    case ImageBuffer::Pixelformat::RGB24:
-        return 24;
     case ImageBuffer::Pixelformat::BGR32:
+    case ImageBuffer::Pixelformat::RGB24:
     case ImageBuffer::Pixelformat::RGB32:
-        return 32;
+        return 24;
     case ImageBuffer::Pixelformat::Y16:
         return 16;
     default:
@@ -24,11 +23,10 @@ int Image::depth() const {
 int Image::channels() const {
     switch (m_buffer.format().pixfmt) {
     case ImageBuffer::Pixelformat::BGR24:
-    case ImageBuffer::Pixelformat::RGB24:
-        return 3;
     case ImageBuffer::Pixelformat::BGR32:
+    case ImageBuffer::Pixelformat::RGB24:
     case ImageBuffer::Pixelformat::RGB32:
-        return 4;
+        return 3;
     case ImageBuffer::Pixelformat::Y16:
         return 1;
     default:

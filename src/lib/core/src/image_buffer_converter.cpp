@@ -27,10 +27,10 @@ static size_t bgr_to_rgb(unsigned char **src, const ImageBufferConverter::Source
     size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
-    size_t src_stride;
     size_t dst_size;
     size_t dst_offset;
     size_t dst_pixel_size;
+    size_t dst_padding;
     size_t dst_stride;
 
     // validate source format
@@ -44,8 +44,8 @@ static size_t bgr_to_rgb(unsigned char **src, const ImageBufferConverter::Source
     default:
         return 0;
     }
-    src_stride = (src_fmt.width + src_fmt.padding) * src_pixel_size;
-    src_size = src_fmt.height * src_stride;
+
+    src_size = src_fmt.height * src_fmt.stride * src_pixel_size;
 
     // allocate the target buffer
     switch (dst_fmt.fourcc) {
@@ -58,8 +58,12 @@ static size_t bgr_to_rgb(unsigned char **src, const ImageBufferConverter::Source
     default:
         return 0;
     }
-    dst_stride = (src_fmt.width + dst_fmt.padding) * dst_pixel_size;
-    dst_size = src_fmt.height * dst_stride;
+
+    dst_size = src_fmt.height * src_fmt.width * dst_pixel_size;
+    dst_padding = (dst_fmt.alignment - (dst_size % dst_fmt.alignment)) % dst_fmt.alignment;
+    dst_stride = src_fmt.width * dst_pixel_size + dst_padding;
+    // account for padding
+    dst_size += src_fmt.height * dst_padding;
 
     if (src == dst) {
         // check if in-place conversion is possible
@@ -73,8 +77,7 @@ static size_t bgr_to_rgb(unsigned char **src, const ImageBufferConverter::Source
 
     for (size_t y = 0; y < src_fmt.height; y++) {
         for (size_t x = 0; x < src_fmt.width; x++) {
-            // printf("x=%zu, y=%zu\n", x, y);
-            src_offset = y * src_stride + x * src_pixel_size;
+            src_offset = y * src_fmt.stride + x * src_pixel_size;
             dst_offset = y * dst_stride + x * dst_pixel_size;
             /* each pixel is three bytes */
             if (src == dst) {
@@ -97,10 +100,10 @@ static size_t rgb_to_bgr(unsigned char **src, const ImageBufferConverter::Source
     size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
-    size_t src_stride;
     size_t dst_size;
     size_t dst_offset;
     size_t dst_pixel_size;
+    size_t dst_padding;
     size_t dst_stride;
 
     // validate source format
@@ -114,8 +117,8 @@ static size_t rgb_to_bgr(unsigned char **src, const ImageBufferConverter::Source
     default:
         return 0;
     }
-    src_stride = (src_fmt.width + src_fmt.padding) * src_pixel_size;
-    src_size = src_fmt.height * src_stride;
+
+    src_size = src_fmt.height * src_fmt.stride * src_pixel_size;
 
     // allocate the target buffer
     switch (dst_fmt.fourcc) {
@@ -128,8 +131,12 @@ static size_t rgb_to_bgr(unsigned char **src, const ImageBufferConverter::Source
     default:
         return 0;
     }
-    dst_stride = (src_fmt.width + dst_fmt.padding) * dst_pixel_size;
-    dst_size = src_fmt.height * dst_stride * dst_pixel_size;
+
+    dst_size = src_fmt.height * src_fmt.width * dst_pixel_size;
+    dst_padding = (dst_fmt.alignment - (dst_size % dst_fmt.alignment)) % dst_fmt.alignment;
+    dst_stride = src_fmt.width * dst_pixel_size + dst_padding;
+    // account for padding
+    dst_size += src_fmt.height * dst_padding;
 
     if (src == dst) {
         // check if in-place conversion is possible
@@ -143,7 +150,7 @@ static size_t rgb_to_bgr(unsigned char **src, const ImageBufferConverter::Source
 
     for (size_t y = 0; y < src_fmt.height; y++) {
         for (size_t x = 0; x < src_fmt.width; x++) {
-            src_offset = y * src_stride + x * src_pixel_size;
+            src_offset = y * src_fmt.stride + x * src_pixel_size;
             dst_offset = y * dst_stride + x * dst_pixel_size;
             /* each pixel is three bytes */
             if (src == dst) {
@@ -166,10 +173,10 @@ static size_t rgb_to_y(unsigned char **src, const ImageBufferConverter::SourceFo
     size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
-    size_t src_stride;
     size_t dst_size;
     size_t dst_offset;
     size_t dst_pixel_size;
+    size_t dst_padding;
     size_t dst_stride;
 
     // validate source format
@@ -185,8 +192,8 @@ static size_t rgb_to_y(unsigned char **src, const ImageBufferConverter::SourceFo
     default:
         return 0;
     }
-    src_stride = (src_fmt.width + src_fmt.padding) * src_pixel_size;
-    src_size = src_fmt.height * src_stride;
+
+    src_size = src_fmt.height * src_fmt.stride * src_pixel_size;
 
     // allocate the target buffer
     switch (dst_fmt.fourcc) {
@@ -199,8 +206,12 @@ static size_t rgb_to_y(unsigned char **src, const ImageBufferConverter::SourceFo
     default:
         return 0;
     }
-    dst_stride = (src_fmt.width + dst_fmt.padding) * dst_pixel_size;
-    dst_size = src_fmt.height * dst_stride * dst_pixel_size;
+
+    dst_size = src_fmt.height * src_fmt.width * dst_pixel_size;
+    dst_padding = (dst_fmt.alignment - (dst_size % dst_fmt.alignment)) % dst_fmt.alignment;
+    dst_stride = src_fmt.width * dst_pixel_size + dst_padding;
+    // account for padding
+    dst_size += src_fmt.height * dst_padding;
 
     if (src == dst) {
         // check if in-place conversion is possible
@@ -214,7 +225,7 @@ static size_t rgb_to_y(unsigned char **src, const ImageBufferConverter::SourceFo
 
     for (size_t y = 0; y < src_fmt.height; y++) {
         for (size_t x = 0; x < src_fmt.width; x++) {
-            src_offset = y * src_stride + x * src_pixel_size;
+            src_offset = y * src_fmt.stride + x * src_pixel_size;
             dst_offset = y * dst_stride + x * dst_pixel_size;
 
             // locate the src pixels
@@ -265,10 +276,10 @@ static size_t y_to_bgr(unsigned char **src, const ImageBufferConverter::SourceFo
     size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
-    size_t src_stride;
     size_t dst_size;
     size_t dst_offset;
     size_t dst_pixel_size;
+    size_t dst_padding;
     size_t dst_stride;
 
     // validate source format
@@ -282,8 +293,8 @@ static size_t y_to_bgr(unsigned char **src, const ImageBufferConverter::SourceFo
     default:
         return 0;
     }
-    src_stride = (src_fmt.width + src_fmt.padding) * src_pixel_size;
-    src_size = src_fmt.height * src_stride;
+
+    src_size = src_fmt.height * src_fmt.stride * src_pixel_size;
 
     // allocate the target buffer
     switch (dst_fmt.fourcc) {
@@ -296,8 +307,12 @@ static size_t y_to_bgr(unsigned char **src, const ImageBufferConverter::SourceFo
     default:
         return 0;
     }
-    dst_stride = (src_fmt.width + dst_fmt.padding) * dst_pixel_size;
-    dst_size = src_fmt.height * dst_stride * dst_pixel_size;
+
+    dst_size = src_fmt.height * src_fmt.width * dst_pixel_size;
+    dst_padding = (dst_fmt.alignment - (dst_size % dst_fmt.alignment)) % dst_fmt.alignment;
+    dst_stride = src_fmt.width * dst_pixel_size + dst_padding;
+    // account for padding
+    dst_size += src_fmt.height * dst_padding;
 
     if (src == dst) {
         // check if in-place conversion is possible
@@ -312,7 +327,7 @@ static size_t y_to_bgr(unsigned char **src, const ImageBufferConverter::SourceFo
     // https://stackoverflow.com/a/4494004
     for (size_t y = 0; y < src_fmt.height; y++) {
         for (size_t x = 0; x < src_fmt.width; x++) {
-            src_offset = y * src_stride + x * src_pixel_size;
+            src_offset = y * src_fmt.stride + x * src_pixel_size;
             dst_offset = y * dst_stride + x * dst_pixel_size;
 
             uint16_t y16;
@@ -341,10 +356,10 @@ static size_t yuy2_to_bgr(unsigned char **src, const ImageBufferConverter::Sourc
     size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
-    size_t src_stride;
     size_t dst_size;
     size_t dst_offset;
     size_t dst_pixel_size;
+    size_t dst_padding;
     size_t dst_stride;
 
     // validate source format
@@ -356,8 +371,8 @@ static size_t yuy2_to_bgr(unsigned char **src, const ImageBufferConverter::Sourc
     default:
         return 0;
     }
-    src_stride = (src_fmt.width + src_fmt.padding) * src_pixel_size;
-    src_size = src_fmt.height * src_stride;
+
+    src_size = src_fmt.height * src_fmt.stride * src_pixel_size;
 
     // allocate the target buffer
     switch (dst_fmt.fourcc) {
@@ -370,8 +385,12 @@ static size_t yuy2_to_bgr(unsigned char **src, const ImageBufferConverter::Sourc
     default:
         return 0;
     }
-    dst_stride = (src_fmt.width + dst_fmt.padding) * dst_pixel_size;
-    dst_size = src_fmt.height * dst_stride * dst_pixel_size;
+
+    dst_size = src_fmt.height * src_fmt.width * dst_pixel_size;
+    dst_padding = (dst_fmt.alignment - (dst_size % dst_fmt.alignment)) % dst_fmt.alignment;
+    dst_stride = src_fmt.width * dst_pixel_size + dst_padding;
+    // account for padding
+    dst_size += src_fmt.height * dst_padding;
 
     if (src == dst) {
         // check if in-place conversion is possible
@@ -386,7 +405,7 @@ static size_t yuy2_to_bgr(unsigned char **src, const ImageBufferConverter::Sourc
     // https://stackoverflow.com/a/4494004
     for (size_t y = 0; y < src_fmt.height; y++) {
         for (size_t x = 0; x < src_fmt.width; x++) {
-            src_offset = y * src_stride + x * src_pixel_size;
+            src_offset = y * src_fmt.stride + x * src_pixel_size;
             dst_offset = y * dst_stride + x * dst_pixel_size;
             /* each pixel is two bytes, each macropixel (YUYV) is two image pixels */
             unsigned char *y0 = (*src) + src_offset + 0;

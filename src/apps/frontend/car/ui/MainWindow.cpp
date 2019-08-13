@@ -172,10 +172,9 @@ void MainWindow::updateBuffer(const ICaptureStream::Buffer &buf) {
 
     fmt.width = buf.format.width;
     fmt.height = buf.format.height;
-    fmt.padding = 0;
     fmt.pixfmt = sph::core::ImageBuffer::as_pixelformat(buf.format.fourcc);
 
-    if (!img.mutable_buffer().assign(static_cast<unsigned char *>(buf.start), fmt, false)) {
+    if (!img.mutable_buffer().assign(static_cast<unsigned char *>(buf.start), fmt)) {
         return;
     }
 

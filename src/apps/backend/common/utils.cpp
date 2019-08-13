@@ -24,7 +24,7 @@ bool sph::backend::Image2DtoImage(const Seraphim::Types::Image2D &src, sph::core
     if (!img.mutable_buffer().assign(
             const_cast<unsigned char *>(
                 reinterpret_cast<const unsigned char *>(src.data().c_str())),
-            fmt, false)) {
+            fmt)) {
         return false;
     }
 

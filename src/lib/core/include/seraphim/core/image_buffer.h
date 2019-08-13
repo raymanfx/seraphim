@@ -26,6 +26,7 @@ namespace core {
 class ImageBuffer {
 public:
     ImageBuffer();
+    ImageBuffer(const ImageBuffer &buf);
     ~ImageBuffer();
 
     /**
@@ -62,17 +63,19 @@ public:
         uint32_t width;
         /// height in pixels
         uint32_t height;
-        /// pixel row padding
-        uint32_t padding = 0;
         /// pixelformat
         Pixelformat pixfmt = Pixelformat::UNKNOWN;
+        /// length of one pixel row in bytes
+        /// if unset (0), this will be initialized as follows:
+        ///   stride = width * bytes(pixfmt)
+        size_t stride = 0;
     };
 
     /**
      * @brief Check whether the buffer is empty.
      * @return True if no buffer is set or its size is zero.
      */
-    bool empty() const { return (m_data == nullptr) || (m_size == 0); }
+    bool empty() const { return (m_data == nullptr) || (size() == 0); }
 
     /**
      * @brief Yields information on whether or not the instance holds allocated pixel data.
@@ -87,11 +90,18 @@ public:
 
     /**
      * @brief Copy an image buffer so this instance owns the data.
+     * @param buf The source image buffer to load data from.
+     * @return True on success, false otherwise.
+     */
+    bool load(const ImageBuffer &buf);
+
+    /**
+     * @brief Copy an image buffer so this instance owns the data.
      * @param src Address of the source buffer.
      * @param fmt Pixelformat of the source buffer.
      * @return True on success, false otherwise.
      */
-    bool load(unsigned char *src, const Format &fmt);
+    bool load(const unsigned char *src, const Format &fmt);
 
     /**
      * @brief Copy an image buffer so this instance owns the data.
@@ -101,17 +111,16 @@ public:
      * @param pixfmt Pixelformat of the target buffer.
      * @return True on success, false otherwise.
      */
-    bool load(unsigned char *src, const ImageBufferConverter::SourceFormat &src_fmt,
+    bool load(const unsigned char *src, const ImageBufferConverter::SourceFormat &src_fmt,
               const Pixelformat &pixfmt);
 
     /**
      * @brief Wrap an image buffer and optionally pass ownership to the instance.
      * @param src Address of the source buffer.
      * @param fmt Pixelformat of the source buffer.
-     * @param ownership Whether the image instance shall own the data (and free it later).
      * @return True on success, false otherwise.
      */
-    bool assign(unsigned char *src, const Format &fmt, const bool &ownership = false);
+    bool assign(unsigned char *src, const Format &fmt);
 
     /**
      * @brief Pointer to the internal pixel buffer.
@@ -120,16 +129,25 @@ public:
     const unsigned char *data() const { return m_data; }
 
     /**
-     * @brief Internal pixel buffer size.
-     * @return Pixel buffer size in bytes.
-     */
-    size_t size() const { return m_size; }
-
-    /**
      * @brief Buffer format description.
      * @return @ref Format struct.
      */
     Format format() const { return m_format; }
+
+    /**
+     * @brief Pixel row alignment, determined by padding bytes.
+     *        Reasonable values are:
+     *          1 (one-byte alignment)
+     *          4 (word alignment, default)
+     * @return Alignment in bytes.
+     */
+    uint8_t row_alignment() const { return m_format.stride & 3 ? 1 : 4; }
+
+    /**
+     * @brief Calculate the size of the underlying buffer (including padding).
+     * @return Size in bytes.
+     */
+    inline size_t size() const { return m_format.height * m_format.stride; }
 
     /**
      * @brief Get the scanline position in memory.
@@ -156,8 +174,6 @@ public:
 protected:
     /// pixel buffer address, must reside in host memory (DRAM) for now
     unsigned char *m_data;
-    /// size of the pixel buffer in bytes
-    size_t m_size;
     /// whether the instance owns the buffer
     bool m_data_owned;
 

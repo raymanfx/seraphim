@@ -11,6 +11,7 @@ V4L2CaptureStream::V4L2CaptureStream() {
     mFourcc = 0;
     mWidth = 0;
     mHeight = 0;
+    mStride = 0;
 }
 
 V4L2CaptureStream::~V4L2CaptureStream() {
@@ -36,6 +37,7 @@ bool V4L2CaptureStream::retrieve(struct Buffer &buf) {
     buf.format.width = mWidth;
     buf.format.height = mHeight;
     buf.format.fourcc = mFourcc;
+    buf.format.stride = mStride;
     return true;
 }
 
@@ -111,6 +113,7 @@ bool V4L2CaptureStream::setFourcc(const uint32_t &fourcc) {
     }
 
     mFourcc = fourcc;
+    mStride = fmt.fmt.pix.bytesperline;
     return true;
 }
 
@@ -130,5 +133,6 @@ bool V4L2CaptureStream::setResolution(const uint32_t &width, const uint32_t &hei
 
     mWidth = width;
     mHeight = height;
+    mStride = fmt.fmt.pix.bytesperline;
     return true;
 }

@@ -23,24 +23,26 @@ static bool Image2Mat(const sph::core::Image &src, cv::Mat &dst) {
     // https://github.com/opencv/opencv/blob/master/modules/videoio/src/cap_v4l.cpp
     switch (src.buffer().format().pixfmt) {
     case sph::core::ImageBuffer::Pixelformat::BGR24:
-    case sph::core::ImageBuffer::Pixelformat::BGR32:
-        dst = cv::Mat(static_cast<int>(src.height()), static_cast<int>(src.width()), CV_8UC3,
-                      const_cast<unsigned char *>(src.buffer().data()));
+        dst =
+            cv::Mat(static_cast<int>(src.height()), static_cast<int>(src.width()), CV_8UC3,
+                    const_cast<unsigned char *>(src.buffer().data()), src.buffer().format().stride);
         break;
     case sph::core::ImageBuffer::Pixelformat::RGB24:
-    case sph::core::ImageBuffer::Pixelformat::RGB32:
-        dst = cv::Mat(static_cast<int>(src.height()), static_cast<int>(src.width()), CV_8UC3,
-                      const_cast<unsigned char *>(src.buffer().data()))
-                  .clone();
+        dst =
+            cv::Mat(static_cast<int>(src.height()), static_cast<int>(src.width()), CV_8UC3,
+                    const_cast<unsigned char *>(src.buffer().data()), src.buffer().format().stride)
+                .clone();
         cv::cvtColor(dst, dst, cv::COLOR_RGB2BGR);
         break;
     case sph::core::ImageBuffer::Pixelformat::Y8:
-        dst = cv::Mat(static_cast<int>(src.height()), static_cast<int>(src.width()), CV_8UC1,
-                      const_cast<unsigned char *>(src.buffer().data()));
+        dst =
+            cv::Mat(static_cast<int>(src.height()), static_cast<int>(src.width()), CV_8UC1,
+                    const_cast<unsigned char *>(src.buffer().data()), src.buffer().format().stride);
         break;
     case sph::core::ImageBuffer::Pixelformat::Y16:
-        dst = cv::Mat(static_cast<int>(src.height()), static_cast<int>(src.width()), CV_16UC1,
-                      const_cast<unsigned char *>(src.buffer().data()));
+        dst =
+            cv::Mat(static_cast<int>(src.height()), static_cast<int>(src.width()), CV_16UC1,
+                    const_cast<unsigned char *>(src.buffer().data()), src.buffer().format().stride);
         break;
     default:
         return false;
@@ -65,17 +67,19 @@ static bool Mat2Image(cv::InputArray src, sph::core::Image &dst) {
         return false;
     }
 
+    fmt.pixfmt = sph::core::ImageBuffer::Pixelformat::UNKNOWN;
+
     // OpenCV images are always BGR
-    switch (mat.elemSize1()) {
-    case 1:
-        if (mat.channels() == 1) {
-            fmt.pixfmt = sph::core::ImageBuffer::Pixelformat::Y8;
-        } else if (mat.channels() == 3) {
+    switch (mat.channels()) {
+    case 3:
+        if (mat.elemSize1() == 1) {
             fmt.pixfmt = sph::core::ImageBuffer::Pixelformat::BGR24;
         }
         break;
-    case 2:
-        if (mat.channels() == 1) {
+    case 1:
+        if (mat.elemSize1() == 1) {
+            fmt.pixfmt = sph::core::ImageBuffer::Pixelformat::Y8;
+        } else if (mat.elemSize1() == 2) {
             fmt.pixfmt = sph::core::ImageBuffer::Pixelformat::Y16;
         }
         break;
@@ -83,10 +87,15 @@ static bool Mat2Image(cv::InputArray src, sph::core::Image &dst) {
         return false;
     }
 
-    fmt.width = static_cast<uint32_t>(mat.cols);
+    if (fmt.pixfmt == sph::core::ImageBuffer::Pixelformat::UNKNOWN) {
+        return false;
+    }
+
+    fmt.width = static_cast<uint32_t>(mat.step / mat.elemSize());
     fmt.height = static_cast<uint32_t>(mat.rows);
-    fmt.padding = 0;
-    return dst.mutable_buffer().assign(mat.data, fmt, false);
+    fmt.stride = mat.step;
+
+    return dst.mutable_buffer().assign(mat.data, fmt);
 }
 
 } // namespace core

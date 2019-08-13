@@ -74,6 +74,7 @@ private:
     uint32_t mFourcc;
     uint32_t mWidth;
     uint32_t mHeight;
+    uint32_t mStride;
 };
 
 #endif // V4L2_CAPTURE_STREAM_H

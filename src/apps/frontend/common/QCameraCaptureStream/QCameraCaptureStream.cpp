@@ -93,6 +93,7 @@ bool QCameraCaptureStream::retrieve(struct Buffer &buf) {
     buf.format.width = static_cast<uint32_t>(getResolution().width());
     buf.format.height = static_cast<uint32_t>(getResolution().height());
     buf.format.fourcc = getFourcc();
+    buf.format.stride = static_cast<uint32_t>(mFrame.bytesPerLine());
     return true;
 }
 
@@ -111,6 +112,7 @@ void QCameraCaptureStream::consumeFrame(const QVideoFrame &frame) {
     buf.format.width = static_cast<uint32_t>(getResolution().width());
     buf.format.height = static_cast<uint32_t>(getResolution().height());
     buf.format.fourcc = getFourcc();
+    buf.format.stride = static_cast<uint32_t>(mFrame.bytesPerLine());
 
     emit bufferAvailable(buf);
     mFrame.unmap();

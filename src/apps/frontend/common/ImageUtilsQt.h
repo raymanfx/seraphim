@@ -21,6 +21,12 @@ static bool Image2QImage(const sph::core::Image &src, QImage &dst) {
         return false;
     }
 
+    // QImage data must be 32-bit aligned, as must each individual scanline
+    // ref: https://doc.qt.io/qt-5/qimage.html#QImage-3
+    if (src.buffer().row_alignment() != 4) {
+        return false;
+    }
+
     // https://doc.qt.io/qt-5/qvideoframe.html#PixelFormat-enum
     switch (src.buffer().format().pixfmt) {
     case sph::core::ImageBuffer::Pixelformat::BGR24:

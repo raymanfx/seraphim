@@ -7,9 +7,49 @@
 
 using namespace sph::core;
 
+static bool validate_format(ImageBuffer::Format &fmt) {
+    if (fmt.width == 0 || fmt.height == 0) {
+        return false;
+    }
+
+    if (fmt.stride > 0 && fmt.stride < fmt.width) {
+        return false;
+    }
+
+    if (fmt.stride == 0) {
+        switch (fmt.pixfmt) {
+        case ImageBuffer::Pixelformat::BGR24:
+        case ImageBuffer::Pixelformat::RGB24:
+            fmt.stride = fmt.width * 3;
+            break;
+        case ImageBuffer::Pixelformat::BGR32:
+        case ImageBuffer::Pixelformat::RGB32:
+            fmt.stride = fmt.width * 4;
+            break;
+        case ImageBuffer::Pixelformat::Y8:
+            fmt.stride = fmt.width * 1;
+            break;
+        case ImageBuffer::Pixelformat::Y16:
+            fmt.stride = fmt.width * 2;
+            break;
+        default:
+            return false;
+        }
+    }
+
+    return true;
+}
+
 ImageBuffer::ImageBuffer() {
     m_data_owned = false;
     reset();
+}
+
+ImageBuffer::ImageBuffer(const ImageBuffer &buf) {
+    // create a shallow copy
+    m_data = const_cast<unsigned char *>(buf.data());
+    m_data_owned = false;
+    m_format = buf.format();
 }
 
 ImageBuffer::~ImageBuffer() {
@@ -17,13 +57,12 @@ ImageBuffer::~ImageBuffer() {
 }
 
 void ImageBuffer::reset() {
-    if (m_data_owned) {
+    if (m_data && m_data_owned) {
         // release allocated memory
         delete[] m_data;
     }
 
     m_data = nullptr;
-    m_size = 0;
     m_data_owned = false;
     m_format = {};
 }
@@ -47,52 +86,67 @@ ImageBuffer::Pixelformat ImageBuffer::as_pixelformat(const uint32_t &fourcc) {
     }
 }
 
-bool ImageBuffer::load(unsigned char *src, const Format &fmt) {
-    size_t datalen;
+bool ImageBuffer::load(const ImageBuffer &buf) {
+    const unsigned char *src = buf.data();
+    size_t src_len = buf.size();
+    Format src_fmt = buf.format();
 
-    // determine the 1D data buffer length
-    switch (fmt.pixfmt) {
-    case Pixelformat::BGR24:
-    case Pixelformat::RGB24:
-        datalen = fmt.height * (fmt.width + fmt.padding) * 3 /* bpp / 8 */;
-        break;
-    case Pixelformat::BGR32:
-    case Pixelformat::RGB32:
-        datalen = fmt.height * (fmt.width + fmt.padding) * 4 /* bpp / 8 */;
-        break;
-    case Pixelformat::Y8:
-        datalen = fmt.height * (fmt.width + fmt.padding) * 1 /* bpp / 8 */;
-        break;
-    case Pixelformat::Y16:
-        datalen = fmt.height * (fmt.width + fmt.padding) * 2 /* bpp / 8 */;
-        break;
-    default:
+    if (!validate_format(src_fmt)) {
+        return false;
+    }
+
+    // do not attempt to copy ourselves
+    if (this == &buf && m_data_owned) {
+        return true;
+    }
+
+    // clear old data
+    reset();
+
+    m_data = new unsigned char[src_len];
+    m_data_owned = true;
+
+    std::memcpy(m_data, src, src_len);
+    m_format = src_fmt;
+    return true;
+}
+
+bool ImageBuffer::load(const unsigned char *src, const Format &fmt) {
+    size_t datalen;
+    Format src_fmt = fmt;
+
+    if (!validate_format(src_fmt)) {
         return false;
     }
 
     // clear old data
     reset();
 
-    std::memcpy(m_data, src, datalen);
-    m_size = datalen;
-    m_data_owned = true;
-    m_format = fmt;
+    m_format = src_fmt;
 
+    datalen = size();
+    if (datalen == 0) {
+        reset();
+        return false;
+    }
+
+    m_data = new unsigned char[datalen];
+    m_data_owned = true;
+
+    std::memcpy(m_data, src, datalen);
     return true;
 }
 
-bool ImageBuffer::load(unsigned char *src, const ImageBufferConverter::SourceFormat &src_fmt,
+bool ImageBuffer::load(const unsigned char *src, const ImageBufferConverter::SourceFormat &src_fmt,
                        const Pixelformat &pixfmt) {
-    size_t dst_size = 0;
+    size_t dst_size;
     Format fmt = {};
     ImageBufferConverter::TargetFormat dst_fmt = {};
+    size_t dst_padding;
 
     fmt.width = src_fmt.width;
     fmt.height = src_fmt.height;
-    fmt.padding = src_fmt.padding;
     fmt.pixfmt = ImageBuffer::Pixelformat::UNKNOWN;
-
-    dst_fmt.padding = 0;
 
     // check whether conversion is necessary
     switch (src_fmt.fourcc) {
@@ -116,6 +170,10 @@ bool ImageBuffer::load(unsigned char *src, const ImageBufferConverter::SourceFor
         break;
     default:
         break;
+    }
+
+    if (!validate_format(fmt)) {
+        return false;
     }
 
     // determine the format to convert to
@@ -142,6 +200,16 @@ bool ImageBuffer::load(unsigned char *src, const ImageBufferConverter::SourceFor
         return false;
     }
 
+    // always align on word boundaries
+    dst_fmt.alignment = 4;
+
+    // the general formula is:
+    // padding = (ALIGN - (LENGTH % ALIGN)) % ALIGN
+    dst_padding = (dst_fmt.alignment - (src_fmt.stride % dst_fmt.alignment)) % dst_fmt.alignment;
+
+    // calculate the target stride
+    fmt.stride = fmt.width + dst_padding;
+
     if (fmt.pixfmt != Pixelformat::UNKNOWN) {
         // we know the format, so load the data right away
         return load(src, fmt);
@@ -152,39 +220,23 @@ bool ImageBuffer::load(unsigned char *src, const ImageBufferConverter::SourceFor
 
     if (fmt.pixfmt == Pixelformat::UNKNOWN) {
         // looks like we need to convert the buffer
-        dst_size = ImageBufferConverter::Instance().convert(&src, src_fmt, &m_data, dst_fmt);
+        unsigned char *src_ = const_cast<unsigned char *>(src);
+        dst_size = ImageBufferConverter::Instance().convert(&src_, src_fmt, &m_data, dst_fmt);
         if (dst_size == 0) {
             return false;
         }
     }
 
-    m_size = dst_size;
     m_data_owned = true;
     m_format = fmt;
 
     return true;
 }
 
-bool ImageBuffer::assign(unsigned char *src, const Format &fmt, const bool &ownership) {
-    size_t datalen;
+bool ImageBuffer::assign(unsigned char *src, const Format &fmt) {
+    Format src_fmt = fmt;
 
-    // determine the 1D data buffer length
-    switch (fmt.pixfmt) {
-    case Pixelformat::BGR24:
-    case Pixelformat::RGB24:
-        datalen = fmt.height * (fmt.width + fmt.padding) * 3 /* bpp / 8 */;
-        break;
-    case Pixelformat::BGR32:
-    case Pixelformat::RGB32:
-        datalen = fmt.height * (fmt.width + fmt.padding) * 4 /* bpp / 8 */;
-        break;
-    case Pixelformat::Y8:
-        datalen = fmt.height * (fmt.width + fmt.padding) * 1 /* bpp / 8 */;
-        break;
-    case Pixelformat::Y16:
-        datalen = fmt.height * (fmt.width + fmt.padding) * 2 /* bpp / 8 */;
-        break;
-    default:
+    if (!validate_format(src_fmt)) {
         return false;
     }
 
@@ -192,17 +244,16 @@ bool ImageBuffer::assign(unsigned char *src, const Format &fmt, const bool &owne
     reset();
 
     m_data = src;
-    m_size = datalen;
-    m_data_owned = ownership;
-    m_format = fmt;
+    m_data_owned = false;
+    m_format = src_fmt;
 
     return true;
 }
 
 unsigned char *ImageBuffer::scanline(const uint32_t &y) const {
-    size_t offset = y * (m_format.width + m_format.padding);
+    size_t offset = y * m_format.stride;
 
-    if (offset > m_size) {
+    if (offset > size()) {
         return nullptr;
     }
 
@@ -240,7 +291,7 @@ unsigned char *ImageBuffer::pixel(const uint32_t &x, const uint32_t &y) const {
         return nullptr;
     }
 
-    if (offset > m_size) {
+    if (offset > size()) {
         // asked for an invalid pixel
         return nullptr;
     }
@@ -250,6 +301,9 @@ unsigned char *ImageBuffer::pixel(const uint32_t &x, const uint32_t &y) const {
 
 bool ImageBuffer::convert(const Pixelformat &target) {
     unsigned char *dst = nullptr;
+    size_t dst_size;
+    size_t dst_padding;
+    size_t dst_pixel_size;
     ImageBufferConverter::SourceFormat src_fmt = {};
     ImageBufferConverter::TargetFormat dst_fmt = {};
 
@@ -259,10 +313,7 @@ bool ImageBuffer::convert(const Pixelformat &target) {
 
     src_fmt.width = m_format.width;
     src_fmt.height = m_format.height;
-    src_fmt.padding = m_format.padding;
-
-    dst_fmt.padding = 0;
-
+    src_fmt.stride = m_format.stride;
     switch (m_format.pixfmt) {
     case Pixelformat::BGR24:
         src_fmt.fourcc = fourcc('B', 'G', 'R', '3');
@@ -289,39 +340,52 @@ bool ImageBuffer::convert(const Pixelformat &target) {
     switch (target) {
     case Pixelformat::BGR24:
         dst_fmt.fourcc = fourcc('B', 'G', 'R', '3');
+        dst_pixel_size = 3;
         break;
     case Pixelformat::BGR32:
         dst_fmt.fourcc = fourcc('B', 'G', 'R', '4');
+        dst_pixel_size = 4;
         break;
     case Pixelformat::RGB24:
         dst_fmt.fourcc = fourcc('R', 'G', 'B', '3');
+        dst_pixel_size = 3;
         break;
     case Pixelformat::RGB32:
         dst_fmt.fourcc = fourcc('R', 'G', 'B', '4');
+        dst_pixel_size = 4;
         break;
     case Pixelformat::Y8:
         dst_fmt.fourcc = fourcc('G', 'R', 'E', 'Y');
+        dst_pixel_size = 1;
         break;
     case Pixelformat::Y16:
         dst_fmt.fourcc = fourcc('Y', '1', '6', ' ');
+        dst_pixel_size = 2;
         break;
     default:
         return false;
     }
 
+    // always align on word boundaries
+    dst_fmt.alignment = 4;
+
+    // the general formula is:
+    // padding = (ALIGN - (LENGTH % ALIGN)) % ALIGN
+    dst_padding = (dst_fmt.alignment - (src_fmt.stride % dst_fmt.alignment)) % dst_fmt.alignment;
+
     bool converted = false;
     if (m_data_owned) {
         // try to convert in-place first
         dst = m_data;
-        m_size = ImageBufferConverter::Instance().convert(&m_data, src_fmt, &dst, dst_fmt);
-        converted = m_size > 0;
+        dst_size = ImageBufferConverter::Instance().convert(&m_data, src_fmt, &dst, dst_fmt);
+        converted = dst_size > 0;
     }
 
     if (!converted) {
         // try to convert by allocating a new buffer
         dst = nullptr;
-        m_size = ImageBufferConverter::Instance().convert(&m_data, src_fmt, &dst, dst_fmt);
-        converted = m_size > 0;
+        dst_size = ImageBufferConverter::Instance().convert(&m_data, src_fmt, &dst, dst_fmt);
+        converted = dst_size > 0;
     }
 
     if (!converted) {
@@ -333,15 +397,14 @@ bool ImageBuffer::convert(const Pixelformat &target) {
     // at this point the new buffer is available
     // swap buffers if necessary
     if (m_data != dst) {
-        if (m_data_owned) {
-            // release allocated memory
-            delete[] m_data;
-        }
+        reset();
         m_data = dst;
         m_data_owned = true;
     }
-    m_format.padding = dst_fmt.padding;
+    m_format.width = src_fmt.width;
+    m_format.height = src_fmt.height;
     m_format.pixfmt = target;
+    m_format.stride = (src_fmt.width + dst_padding) * dst_pixel_size;
 
     return true;
 }

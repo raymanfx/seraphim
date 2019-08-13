@@ -47,20 +47,23 @@ public:
         uint32_t width;
         /// height in pixels
         uint32_t height;
-        /// pixel row padding
-        uint32_t padding;
         /// pixelformat
         uint32_t fourcc;
+        /// length of one pixel row in bytes
+        size_t stride = width;
     };
 
     /**
      * @brief Target buffer description.
      */
     struct TargetFormat {
-        /// padding for each pixel row (padding = stride - width)
-        uint32_t padding;
         /// pixelformat
         uint32_t fourcc;
+        /// pixel row alignment
+        /// sensible choices are:
+        /// 1 (one-byte alignment)
+        /// 4 (word alignment, default)
+        uint8_t alignment = 4;
     };
 
     /**
