@@ -162,9 +162,11 @@ int main(int argc, char **argv) {
         if (lanes.size() > 0) {
             for (auto &lane : lanes) {
                 cv::line(frame, cv::Point(lane.points()[0].x, lane.points()[0].y),
-                         (cv::Point(lane.points()[1].x, lane.points()[1].y)), cv::Scalar(0, 0, 255), 3);
+                         (cv::Point(lane.points()[1].x, lane.points()[1].y)), cv::Scalar(0, 0, 255),
+                         3);
                 cv::line(frame, cv::Point(lane.points()[2].x, lane.points()[2].y),
-                         (cv::Point(lane.points()[3].x, lane.points()[3].y)), cv::Scalar(0, 0, 255), 3);
+                         (cv::Point(lane.points()[3].x, lane.points()[3].y)), cv::Scalar(0, 0, 255),
+                         3);
             }
         }
 
