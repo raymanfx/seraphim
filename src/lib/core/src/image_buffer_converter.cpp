@@ -161,8 +161,8 @@ static size_t rgb_to_bgr(unsigned char **src, const ImageBufferConverter::Source
     return dst_size;
 }
 
-static size_t rgb_to_y16(unsigned char **src, const ImageBufferConverter::SourceFormat &src_fmt,
-                         unsigned char **dst, const ImageBufferConverter::TargetFormat &dst_fmt) {
+static size_t rgb_to_y(unsigned char **src, const ImageBufferConverter::SourceFormat &src_fmt,
+                       unsigned char **dst, const ImageBufferConverter::TargetFormat &dst_fmt) {
     size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
@@ -190,6 +190,9 @@ static size_t rgb_to_y16(unsigned char **src, const ImageBufferConverter::Source
 
     // allocate the target buffer
     switch (dst_fmt.fourcc) {
+    case fourcc('G', 'R', 'E', 'Y'):
+        dst_pixel_size = 1; /* 8 bpp */
+        break;
     case fourcc('Y', '1', '6', ' '):
         dst_pixel_size = 2; /* 16 bpp */
         break;
@@ -235,16 +238,30 @@ static size_t rgb_to_y16(unsigned char **src, const ImageBufferConverter::Source
 
             // use weighted (luminosity) method
             // http://www.fourcc.org/fccyvrgb.php
-            int16_t *y = reinterpret_cast<int16_t *>((*dst) + dst_offset);
-            *y = static_cast<int16_t>(clamp(0.299f * *r + 0.587f * *g + 0.114f * *b, 0.0f, 255.0f));
+            uint8_t *y8;
+            uint16_t *y16;
+            switch (dst_fmt.fourcc) {
+            case fourcc('G', 'R', 'E', 'Y'):
+                y8 = reinterpret_cast<uint8_t *>((*dst) + dst_offset);
+                *y8 = static_cast<uint8_t>(
+                    clamp(0.299f * *r + 0.587f * *g + 0.114f * *b, 0.0f, 255.0f));
+                break;
+            case fourcc('Y', '1', '6', ' '):
+                y16 = reinterpret_cast<uint16_t *>((*dst) + dst_offset);
+                *y16 = static_cast<uint16_t>(
+                    clamp(0.299f * *r + 0.587f * *g + 0.114f * *b, 0.0f, 255.0f));
+                break;
+            default:
+                return 0;
+            }
         }
     }
 
     return dst_size;
 }
 
-static size_t y16_to_bgr(unsigned char **src, const ImageBufferConverter::SourceFormat &src_fmt,
-                         unsigned char **dst, const ImageBufferConverter::TargetFormat &dst_fmt) {
+static size_t y_to_bgr(unsigned char **src, const ImageBufferConverter::SourceFormat &src_fmt,
+                       unsigned char **dst, const ImageBufferConverter::TargetFormat &dst_fmt) {
     size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
@@ -256,6 +273,9 @@ static size_t y16_to_bgr(unsigned char **src, const ImageBufferConverter::Source
 
     // validate source format
     switch (src_fmt.fourcc) {
+    case fourcc('G', 'R', 'E', 'Y'):
+        src_pixel_size = 1; /* 8 bpp */
+        break;
     case fourcc('Y', '1', '6', ' '):
         src_pixel_size = 2; /* 16 bpp */
         break;
@@ -295,10 +315,21 @@ static size_t y16_to_bgr(unsigned char **src, const ImageBufferConverter::Source
             src_offset = y * src_stride + x * src_pixel_size;
             dst_offset = y * dst_stride + x * dst_pixel_size;
 
-            int16_t *y = reinterpret_cast<int16_t *>((*src) + src_offset);
-            (*dst)[dst_offset + 0] = clamp(*y, (int16_t)0, (int16_t)255); // b
-            (*dst)[dst_offset + 1] = clamp(*y, (int16_t)0, (int16_t)255); // g
-            (*dst)[dst_offset + 2] = clamp(*y, (int16_t)0, (int16_t)255); // r
+            uint16_t y16;
+            switch (src_fmt.fourcc) {
+            case fourcc('G', 'R', 'E', 'Y'):
+                y16 = *(reinterpret_cast<uint8_t *>((*src) + src_offset));
+                break;
+            case fourcc('Y', '1', '6', ' '):
+                y16 = *(reinterpret_cast<uint16_t *>((*src) + src_offset));
+                break;
+            default:
+                return 0;
+            }
+
+            (*dst)[dst_offset + 0] = clamp(y16, (uint16_t)0, (uint16_t)255); // b
+            (*dst)[dst_offset + 1] = clamp(y16, (uint16_t)0, (uint16_t)255); // g
+            (*dst)[dst_offset + 2] = clamp(y16, (uint16_t)0, (uint16_t)255); // r
         }
     }
 
@@ -396,16 +427,16 @@ ImageBufferConverter::ImageBufferConverter() {
     rgb_bgr.target_fmts = { fourcc('B', 'G', 'R', '3'), fourcc('B', 'G', 'R', '4') };
     rgb_bgr.function = rgb_to_bgr;
 
-    Converter rgb_y16;
-    rgb_y16.source_fmts = { fourcc('R', 'G', 'B', '3'), fourcc('R', 'G', 'B', '4'),
-                            fourcc('B', 'G', 'R', '3'), fourcc('B', 'G', 'R', '4') };
-    rgb_y16.target_fmts = { fourcc('Y', '1', '6', ' ') };
-    rgb_y16.function = rgb_to_y16;
+    Converter rgb_y;
+    rgb_y.source_fmts = { fourcc('R', 'G', 'B', '3'), fourcc('R', 'G', 'B', '4'),
+                          fourcc('B', 'G', 'R', '3'), fourcc('B', 'G', 'R', '4') };
+    rgb_y.target_fmts = { fourcc('G', 'R', 'E', 'Y'), fourcc('Y', '1', '6', ' ') };
+    rgb_y.function = rgb_to_y;
 
-    Converter y16_bgr;
-    y16_bgr.source_fmts = { fourcc('Y', '1', '6', ' ') };
-    y16_bgr.target_fmts = { fourcc('B', 'G', 'R', '3'), fourcc('B', 'G', 'R', '4') };
-    y16_bgr.function = y16_to_bgr;
+    Converter y_bgr;
+    y_bgr.source_fmts = { fourcc('G', 'R', 'E', 'Y'), fourcc('Y', '1', '6', ' ') };
+    y_bgr.target_fmts = { fourcc('B', 'G', 'R', '3'), fourcc('B', 'G', 'R', '4') };
+    y_bgr.function = y_to_bgr;
 
     Converter yuy2_bgr;
     yuy2_bgr.source_fmts = { fourcc('Y', 'U', 'Y', '2'), fourcc('Y', 'U', 'Y', 'V') };
@@ -414,8 +445,8 @@ ImageBufferConverter::ImageBufferConverter() {
 
     register_converter(bgr_rgb, 0 /* prio */);
     register_converter(rgb_bgr, 0 /* prio */);
-    register_converter(rgb_y16, 0 /* prio */);
-    register_converter(y16_bgr, 0 /* prio */);
+    register_converter(rgb_y, 0 /* prio */);
+    register_converter(y_bgr, 0 /* prio */);
     register_converter(yuy2_bgr, 0 /* prio */);
 }
 

@@ -38,6 +38,8 @@ ImageBuffer::Pixelformat ImageBuffer::as_pixelformat(const uint32_t &fourcc) {
         return Pixelformat::RGB24;
     case ::fourcc('R', 'G', 'B', '4'):
         return Pixelformat::RGB32;
+    case ::fourcc('G', 'R', 'E', 'Y'):
+        return Pixelformat::Y8;
     case ::fourcc('Y', '1', '6', ' '):
         return Pixelformat::Y16;
     default:
@@ -57,6 +59,9 @@ bool ImageBuffer::load(unsigned char *src, const Format &fmt) {
     case Pixelformat::BGR32:
     case Pixelformat::RGB32:
         datalen = fmt.height * (fmt.width + fmt.padding) * 4 /* bpp / 8 */;
+        break;
+    case Pixelformat::Y8:
+        datalen = fmt.height * (fmt.width + fmt.padding) * 1 /* bpp / 8 */;
         break;
     case Pixelformat::Y16:
         datalen = fmt.height * (fmt.width + fmt.padding) * 2 /* bpp / 8 */;
@@ -103,6 +108,9 @@ bool ImageBuffer::load(unsigned char *src, const ImageBufferConverter::SourceFor
     case fourcc('R', 'G', 'B', '4'):
         fmt.pixfmt = Pixelformat::RGB32;
         break;
+    case fourcc('G', 'R', 'E', 'Y'):
+        fmt.pixfmt = Pixelformat::Y8;
+        break;
     case fourcc('Y', '1', '6', ' '):
         fmt.pixfmt = Pixelformat::Y16;
         break;
@@ -123,6 +131,9 @@ bool ImageBuffer::load(unsigned char *src, const ImageBufferConverter::SourceFor
         break;
     case Pixelformat::RGB32:
         dst_fmt.fourcc = fourcc('R', 'G', 'B', '4');
+        break;
+    case Pixelformat::Y8:
+        dst_fmt.fourcc = fourcc('G', 'R', 'E', 'Y');
         break;
     case Pixelformat::Y16:
         dst_fmt.fourcc = fourcc('Y', '1', '6', ' ');
@@ -166,6 +177,9 @@ bool ImageBuffer::assign(unsigned char *src, const Format &fmt, const bool &owne
     case Pixelformat::BGR32:
     case Pixelformat::RGB32:
         datalen = fmt.height * (fmt.width + fmt.padding) * 4 /* bpp / 8 */;
+        break;
+    case Pixelformat::Y8:
+        datalen = fmt.height * (fmt.width + fmt.padding) * 1 /* bpp / 8 */;
         break;
     case Pixelformat::Y16:
         datalen = fmt.height * (fmt.width + fmt.padding) * 2 /* bpp / 8 */;
@@ -214,6 +228,10 @@ unsigned char *ImageBuffer::pixel(const uint32_t &x, const uint32_t &y) const {
         /* each pixel is four bytes */
         offset = x * 4;
         break;
+    case Pixelformat::Y8:
+        /* each pixel is one byte */
+        offset = x;
+        break;
     case Pixelformat::Y16:
         /* each pixel is two bytes */
         offset = x * 2;
@@ -258,6 +276,9 @@ bool ImageBuffer::convert(const Pixelformat &target) {
     case Pixelformat::RGB32:
         src_fmt.fourcc = fourcc('R', 'G', 'B', '4');
         break;
+    case Pixelformat::Y8:
+        src_fmt.fourcc = fourcc('G', 'R', 'E', 'Y');
+        break;
     case Pixelformat::Y16:
         src_fmt.fourcc = fourcc('Y', '1', '6', ' ');
         break;
@@ -277,6 +298,9 @@ bool ImageBuffer::convert(const Pixelformat &target) {
         break;
     case Pixelformat::RGB32:
         dst_fmt.fourcc = fourcc('R', 'G', 'B', '4');
+        break;
+    case Pixelformat::Y8:
+        dst_fmt.fourcc = fourcc('G', 'R', 'E', 'Y');
         break;
     case Pixelformat::Y16:
         dst_fmt.fourcc = fourcc('Y', '1', '6', ' ');

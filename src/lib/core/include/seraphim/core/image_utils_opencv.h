@@ -34,6 +34,10 @@ static bool Image2Mat(const sph::core::Image &src, cv::Mat &dst) {
                   .clone();
         cv::cvtColor(dst, dst, cv::COLOR_RGB2BGR);
         break;
+    case sph::core::ImageBuffer::Pixelformat::Y8:
+        dst = cv::Mat(static_cast<int>(src.height()), static_cast<int>(src.width()), CV_8UC1,
+                      const_cast<unsigned char *>(src.buffer().data()));
+        break;
     case sph::core::ImageBuffer::Pixelformat::Y16:
         dst = cv::Mat(static_cast<int>(src.height()), static_cast<int>(src.width()), CV_16UC1,
                       const_cast<unsigned char *>(src.buffer().data()));
@@ -64,7 +68,9 @@ static bool Mat2Image(cv::InputArray src, sph::core::Image &dst) {
     // OpenCV images are always BGR
     switch (mat.elemSize1()) {
     case 1:
-        if (mat.channels() == 3) {
+        if (mat.channels() == 1) {
+            fmt.pixfmt = sph::core::ImageBuffer::Pixelformat::Y8;
+        } else if (mat.channels() == 3) {
             fmt.pixfmt = sph::core::ImageBuffer::Pixelformat::BGR24;
         }
         break;

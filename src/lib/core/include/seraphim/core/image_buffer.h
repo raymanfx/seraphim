@@ -40,6 +40,7 @@ public:
         RGB24,
         RGB32,
         /* Luminance Chrominance formats */
+        Y8,
         Y16,
         /* Unspecified format */
         UNKNOWN
