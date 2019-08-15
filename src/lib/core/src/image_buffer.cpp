@@ -119,16 +119,11 @@ bool ImageBuffer::load(const unsigned char *src, const Format &fmt) {
     // clear old data
     clear();
 
-    m_format = src_fmt;
-
-    src_len = size();
-    if (src_len == 0) {
-        clear();
-        return false;
-    }
+    src_len = src_fmt.height * src_fmt.stride;
 
     m_data_buffer.assign(src, src + src_len);
     m_data = m_data_buffer.data();
+    m_format = src_fmt;
 
     return true;
 }
