@@ -69,8 +69,8 @@ public:
     /**
      * @brief Convert arbitrary pixel data into a supported format.
      */
-    typedef std::function<size_t(unsigned char **src, const SourceFormat &src_fmt,
-                                 unsigned char **dst, const TargetFormat &dst_fmt)>
+    typedef std::function<bool(unsigned char *src, const SourceFormat &src_fmt,
+                               std::vector<unsigned char> &dst, const TargetFormat &dst_fmt)>
         ConverterFunction;
 
     /**
@@ -100,10 +100,10 @@ public:
      * @param src_fmt Pixelbuffer source format.
      * @param dst Target buffer.
      * @param dst_fmt Target buffer format.
-     * @return The size of the converted buffer.
+     * @return True on success, false otherwise.
      */
-    size_t convert(unsigned char **src, const SourceFormat &src_fmt, unsigned char **dst,
-                   const TargetFormat &dst_fmt);
+    bool convert(unsigned char *src, const SourceFormat &src_fmt, std::vector<unsigned char> &dst,
+                 const TargetFormat &dst_fmt);
 
 private:
     ImageBufferConverter();

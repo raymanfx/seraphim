@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <cstring>
 #include <string>
+#include <vector>
 
 #include "image_buffer_converter.h"
 
@@ -78,15 +79,17 @@ public:
     bool empty() const { return (m_data == nullptr) || (size() == 0); }
 
     /**
-     * @brief Yields information on whether or not the instance holds allocated pixel data.
-     * @return True if buffer is managed by the instance, false otherwise.
+     * @brief Clear the buffer, freeing any allocated resources.
+     *        Does not perform any reallocations. Use @ref shrink if you want to reclaim memory.
      */
-    bool owns_data() const { return m_data_owned; }
+    void clear();
 
     /**
-     * @brief Clear the buffer, freeing any allocated resources.
+     * @brief Reclaim unneeded memory that is occupied by the internal buffer.
+     *        Since this will cause reallocation, use it only if you absolutely need to reclaim
+     *        the occupied memory.
      */
-    void reset();
+    void shrink();
 
     /**
      * @brief Copy an image buffer so this instance owns the data.
@@ -174,8 +177,8 @@ public:
 protected:
     /// pixel buffer address, must reside in host memory (DRAM) for now
     unsigned char *m_data;
-    /// whether the instance owns the buffer
-    bool m_data_owned;
+    /// back buffer, used for internal data allocations
+    std::vector<unsigned char> m_data_buffer;
 
     /// buffer format
     Format m_format;

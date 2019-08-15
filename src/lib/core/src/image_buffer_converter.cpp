@@ -22,8 +22,9 @@ template <class T> static T clamp(const T &val, const T &min, const T &max) {
     return val;
 }
 
-static size_t bgr_to_rgb(unsigned char **src, const ImageBufferConverter::SourceFormat &src_fmt,
-                         unsigned char **dst, const ImageBufferConverter::TargetFormat &dst_fmt) {
+static bool bgr_to_rgb(unsigned char *src, const ImageBufferConverter::SourceFormat &src_fmt,
+                       std::vector<unsigned char> &dst,
+                       const ImageBufferConverter::TargetFormat &dst_fmt) {
     size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
@@ -42,7 +43,7 @@ static size_t bgr_to_rgb(unsigned char **src, const ImageBufferConverter::Source
         src_pixel_size = 4; /* 32 bpp */
         break;
     default:
-        return 0;
+        return false;
     }
 
     src_size = src_fmt.height * src_fmt.stride * src_pixel_size;
@@ -56,47 +57,46 @@ static size_t bgr_to_rgb(unsigned char **src, const ImageBufferConverter::Source
         dst_pixel_size = 4; /* 32 bpp */
         break;
     default:
-        return 0;
+        return false;
     }
 
-    dst_size = src_fmt.height * src_fmt.width * dst_pixel_size;
-    dst_padding = (dst_fmt.alignment - (dst_size % dst_fmt.alignment)) % dst_fmt.alignment;
+    dst_padding = (dst_fmt.alignment - ((src_fmt.width * dst_pixel_size) % dst_fmt.alignment)) %
+                  dst_fmt.alignment;
     dst_stride = src_fmt.width * dst_pixel_size + dst_padding;
-    // account for padding
-    dst_size += src_fmt.height * dst_padding;
+    dst_size = src_fmt.height * dst_stride;
 
-    if (src == dst) {
-        // check if in-place conversion is possible
-        if (dst_size > src_size) {
-            return 0;
+    // check if in-place conversion is possible if requested
+    if (src == dst.data()) {
+        if (dst.size() < dst_size) {
+            return false;
         }
-    } else {
-        // allocate new target buffer
-        *dst = new unsigned char[dst_size];
     }
+
+    dst.resize(dst_size);
 
     for (size_t y = 0; y < src_fmt.height; y++) {
         for (size_t x = 0; x < src_fmt.width; x++) {
             src_offset = y * src_fmt.stride + x * src_pixel_size;
             dst_offset = y * dst_stride + x * dst_pixel_size;
             /* each pixel is three bytes */
-            if (src == dst) {
-                unsigned char *tmp = *(src + src_offset + 0);
-                *(dst + dst_offset + 0) = *(src + src_offset + 2);
-                *(dst + dst_offset + 2) = tmp;
+            if (src == dst.data()) {
+                unsigned char tmp = src[src_offset + 0];
+                dst[dst_offset + 0] = src[src_offset + 2];
+                dst[dst_offset + 2] = tmp;
             } else {
-                (*dst)[dst_offset + 0] = (*src)[src_offset + 2];
-                (*dst)[dst_offset + 1] = (*src)[src_offset + 1];
-                (*dst)[dst_offset + 2] = (*src)[src_offset + 0];
+                dst[dst_offset + 0] = src[src_offset + 2];
+                dst[dst_offset + 1] = src[src_offset + 1];
+                dst[dst_offset + 2] = src[src_offset + 0];
             }
         }
     }
 
-    return dst_size;
+    return true;
 }
 
-static size_t rgb_to_bgr(unsigned char **src, const ImageBufferConverter::SourceFormat &src_fmt,
-                         unsigned char **dst, const ImageBufferConverter::TargetFormat &dst_fmt) {
+static bool rgb_to_bgr(unsigned char *src, const ImageBufferConverter::SourceFormat &src_fmt,
+                       std::vector<unsigned char> &dst,
+                       const ImageBufferConverter::TargetFormat &dst_fmt) {
     size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
@@ -115,7 +115,7 @@ static size_t rgb_to_bgr(unsigned char **src, const ImageBufferConverter::Source
         src_pixel_size = 4; /* 32 bpp */
         break;
     default:
-        return 0;
+        return false;
     }
 
     src_size = src_fmt.height * src_fmt.stride * src_pixel_size;
@@ -129,47 +129,46 @@ static size_t rgb_to_bgr(unsigned char **src, const ImageBufferConverter::Source
         dst_pixel_size = 4; /* 32 bpp */
         break;
     default:
-        return 0;
+        return false;
     }
 
-    dst_size = src_fmt.height * src_fmt.width * dst_pixel_size;
-    dst_padding = (dst_fmt.alignment - (dst_size % dst_fmt.alignment)) % dst_fmt.alignment;
+    dst_padding = (dst_fmt.alignment - ((src_fmt.width * dst_pixel_size) % dst_fmt.alignment)) %
+                  dst_fmt.alignment;
     dst_stride = src_fmt.width * dst_pixel_size + dst_padding;
-    // account for padding
-    dst_size += src_fmt.height * dst_padding;
+    dst_size = src_fmt.height * dst_stride;
 
-    if (src == dst) {
-        // check if in-place conversion is possible
-        if (dst_size > src_size) {
-            return 0;
+    // check if in-place conversion is possible if requested
+    if (src == dst.data()) {
+        if (dst.size() < dst_size) {
+            return false;
         }
-    } else {
-        // allocate new target buffer
-        *dst = new unsigned char[dst_size];
     }
+
+    dst.resize(dst_size);
 
     for (size_t y = 0; y < src_fmt.height; y++) {
         for (size_t x = 0; x < src_fmt.width; x++) {
             src_offset = y * src_fmt.stride + x * src_pixel_size;
             dst_offset = y * dst_stride + x * dst_pixel_size;
             /* each pixel is three bytes */
-            if (src == dst) {
-                unsigned char *tmp = *(src + src_offset + 0);
-                *(dst + dst_offset + 0) = *(src + src_offset + 2);
-                *(dst + dst_offset + 2) = tmp;
+            if (src == dst.data()) {
+                unsigned char tmp = src[src_offset + 0];
+                dst[dst_offset + 0] = src[src_offset + 2];
+                dst[dst_offset + 2] = tmp;
             } else {
-                (*dst)[dst_offset + 0] = (*src)[src_offset + 2];
-                (*dst)[dst_offset + 1] = (*src)[src_offset + 1];
-                (*dst)[dst_offset + 2] = (*src)[src_offset + 0];
+                dst[dst_offset + 0] = src[src_offset + 2];
+                dst[dst_offset + 1] = src[src_offset + 1];
+                dst[dst_offset + 2] = src[src_offset + 0];
             }
         }
     }
 
-    return dst_size;
+    return true;
 }
 
-static size_t rgb_to_y(unsigned char **src, const ImageBufferConverter::SourceFormat &src_fmt,
-                       unsigned char **dst, const ImageBufferConverter::TargetFormat &dst_fmt) {
+static size_t rgb_to_y(unsigned char *src, const ImageBufferConverter::SourceFormat &src_fmt,
+                       std::vector<unsigned char> &dst,
+                       const ImageBufferConverter::TargetFormat &dst_fmt) {
     size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
@@ -190,7 +189,7 @@ static size_t rgb_to_y(unsigned char **src, const ImageBufferConverter::SourceFo
         src_pixel_size = 4; /* 32 bpp */
         break;
     default:
-        return 0;
+        return false;
     }
 
     src_size = src_fmt.height * src_fmt.stride * src_pixel_size;
@@ -204,24 +203,22 @@ static size_t rgb_to_y(unsigned char **src, const ImageBufferConverter::SourceFo
         dst_pixel_size = 2; /* 16 bpp */
         break;
     default:
-        return 0;
+        return false;
     }
 
-    dst_size = src_fmt.height * src_fmt.width * dst_pixel_size;
-    dst_padding = (dst_fmt.alignment - (dst_size % dst_fmt.alignment)) % dst_fmt.alignment;
+    dst_padding = (dst_fmt.alignment - ((src_fmt.width * dst_pixel_size) % dst_fmt.alignment)) %
+                  dst_fmt.alignment;
     dst_stride = src_fmt.width * dst_pixel_size + dst_padding;
-    // account for padding
-    dst_size += src_fmt.height * dst_padding;
+    dst_size = src_fmt.height * dst_stride;
 
-    if (src == dst) {
-        // check if in-place conversion is possible
-        if (dst_size > src_size) {
-            return 0;
+    // check if in-place conversion is possible if requested
+    if (src == dst.data()) {
+        if (dst.size() < dst_size) {
+            return false;
         }
-    } else {
-        // allocate new target buffer
-        *dst = new unsigned char[dst_size];
     }
+
+    dst.resize(dst_size);
 
     for (size_t y = 0; y < src_fmt.height; y++) {
         for (size_t x = 0; x < src_fmt.width; x++) {
@@ -233,18 +230,18 @@ static size_t rgb_to_y(unsigned char **src, const ImageBufferConverter::SourceFo
             switch (src_fmt.fourcc) {
             case fourcc('B', 'G', 'R', '3'):
             case fourcc('B', 'G', 'R', '4'):
-                r = (*src) + src_offset + 2;
-                g = (*src) + src_offset + 1;
-                b = (*src) + src_offset + 0;
+                r = src + src_offset + 2;
+                g = src + src_offset + 1;
+                b = src + src_offset + 0;
                 break;
             case fourcc('R', 'G', 'B', '3'):
             case fourcc('R', 'G', 'B', '4'):
-                r = (*src) + src_offset + 0;
-                g = (*src) + src_offset + 1;
-                b = (*src) + src_offset + 2;
+                r = src + src_offset + 0;
+                g = src + src_offset + 1;
+                b = src + src_offset + 2;
                 break;
             default:
-                return 0;
+                return false;
             }
 
             // use weighted (luminosity) method
@@ -253,26 +250,27 @@ static size_t rgb_to_y(unsigned char **src, const ImageBufferConverter::SourceFo
             uint16_t *y16;
             switch (dst_fmt.fourcc) {
             case fourcc('G', 'R', 'E', 'Y'):
-                y8 = reinterpret_cast<uint8_t *>((*dst) + dst_offset);
+                y8 = reinterpret_cast<uint8_t *>(dst.data() + dst_offset);
                 *y8 = static_cast<uint8_t>(
                     clamp(0.299f * *r + 0.587f * *g + 0.114f * *b, 0.0f, 255.0f));
                 break;
             case fourcc('Y', '1', '6', ' '):
-                y16 = reinterpret_cast<uint16_t *>((*dst) + dst_offset);
+                y16 = reinterpret_cast<uint16_t *>(dst.data() + dst_offset);
                 *y16 = static_cast<uint16_t>(
                     clamp(0.299f * *r + 0.587f * *g + 0.114f * *b, 0.0f, 255.0f));
                 break;
             default:
-                return 0;
+                return false;
             }
         }
     }
 
-    return dst_size;
+    return true;
 }
 
-static size_t y_to_bgr(unsigned char **src, const ImageBufferConverter::SourceFormat &src_fmt,
-                       unsigned char **dst, const ImageBufferConverter::TargetFormat &dst_fmt) {
+static bool y_to_bgr(unsigned char *src, const ImageBufferConverter::SourceFormat &src_fmt,
+                     std::vector<unsigned char> &dst,
+                     const ImageBufferConverter::TargetFormat &dst_fmt) {
     size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
@@ -291,7 +289,7 @@ static size_t y_to_bgr(unsigned char **src, const ImageBufferConverter::SourceFo
         src_pixel_size = 2; /* 16 bpp */
         break;
     default:
-        return 0;
+        return false;
     }
 
     src_size = src_fmt.height * src_fmt.stride * src_pixel_size;
@@ -305,24 +303,22 @@ static size_t y_to_bgr(unsigned char **src, const ImageBufferConverter::SourceFo
         dst_pixel_size = 4; /* 32 bpp */
         break;
     default:
-        return 0;
+        return false;
     }
 
-    dst_size = src_fmt.height * src_fmt.width * dst_pixel_size;
-    dst_padding = (dst_fmt.alignment - (dst_size % dst_fmt.alignment)) % dst_fmt.alignment;
+    dst_padding = (dst_fmt.alignment - ((src_fmt.width * dst_pixel_size) % dst_fmt.alignment)) %
+                  dst_fmt.alignment;
     dst_stride = src_fmt.width * dst_pixel_size + dst_padding;
-    // account for padding
-    dst_size += src_fmt.height * dst_padding;
+    dst_size = src_fmt.height * dst_stride;
 
-    if (src == dst) {
-        // check if in-place conversion is possible
-        if (dst_size > src_size) {
-            return 0;
+    // check if in-place conversion is possible if requested
+    if (src == dst.data()) {
+        if (dst.size() < dst_size) {
+            return false;
         }
-    } else {
-        // allocate new target buffer
-        *dst = new unsigned char[dst_size];
     }
+
+    dst.resize(dst_size);
 
     // https://stackoverflow.com/a/4494004
     for (size_t y = 0; y < src_fmt.height; y++) {
@@ -333,26 +329,27 @@ static size_t y_to_bgr(unsigned char **src, const ImageBufferConverter::SourceFo
             uint16_t y16;
             switch (src_fmt.fourcc) {
             case fourcc('G', 'R', 'E', 'Y'):
-                y16 = *(reinterpret_cast<uint8_t *>((*src) + src_offset));
+                y16 = *(reinterpret_cast<uint8_t *>(src + src_offset));
                 break;
             case fourcc('Y', '1', '6', ' '):
-                y16 = *(reinterpret_cast<uint16_t *>((*src) + src_offset));
+                y16 = *(reinterpret_cast<uint16_t *>(src + src_offset));
                 break;
             default:
-                return 0;
+                return false;
             }
 
-            (*dst)[dst_offset + 0] = clamp(y16, (uint16_t)0, (uint16_t)255); // b
-            (*dst)[dst_offset + 1] = clamp(y16, (uint16_t)0, (uint16_t)255); // g
-            (*dst)[dst_offset + 2] = clamp(y16, (uint16_t)0, (uint16_t)255); // r
+            dst[dst_offset + 0] = clamp(y16, (uint16_t)0, (uint16_t)255); // b
+            dst[dst_offset + 1] = clamp(y16, (uint16_t)0, (uint16_t)255); // g
+            dst[dst_offset + 2] = clamp(y16, (uint16_t)0, (uint16_t)255); // r
         }
     }
 
-    return dst_size;
+    return true;
 }
 
-static size_t yuy2_to_bgr(unsigned char **src, const ImageBufferConverter::SourceFormat &src_fmt,
-                          unsigned char **dst, const ImageBufferConverter::TargetFormat &dst_fmt) {
+static size_t yuy2_to_bgr(unsigned char *src, const ImageBufferConverter::SourceFormat &src_fmt,
+                          std::vector<unsigned char> &dst,
+                          const ImageBufferConverter::TargetFormat &dst_fmt) {
     size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
@@ -369,7 +366,7 @@ static size_t yuy2_to_bgr(unsigned char **src, const ImageBufferConverter::Sourc
         src_pixel_size = 4; /* 16 bpp, one macropixel is two pixels */
         break;
     default:
-        return 0;
+        return false;
     }
 
     src_size = src_fmt.height * src_fmt.stride * src_pixel_size;
@@ -383,24 +380,22 @@ static size_t yuy2_to_bgr(unsigned char **src, const ImageBufferConverter::Sourc
         dst_pixel_size = 4; /* 32 bpp */
         break;
     default:
-        return 0;
+        return false;
     }
 
-    dst_size = src_fmt.height * src_fmt.width * dst_pixel_size;
-    dst_padding = (dst_fmt.alignment - (dst_size % dst_fmt.alignment)) % dst_fmt.alignment;
+    dst_padding = (dst_fmt.alignment - ((src_fmt.width * dst_pixel_size) % dst_fmt.alignment)) %
+                  dst_fmt.alignment;
     dst_stride = src_fmt.width * dst_pixel_size + dst_padding;
-    // account for padding
-    dst_size += src_fmt.height * dst_padding;
+    dst_size = src_fmt.height * dst_stride;
 
-    if (src == dst) {
-        // check if in-place conversion is possible
-        if (dst_size > src_size) {
-            return 0;
+    // check if in-place conversion is possible if requested
+    if (src == dst.data()) {
+        if (dst.size() < dst_size) {
+            return false;
         }
-    } else {
-        // allocate new target buffer
-        *dst = new unsigned char[dst_size];
     }
+
+    dst.resize(dst_size);
 
     // https://stackoverflow.com/a/4494004
     for (size_t y = 0; y < src_fmt.height; y++) {
@@ -408,17 +403,17 @@ static size_t yuy2_to_bgr(unsigned char **src, const ImageBufferConverter::Sourc
             src_offset = y * src_fmt.stride + x * src_pixel_size;
             dst_offset = y * dst_stride + x * dst_pixel_size;
             /* each pixel is two bytes, each macropixel (YUYV) is two image pixels */
-            unsigned char *y0 = (*src) + src_offset + 0;
-            unsigned char *u0 = (*src) + src_offset + 1;
-            unsigned char *y1 = (*src) + src_offset + 2;
-            unsigned char *v0 = (*src) + src_offset + 3;
+            unsigned char *y0 = src + src_offset + 0;
+            unsigned char *u0 = src + src_offset + 1;
+            unsigned char *y1 = src + src_offset + 2;
+            unsigned char *v0 = src + src_offset + 3;
             uint8_t c = *y0 - 16;
             uint8_t d = *u0 - 128;
             uint8_t e = *v0 - 128;
             // the first BGR pixel
-            (*dst)[dst_offset + 0] = clamp(((298 * c + 516 * d + 128) >> 8), 0, 255);           // b
-            (*dst)[dst_offset + 1] = clamp(((298 * c - 100 * d - 208 * e + 128) >> 8), 0, 255); // g
-            (*dst)[dst_offset + 2] = clamp(((298 * c + 409 * e + 128) >> 8), 0, 255);           // r
+            dst[dst_offset + 0] = clamp(((298 * c + 516 * d + 128) >> 8), 0, 255);           // b
+            dst[dst_offset + 1] = clamp(((298 * c - 100 * d - 208 * e + 128) >> 8), 0, 255); // g
+            dst[dst_offset + 2] = clamp(((298 * c + 409 * e + 128) >> 8), 0, 255);           // r
 
             if (dst_pixel_size > 3) {
                 dst_offset += dst_pixel_size - 3;
@@ -426,13 +421,13 @@ static size_t yuy2_to_bgr(unsigned char **src, const ImageBufferConverter::Sourc
 
             // the second BGR pixel
             c = *y1 - 16;
-            (*dst)[dst_offset + 3] = clamp(((298 * c + 516 * d + 128) >> 8), 0, 255);           // b
-            (*dst)[dst_offset + 4] = clamp(((298 * c - 100 * d - 208 * e + 128) >> 8), 0, 255); // g
-            (*dst)[dst_offset + 5] = clamp(((298 * c + 409 * e + 128) >> 8), 0, 255);           // r
+            dst[dst_offset + 3] = clamp(((298 * c + 516 * d + 128) >> 8), 0, 255);           // b
+            dst[dst_offset + 4] = clamp(((298 * c - 100 * d - 208 * e + 128) >> 8), 0, 255); // g
+            dst[dst_offset + 5] = clamp(((298 * c + 409 * e + 128) >> 8), 0, 255);           // r
         }
     }
 
-    return dst_size;
+    return true;
 }
 
 ImageBufferConverter::ImageBufferConverter() {
@@ -469,9 +464,9 @@ ImageBufferConverter::ImageBufferConverter() {
     register_converter(yuy2_bgr, 0 /* prio */);
 }
 
-size_t ImageBufferConverter::convert(unsigned char **src, const SourceFormat &src_fmt,
-                                     unsigned char **dst,
-                                     const ImageBufferConverter::TargetFormat &dst_fmt) {
+bool ImageBufferConverter::convert(unsigned char *src, const SourceFormat &src_fmt,
+                                   std::vector<unsigned char> &dst,
+                                   const ImageBufferConverter::TargetFormat &dst_fmt) {
     Converter conv = {};
     int prio = -1;
 
@@ -488,7 +483,7 @@ size_t ImageBufferConverter::convert(unsigned char **src, const SourceFormat &sr
     }
 
     if (!conv.function) {
-        return 0;
+        return false;
     }
 
     return conv.function(src, src_fmt, dst, dst_fmt);

@@ -41,30 +41,28 @@ static bool validate_format(ImageBuffer::Format &fmt) {
 }
 
 ImageBuffer::ImageBuffer() {
-    m_data_owned = false;
-    reset();
+    clear();
 }
 
 ImageBuffer::ImageBuffer(const ImageBuffer &buf) {
     // create a shallow copy
     m_data = const_cast<unsigned char *>(buf.data());
-    m_data_owned = false;
+    m_data_buffer.clear();
     m_format = buf.format();
 }
 
 ImageBuffer::~ImageBuffer() {
-    reset();
+    clear();
 }
 
-void ImageBuffer::reset() {
-    if (m_data && m_data_owned) {
-        // release allocated memory
-        delete[] m_data;
-    }
-
+void ImageBuffer::clear() {
     m_data = nullptr;
-    m_data_owned = false;
+    m_data_buffer.clear();
     m_format = {};
+}
+
+void ImageBuffer::shrink() {
+    m_data_buffer.shrink_to_fit();
 }
 
 ImageBuffer::Pixelformat ImageBuffer::as_pixelformat(const uint32_t &fourcc) {
@@ -96,23 +94,22 @@ bool ImageBuffer::load(const ImageBuffer &buf) {
     }
 
     // do not attempt to copy ourselves
-    if (this == &buf && m_data_owned) {
+    if (this == &buf && !m_data_buffer.empty()) {
         return true;
     }
 
     // clear old data
-    reset();
+    clear();
 
-    m_data = new unsigned char[src_len];
-    m_data_owned = true;
-
-    std::memcpy(m_data, src, src_len);
+    m_data_buffer.assign(src, src + src_len);
+    m_data = m_data_buffer.data();
     m_format = src_fmt;
+
     return true;
 }
 
 bool ImageBuffer::load(const unsigned char *src, const Format &fmt) {
-    size_t datalen;
+    size_t src_len;
     Format src_fmt = fmt;
 
     if (!validate_format(src_fmt)) {
@@ -120,26 +117,24 @@ bool ImageBuffer::load(const unsigned char *src, const Format &fmt) {
     }
 
     // clear old data
-    reset();
+    clear();
 
     m_format = src_fmt;
 
-    datalen = size();
-    if (datalen == 0) {
-        reset();
+    src_len = size();
+    if (src_len == 0) {
+        clear();
         return false;
     }
 
-    m_data = new unsigned char[datalen];
-    m_data_owned = true;
+    m_data_buffer.assign(src, src + src_len);
+    m_data = m_data_buffer.data();
 
-    std::memcpy(m_data, src, datalen);
     return true;
 }
 
 bool ImageBuffer::load(const unsigned char *src, const ImageBufferConverter::SourceFormat &src_fmt,
                        const Pixelformat &pixfmt) {
-    size_t dst_size;
     Format fmt = {};
     ImageBufferConverter::TargetFormat dst_fmt = {};
     size_t dst_padding;
@@ -216,18 +211,18 @@ bool ImageBuffer::load(const unsigned char *src, const ImageBufferConverter::Sou
     }
 
     // clear old data
-    reset();
+    clear();
 
-    if (fmt.pixfmt == Pixelformat::UNKNOWN) {
-        // looks like we need to convert the buffer
-        unsigned char *src_ = const_cast<unsigned char *>(src);
-        dst_size = ImageBufferConverter::Instance().convert(&src_, src_fmt, &m_data, dst_fmt);
-        if (dst_size == 0) {
-            return false;
-        }
+    // looks like we need to convert the buffer
+    bool converted = false;
+    unsigned char *src_ = const_cast<unsigned char *>(src);
+    converted = ImageBufferConverter::Instance().convert(src_, src_fmt, m_data_buffer, dst_fmt);
+    if (!converted) {
+        // something went wrong in the converter code
+        clear();
+        return false;
     }
 
-    m_data_owned = true;
     m_format = fmt;
 
     return true;
@@ -241,10 +236,9 @@ bool ImageBuffer::assign(unsigned char *src, const Format &fmt) {
     }
 
     // clear old data
-    reset();
+    clear();
 
     m_data = src;
-    m_data_owned = false;
     m_format = src_fmt;
 
     return true;
@@ -300,8 +294,6 @@ unsigned char *ImageBuffer::pixel(const uint32_t &x, const uint32_t &y) const {
 }
 
 bool ImageBuffer::convert(const Pixelformat &target) {
-    unsigned char *dst = nullptr;
-    size_t dst_size;
     size_t dst_padding;
     size_t dst_pixel_size;
     ImageBufferConverter::SourceFormat src_fmt = {};
@@ -374,33 +366,26 @@ bool ImageBuffer::convert(const Pixelformat &target) {
     dst_padding = (dst_fmt.alignment - (src_fmt.stride % dst_fmt.alignment)) % dst_fmt.alignment;
 
     bool converted = false;
-    if (m_data_owned) {
-        // try to convert in-place first
-        dst = m_data;
-        dst_size = ImageBufferConverter::Instance().convert(&m_data, src_fmt, &dst, dst_fmt);
-        converted = dst_size > 0;
-    }
+
+    // try to convert in-place first
+    converted = ImageBufferConverter::Instance().convert(m_data, src_fmt, m_data_buffer, dst_fmt);
 
     if (!converted) {
-        // try to convert by allocating a new buffer
-        dst = nullptr;
-        dst_size = ImageBufferConverter::Instance().convert(&m_data, src_fmt, &dst, dst_fmt);
-        converted = dst_size > 0;
+        // allocate a new buffer by first moving the contents to an alternative location
+        std::vector<unsigned char> tmp;
+        m_data_buffer.swap(tmp);
+        converted =
+            ImageBufferConverter::Instance().convert(tmp.data(), src_fmt, m_data_buffer, dst_fmt);
     }
 
     if (!converted) {
         // looks like we ran out of options
-        reset();
+        clear();
         return false;
     }
 
     // at this point the new buffer is available
-    // swap buffers if necessary
-    if (m_data != dst) {
-        reset();
-        m_data = dst;
-        m_data_owned = true;
-    }
+    m_data = m_data_buffer.data();
     m_format.width = src_fmt.width;
     m_format.height = src_fmt.height;
     m_format.pixfmt = target;
