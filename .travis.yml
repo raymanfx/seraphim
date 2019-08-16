@@ -36,11 +36,11 @@ jobs:
     - stage: lint
       script:
         - >
-          docker run -v $(pwd):$(pwd) -w $(pwd) -it builder make lint
+          docker run -v $(pwd):$(pwd) -w $(pwd) -it builder bash .travis.sh lint
     - stage: build
       script:
         - >
-          docker run -v $(pwd):$(pwd) -w $(pwd) -it builder make build
+          docker run -v $(pwd):$(pwd) -w $(pwd) -it builder bash .travis.sh build
 
 stages:
   - name: lint
