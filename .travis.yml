@@ -43,6 +43,5 @@ jobs:
           docker run -v $(pwd):$(pwd) -w $(pwd) -it builder bash .travis.sh build
 
 stages:
-  - name: lint
-    if: branch = foo
+  - lint
   - build

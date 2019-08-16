@@ -4,12 +4,12 @@
 # associative arrays).
 
 # Arguments:
-# $1: stage ("build")
+# $1: stage ("lint", "build")
 
 # supported tasks, meta-level
 #
 # These are the stages that apply to all platforms (Linux, macOS, ...).
-TASKS=("build")
+TASKS=("lint" "build")
 
 if [ "$#" -lt 1 ]; then
     echo "[ERROR] Insufficient arguments, need at least 2"
@@ -33,6 +33,7 @@ fi
 declare -A COMMON_TASKS
 
 COMMON_TASKS=(
+    ["lint"]="make format && git ls-files -m | wc -l"
     ["build"]="make build"
 )
 
