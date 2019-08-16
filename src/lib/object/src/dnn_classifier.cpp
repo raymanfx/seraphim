@@ -125,7 +125,7 @@ bool DNNClassifier::predict(const Image &img, std::vector<Prediction> &preds) {
                 int bottom = static_cast<int>(data[i + 6]);
                 int width = right - left + 1;
                 int height = bottom - top + 1;
-                if (width * height <= 1) {
+                if (width * height <= 4) {
                     left = static_cast<int>(data[i + 3] * mat.cols);
                     top = static_cast<int>(data[i + 4] * mat.rows);
                     right = static_cast<int>(data[i + 5] * mat.cols);
