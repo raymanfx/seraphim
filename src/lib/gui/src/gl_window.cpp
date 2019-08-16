@@ -189,7 +189,7 @@ bool GLWindow::show(const sph::core::Image &img) {
 
 bool GLWindow::init_gl() {
     const char *vertex_shader_source =
-        "#version 330 core\n"
+        "#version 300 es\n"
         // input vertex data, different for all executions of this shader
         "layout (location = 0) in vec3 vertexPosition_modelspace;\n"
         "layout (location = 1) in vec2 vertexUV;\n"
@@ -205,7 +205,8 @@ bool GLWindow::init_gl() {
         "    UV = vertexUV;\n"
         "}\n\0";
 
-    const char *fragment_shader_source = "#version 330 core\n"
+    const char *fragment_shader_source = "#version 300 es\n"
+                                         "precision mediump float;\n"
                                          // interpolated values from the vertex shaders
                                          "in vec2 UV;\n"
                                          "\n"
