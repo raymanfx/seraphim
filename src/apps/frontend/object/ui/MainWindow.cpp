@@ -243,6 +243,7 @@ void MainWindow::backendWork() {
         img->set_fourcc(mCaptureBuffer.format.fourcc);
         img->set_width(mCaptureBuffer.format.width);
         img->set_height(mCaptureBuffer.format.height);
+        img->set_stride(mCaptureBuffer.format.stride);
     }
 
     if (mObjectRecognition) {
