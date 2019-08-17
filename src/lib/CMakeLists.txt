@@ -1,5 +1,5 @@
 # the (library) modules to build
-set(SERAPHIM_MODULES "core" "car" "face" "ipc" "object")
+set(SERAPHIM_MODULES "core" "car" "face" "gui" "ipc" "object")
 
 # the core module must always be built
 if (NOT "core" IN_LIST SERAPHIM_MODULES)
