@@ -76,6 +76,12 @@ public:
      * @return Pixel intensities.
      */
     virtual struct RGBPixel rgb(const uint32_t &x, const uint32_t &y) const = 0;
+
+    /**
+     * @brief Unary "not" operator, checks whether the instance is valid.
+     * @return True if the image is not empty, false otherwise.
+     */
+    virtual bool operator!() const = 0;
 };
 
 /**
@@ -95,6 +101,7 @@ public:
     int depth() const override;
     int channels() const override;
     struct RGBPixel rgb(const uint32_t &x, const uint32_t &y) const override;
+    bool operator!() const override { return !empty(); }
 
     /**
      * @brief Const reference to the underlying pixel buffer.
