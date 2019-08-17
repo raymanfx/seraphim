@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <seraphim/core/image_utils_opencv.h>
+#include <seraphim/iop/opencv/mat.h>
 #include <utils.h>
 
 #include "classifier_service.h"
@@ -52,7 +52,8 @@ bool ClassifierService::handle_classification_request(
     }
 
     mat = mat(roi);
-    if (!sph::core::Mat2Image(mat, image)) {
+    image = sph::iop::cv::MatFacility::to_image(mat);
+    if (image.empty()) {
         return false;
     }
 

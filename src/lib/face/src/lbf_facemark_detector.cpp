@@ -5,8 +5,9 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include <seraphim/iop/opencv/mat.h>
+
 #include "seraphim/face/lbf_facemark_detector.h"
-#include "seraphim/core/image_utils_opencv.h"
 
 using namespace sph::core;
 using namespace sph::face;
@@ -56,17 +57,16 @@ bool LBFFacemarkDetector::detect_facemarks(const sph::core::Image &img,
         return false;
     }
 
+    mat = sph::iop::cv::MatFacility::from_image(img);
+    if (mat.empty()) {
+        return false;
+    }
+
     // prepare the compute buffer
     switch (m_target) {
     case TARGET_CPU:
-        if (!Image2Mat(img, mat)) {
-            return false;
-        }
         break;
     case TARGET_OPENCL:
-        if (!Image2Mat(img, mat)) {
-            return false;
-        }
         mat.copyTo(umat);
         break;
     default:

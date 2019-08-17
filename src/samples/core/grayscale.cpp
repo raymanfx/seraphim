@@ -11,7 +11,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/videoio.hpp>
 #include <seraphim/core/image.h>
-#include <seraphim/core/image_utils_opencv.h>
+#include <seraphim/iop/opencv/mat.h>
 
 static bool main_loop = true;
 
@@ -125,7 +125,8 @@ int main(int argc, char **argv) {
                          std::chrono::high_resolution_clock::now() - t_loop_start)
                          .count();
 
-        if (!sph::core::Mat2Image(frame, image)) {
+        image = sph::iop::cv::MatFacility::to_image(frame);
+        if (image.empty()) {
             std::cout << "[ERROR] Failed to convert Mat to Image" << std::endl;
             continue;
         }
@@ -143,7 +144,8 @@ int main(int argc, char **argv) {
         }
 
         // .. and back to mat
-        if (!sph::core::Image2Mat(image, frame2)) {
+        frame2 = sph::iop::cv::MatFacility::from_image(image);
+        if (frame2.empty()) {
             std::cout << "[ERROR] Failed to convert Y16 Image to Mat" << std::endl;
             continue;
         }

@@ -7,8 +7,8 @@
 
 #include <dlib/image_io.h>
 #include <dlib/opencv/cv_image.h>
-#include <seraphim/core/image_utils_opencv.h>
 #include <seraphim/core/polygon.h>
+#include <seraphim/iop/opencv/mat.h>
 
 #include "seraphim/face/hog_face_detector.h"
 
@@ -32,7 +32,8 @@ bool HOGFaceDetector::detect_faces(const Image &img, std::vector<Polygon<>> &fac
     std::vector<dlib::rectangle> dets;
     cv::Mat mat;
 
-    if (!sph::core::Image2Mat(img, mat)) {
+    mat = sph::iop::cv::MatFacility::from_image(img);
+    if (mat.empty()) {
         return false;
     }
 

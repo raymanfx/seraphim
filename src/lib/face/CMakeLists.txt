@@ -49,7 +49,7 @@ target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_face opencv_imgpr
 find_library(DLIB_LIBRARY dlib)
 target_link_libraries(${MODULE_NAME} PUBLIC dlib)
 
-target_link_libraries(${MODULE_NAME} PUBLIC seraphim_core)
+target_link_libraries(${MODULE_NAME} PUBLIC seraphim_core seraphim_iop)
 
 # install shared lib and headers
 install(DIRECTORY include/seraphim DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

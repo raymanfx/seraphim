@@ -9,10 +9,10 @@
 #include <getopt.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/videoio.hpp>
-#include <seraphim/core/image_utils_opencv.h>
 #include <seraphim/core/polygon.h>
 #include <seraphim/face/lbf_facemark_detector.h>
 #include <seraphim/face/lbp_face_detector.h>
+#include <seraphim/iop/opencv/mat.h>
 
 using namespace sph::face;
 
@@ -163,7 +163,8 @@ int main(int argc, char **argv) {
 
         faces.clear();
         facemarks.clear();
-        if (!sph::core::Mat2Image(frame, image)) {
+        image = sph::iop::cv::MatFacility::to_image(frame);
+        if (image.empty()) {
             std::cout << "[ERROR] Failed to convert Mat to Image" << std::endl;
             continue;
         }

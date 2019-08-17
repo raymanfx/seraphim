@@ -14,7 +14,6 @@ set(HEADERS
     include/seraphim/core/image.h
     include/seraphim/core/image_buffer.h
     include/seraphim/core/image_buffer_converter.h
-    include/seraphim/core/image_utils_opencv.h
     include/seraphim/core/module.h
     include/seraphim/core/polygon.h)
 
@@ -34,11 +33,6 @@ set_target_properties(${MODULE_NAME} PROPERTIES SOVERSION
 target_include_directories(${MODULE_NAME} PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-
-# OpenCV dependency
-find_package(OpenCV COMPONENTS opencv_core REQUIRED)
-include_directories(${OpenCV_INCLUDE_DIRS})
-target_link_libraries(${MODULE_NAME} PUBLIC opencv_core)
 
 # install shared lib and headers
 install(DIRECTORY include/seraphim DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

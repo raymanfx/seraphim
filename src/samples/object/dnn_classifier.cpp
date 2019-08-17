@@ -9,8 +9,8 @@
 #include <getopt.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/videoio.hpp>
-#include <seraphim/core/image_utils_opencv.h>
 #include <seraphim/core/polygon.h>
+#include <seraphim/iop/opencv/mat.h>
 #include <seraphim/object/dnn_classifier.h>
 
 static bool main_loop = true;
@@ -165,7 +165,8 @@ int main(int argc, char **argv) {
                          .count();
 
         predictions.clear();
-        if (!sph::core::Mat2Image(frame, image)) {
+        image = sph::iop::cv::MatFacility::to_image(frame);
+        if (image.empty()) {
             std::cout << "[ERROR] Failed to convert Mat to Image" << std::endl;
             continue;
         }

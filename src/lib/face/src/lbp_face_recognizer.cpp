@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <seraphim/core/image_utils_opencv.h>
 #include <seraphim/core/polygon.h>
+#include <seraphim/iop/opencv/mat.h>
 
 #include "seraphim/face/lbp_face_recognizer.h"
 
@@ -32,8 +32,8 @@ void LBPFaceRecognizer::train(const std::vector<sph::core::Image> &imgs,
 
     // deep copy of new faces
     for (size_t i = 0; i < labels.size(); i++) {
-        cv::Mat tmp;
-        if (!Image2Mat(imgs[i], tmp)) {
+        cv::Mat tmp = sph::iop::cv::MatFacility::from_image(imgs[i]);
+        if (tmp.empty()) {
             return;
         }
         m_faces[labels[i]].push_back(tmp);
@@ -60,8 +60,8 @@ void LBPFaceRecognizer::update(const std::vector<sph::core::Image> &imgs,
 
     // convert to 8-bit single channel if necessary
     for (const auto &face_img : imgs) {
-        cv::Mat mat;
-        if (!Image2Mat(face_img, mat)) {
+        cv::Mat mat = sph::iop::cv::MatFacility::from_image(face_img);
+        if (mat.empty()) {
             return;
         }
         gray_imgs.push_back(cv::Mat());
@@ -112,7 +112,8 @@ bool LBPFaceRecognizer::predict(const sph::core::Image &img, std::vector<Predict
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
     // preprocessing stage: create the appropriate input buffer
-    if (!Image2Mat(img, gray)) {
+    gray = sph::iop::cv::MatFacility::from_image(img);
+    if (gray.empty()) {
         return false;
     }
 

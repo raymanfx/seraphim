@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <seraphim/core/image_utils_opencv.h>
+#include <seraphim/iop/opencv/mat.h>
 
 #include "seraphim/car/linear_lane_detector.h"
 
@@ -94,7 +94,8 @@ bool LinearLaneDetector::detect(const Image &img, std::vector<Polygon<>> &lanes)
     double slope_thresh = 0.3;
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
-    if (!Image2Mat(img, mat)) {
+    mat = sph::iop::cv::MatFacility::from_image(img);
+    if (mat.empty()) {
         return false;
     }
 

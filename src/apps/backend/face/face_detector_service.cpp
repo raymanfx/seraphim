@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <seraphim/core/image_utils_opencv.h>
 #include <seraphim/core/polygon.h>
+#include <seraphim/iop/opencv/mat.h>
 #include <utils.h>
 
 #include "face_detector_service.h"
@@ -54,7 +54,8 @@ bool FaceDetectorService::handle_detection_request(
     }
 
     mat = mat(roi);
-    if (!Mat2Image(mat, image)) {
+    image = sph::iop::cv::MatFacility::to_image(mat);
+    if (image.empty()) {
         return false;
     }
 

@@ -35,7 +35,7 @@ find_package(OpenCV COMPONENTS opencv_core opencv_imgproc REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_imgproc)
 
-target_link_libraries(${MODULE_NAME} PUBLIC seraphim_core)
+target_link_libraries(${MODULE_NAME} PUBLIC seraphim_core seraphim_iop)
 
 # install shared lib and headers
 install(DIRECTORY include/seraphim DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

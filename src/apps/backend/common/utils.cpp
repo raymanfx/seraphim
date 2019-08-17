@@ -9,7 +9,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <seraphim/core/image.h>
-#include <seraphim/core/image_utils_opencv.h>
+#include <seraphim/iop/opencv/mat.h>
 
 #include "utils.h"
 
@@ -41,9 +41,6 @@ bool sph::backend::Image2DtoMat(const Seraphim::Types::Image2D &src, cv::Mat &ds
         return false;
     }
 
-    if (!sph::core::Image2Mat(img, dst)) {
-        return false;
-    }
-
+    dst = sph::iop::cv::MatFacility::from_image(img);
     return !dst.empty();
 }

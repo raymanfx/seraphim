@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <seraphim/core/image_utils_opencv.h>
 #include <seraphim/face/utils.h>
+#include <seraphim/iop/opencv/mat.h>
 #include <utils.h>
 
 #include "face_recognizer_service.h"
@@ -58,7 +58,8 @@ bool FaceRecognizerService::handle_training_request(
         return false;
     }
 
-    if (!Mat2Image(mat, image)) {
+    image = sph::iop::cv::MatFacility::to_image(mat);
+    if (image.empty()) {
         return false;
     }
 
@@ -132,7 +133,8 @@ bool FaceRecognizerService::handle_training_request(
         // bounding rect
         alignedFace = alignedFace(alignedROI.boundingRect());
 
-        if (!Mat2Image(alignedFace, image)) {
+        image = sph::iop::cv::MatFacility::to_image(alignedFace);
+        if (image.empty()) {
             return false;
         }
         images.push_back(image);
@@ -166,14 +168,16 @@ bool FaceRecognizerService::handle_recognition_request(
     }
 
     mat = mat(roi);
-    if (!Mat2Image(mat, image)) {
+    image = sph::iop::cv::MatFacility::to_image(mat);
+    if (image.empty()) {
         return false;
     }
 
     m_face_detector->detect_faces(image, faces);
     for (size_t i = 0; i < faces.size(); i++) {
         cv::Rect face_region(faces[i].bl().x, faces[i].bl().y, faces[i].width(), faces[i].height());
-        if (!Mat2Image(mat(face_region), image)) {
+        image = sph::iop::cv::MatFacility::to_image(mat(face_region));
+        if (image.empty()) {
             return false;
         }
 

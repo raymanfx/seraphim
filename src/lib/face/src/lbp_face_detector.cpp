@@ -5,8 +5,9 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include <seraphim/iop/opencv/mat.h>
+
 #include "seraphim/face/lbp_face_detector.h"
-#include "seraphim/core/image_utils_opencv.h"
 
 using namespace sph::core;
 using namespace sph::face;
@@ -91,7 +92,8 @@ bool LBPFaceDetector::detect_faces(const Image &img, std::vector<Polygon<>> &fac
         return false;
     }
 
-    if (!Image2Mat(img, mat)) {
+    mat = sph::iop::cv::MatFacility::from_image(img);
+    if (mat.empty()) {
         return false;
     }
 

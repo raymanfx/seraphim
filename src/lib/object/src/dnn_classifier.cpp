@@ -5,8 +5,9 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include <seraphim/iop/opencv/mat.h>
+
 #include "seraphim/object/dnn_classifier.h"
-#include "seraphim/core/image_utils_opencv.h"
 
 using namespace sph::core;
 using namespace sph::object;
@@ -87,7 +88,8 @@ bool DNNClassifier::predict(const Image &img, std::vector<Prediction> &preds) {
     std::vector<cv::Rect> boxes;
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
-    if (!Image2Mat(img, mat)) {
+    mat = sph::iop::cv::MatFacility::from_image(img);
+    if (mat.empty()) {
         return false;
     }
 
