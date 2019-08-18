@@ -31,6 +31,21 @@ public:
      */
     enum class IOResult { ERROR, OK, TIMEOUT };
     inline friend bool operator!(const IOResult &res) { return res != IOResult::OK; }
+    inline friend std::ostream &operator<<(std::ostream &out, const IOResult &res) {
+        switch (res) {
+        case IOResult::ERROR:
+            out << "Error";
+            break;
+        case IOResult::OK:
+            out << "Ok";
+            break;
+        case IOResult::TIMEOUT:
+            out << "Timeout";
+            break;
+        }
+
+        return out;
+    }
 
     /**
      * @brief Set timeout for blocking RX/TX operations.
