@@ -257,7 +257,7 @@ static size_t rgb_to_y(unsigned char *src, const ImageBufferConverter::SourceFor
             case fourcc('Y', '1', '6', ' '):
                 y16 = reinterpret_cast<uint16_t *>(dst.data() + dst_offset);
                 *y16 = static_cast<uint16_t>(
-                    clamp(0.299f * *r + 0.587f * *g + 0.114f * *b, 0.0f, 255.0f));
+                    clamp(0.299f * *r + 0.587f * *g + 0.114f * *b, 0.0f, 65535.0f));
                 break;
             default:
                 return false;
