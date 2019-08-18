@@ -13,7 +13,7 @@ cmake:
 	cd build && cmake ..
 
 build: cmake
-	$(MAKE) -C build -j$(shell getconf _NPROCESSORS_ONLN)
+	$(MAKE) -C build -j$(shell echo $$(($(shell getconf _NPROCESSORS_ONLN) + 1)))
 
 install: build
 	$(MAKE) -C build install
