@@ -10,23 +10,18 @@
 using namespace sph::ipc;
 
 Semaphore::Semaphore() {
-    sem_t *ptr = &m_sem;
-    ptr = SEM_FAILED;
+    m_sem = SEM_FAILED;
     m_name = "";
     m_created = false;
 }
 
 Semaphore::~Semaphore() {
-    sem_t *ptr = &m_sem;
-
-    if (ptr != SEM_FAILED && m_created) {
+    if (m_sem != SEM_FAILED && m_created) {
         destroy();
     }
 }
 
-bool Semaphore::create(const unsigned int &value, const bool &inter_process) {
-    sem_t *ptr = &m_sem;
-
+bool Semaphore::create(sem_t *sem, const unsigned int &value, const bool &inter_process) {
     m_created = true;
 #ifdef __APPLE__
     /*
@@ -36,28 +31,31 @@ bool Semaphore::create(const unsigned int &value, const bool &inter_process) {
     (void)inter_process;
     static unsigned int index = 0;
 
-    ptr = ::sem_open((std::string("/seraphim/") + std::to_string(index)).c_str(), O_CREAT, 0666,
+    sem = ::sem_open((std::string("/seraphim/") + std::to_string(index)).c_str(), O_CREAT, 0666,
                      value);
-    if (ptr == SEM_FAILED) {
+    if (sem == SEM_FAILED) {
         return false;
     }
 
     index++;
+    m_sem = sem;
     return true;
 #endif
 
-    return ::sem_init(ptr, inter_process ? 1 : 0, value) == 0;
+    if (::sem_init(sem, inter_process ? 1 : 0, value) != 0) {
+        return false;
+    }
+
+    m_sem = sem;
+    return true;
 }
 
 bool Semaphore::create(const std::string &name, const unsigned int &value) {
-    sem_t *ptr = &m_sem;
-
-    ptr = ::sem_open(name.c_str(), O_CREAT, 0666, value);
-    return ptr != SEM_FAILED;
+    m_sem = ::sem_open(name.c_str(), O_CREAT, 0666, value);
+    return m_sem != SEM_FAILED;
 }
 
 bool Semaphore::destroy() {
-    sem_t *ptr = &m_sem;
     bool ret = false;
 
     if (m_name.empty()) {
@@ -68,55 +66,45 @@ bool Semaphore::destroy() {
          */
         return ::sem_unlink(m_name.c_str()) == 0;
 #endif
-        ret = ::sem_destroy(ptr) == 0;
+        ret = ::sem_destroy(m_sem) == 0;
     } else {
         ret = ::sem_unlink(m_name.c_str()) == 0;
     }
 
     if (ret) {
-        ptr = SEM_FAILED;
+        m_sem = SEM_FAILED;
     }
 
     return ret;
 }
 
-bool Semaphore::open(sem_t *addr) {
-    sem_t *ptr = &m_sem;
-
-    ptr = addr;
-    return ptr != SEM_FAILED;
+bool Semaphore::open(sem_t *sem) {
+    m_sem = sem;
+    return m_sem != SEM_FAILED;
 }
 
 bool Semaphore::open(const std::string &name) {
-    sem_t *ptr = &m_sem;
-
-    ptr = ::sem_open(name.c_str(), 0);
-    return ptr != SEM_FAILED;
+    m_sem = ::sem_open(name.c_str(), 0);
+    return m_sem != SEM_FAILED;
 }
 
 bool Semaphore::close() {
-    sem_t *ptr = &m_sem;
-    bool ret;
-
-    ret = ::sem_close(ptr) == 0;
-    if (ret) {
-        ptr = SEM_FAILED;
+    if (::sem_close(m_sem) != 0) {
+        return false;
     }
 
-    return ret;
+    m_sem = SEM_FAILED;
+    return true;
 }
 
 bool Semaphore::wait() {
-    sem_t *ptr = &m_sem;
-    return ::sem_wait(ptr);
+    return ::sem_wait(m_sem) == 0;
 }
 
 bool Semaphore::trywait() {
-    sem_t *ptr = &m_sem;
-    return ::sem_trywait(ptr);
+    return ::sem_trywait(m_sem) == 0;
 }
 
 bool Semaphore::post() {
-    sem_t *ptr = &m_sem;
-    return ::sem_post(ptr);
+    return ::sem_post(m_sem) == 0;
 }

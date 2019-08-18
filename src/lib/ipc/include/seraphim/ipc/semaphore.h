@@ -42,12 +42,13 @@ public:
 
     /**
      * @brief POSIX sem_init (unnamed semaphore creation).
+     * @param sem The semaphore location in a shared memory segment.
      * @param value The initial semaphore value.
      * @param inter_process Whether to share the semaphore between threads (false) or processes
      * (true).
      * @return True on success, false otherwise.
      */
-    bool create(const unsigned int &value, const bool &inter_process = true);
+    bool create(sem_t *sem, const unsigned int &value, const bool &inter_process = true);
 
     /**
      * @brief POSIX sem_open (named semaphore creation).
@@ -65,10 +66,10 @@ public:
 
     /**
      * @brief Open an existing semaphore at a given address.
-     * @param name The memory address of the semaphore.
+     * @param sem The memory address of the semaphore.
      * @return True on success, false otherwise.
      */
-    bool open(sem_t *addr);
+    bool open(sem_t *sem);
 
     /**
      * @brief Open an existing semaphore at a given address.
@@ -101,15 +102,9 @@ public:
      */
     bool post();
 
-    /**
-     * @brief Get the memory address of the semaphore object.
-     * @return Memory address. SEM_FAILED if the semaphore is invalid.
-     */
-    sem_t *ptr() { return &m_sem; }
-
 private:
     /// POSIX sem_t
-    sem_t m_sem;
+    sem_t *m_sem;
 
     /// name of the semaphore (empty for unnamed ones)
     std::string m_name;

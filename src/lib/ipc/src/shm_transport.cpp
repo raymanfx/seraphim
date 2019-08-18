@@ -58,7 +58,7 @@ bool SharedMemoryTransport::open(const std::string &name) {
     }
 
     msgstore = reinterpret_cast<MessageStore *>(m_addr);
-    if (!m_sem.open(msgstore->sem)) {
+    if (!m_sem.open(&msgstore->sem)) {
         unmap();
         return false;
     }
@@ -99,17 +99,15 @@ bool SharedMemoryTransport::create(const std::string &name, const long &size) {
         return false;
     }
 
-    MessageStore msgstore = {};
-    msgstore.id = 1;
+    MessageStore *msgstore = reinterpret_cast<MessageStore *>(m_addr);
+    msgstore->id = 1;
+    msgstore->status = MESSAGE_READ;
+    msgstore->msg_size = 0;
     // create a semaphore for the segment
-    if (!m_sem.create(1)) {
+    if (!m_sem.create(&msgstore->sem, 1)) {
         remove();
         return false;
     }
-    msgstore.sem = m_sem.ptr();
-
-    // copy message store to shared segment
-    std::memcpy(m_addr, &msgstore, sizeof(msgstore));
 
     m_name = name;
     m_created = true;

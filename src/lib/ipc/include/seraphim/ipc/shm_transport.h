@@ -44,7 +44,7 @@ struct MessageStore {
     /// Current message size
     int msg_size;
     /// Unnamed POSIX semaphore, must be acquired before writing a message.
-    sem_t *sem;
+    sem_t sem;
 };
 
 /**
