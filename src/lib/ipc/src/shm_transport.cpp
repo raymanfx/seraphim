@@ -18,18 +18,16 @@ using namespace sph::ipc;
 
 SharedMemoryTransport::SharedMemoryTransport() {
     m_fd = -1;
-    m_addr = nullptr;
     m_size = 0;
     m_timeout = 0;
-    m_id = 0;
+
+    m_actor_id = 0;
     m_created = false;
+    m_msgstore = nullptr;
 }
 
 SharedMemoryTransport::~SharedMemoryTransport() {
-    if (m_addr != nullptr) {
-        if (m_created) {
-            m_sem.destroy();
-        }
+    if (m_msgstore != nullptr) {
         unmap();
     }
 
@@ -42,7 +40,6 @@ SharedMemoryTransport::~SharedMemoryTransport() {
 
 bool SharedMemoryTransport::open(const std::string &name) {
     struct stat shm_stat;
-    MessageStore *msgstore;
 
     m_fd = shm_open(name.c_str(), O_RDWR, S_IRUSR | S_IWUSR);
     if (m_fd == -1) {
@@ -57,8 +54,24 @@ bool SharedMemoryTransport::open(const std::string &name) {
         return false;
     }
 
-    msgstore = reinterpret_cast<MessageStore *>(m_addr);
-    if (!m_sem.open(&msgstore->sem)) {
+    if (!m_actor_sem.open(&m_msgstore->actors.sem)) {
+        unmap();
+        return false;
+    }
+
+    if (!m_msg_sem.open(&m_msgstore->actors.sem)) {
+        unmap();
+        return false;
+    }
+
+    if (!m_actor_sem.wait()) {
+        unmap();
+        return false;
+    }
+
+    m_msgstore->actors.num_actors++;
+    m_actor_id = m_msgstore->actors.num_actors;
+    if (!m_actor_sem.post()) {
         unmap();
         return false;
     }
@@ -99,18 +112,20 @@ bool SharedMemoryTransport::create(const std::string &name, const long &size) {
         return false;
     }
 
-    MessageStore *msgstore = reinterpret_cast<MessageStore *>(m_addr);
-    msgstore->id = 1;
-    msgstore->status = MESSAGE_READ;
-    msgstore->msg_size = 0;
-    // create a semaphore for the segment
-    if (!m_sem.create(&msgstore->sem, 1)) {
+    m_msgstore->actors.num_actors = 1;
+    m_msgstore->msg.id = 1;
+    m_msgstore->msg.status = MESSAGE_READ;
+    m_msgstore->msg.size = 0;
+    // create semaphores for the segment
+    if (!m_actor_sem.create(&m_msgstore->actors.sem, 1) ||
+        !m_msg_sem.create(&m_msgstore->msg.sem, 1)) {
         remove();
         return false;
     }
 
     m_name = name;
     m_created = true;
+    m_actor_id = 1;
     return true;
 }
 
@@ -124,34 +139,51 @@ bool SharedMemoryTransport::remove() {
 }
 
 bool SharedMemoryTransport::map(const size_t &size) {
-    m_addr = mmap(nullptr, size, PROT_WRITE, MAP_SHARED, m_fd, 0);
-    if (m_addr != MAP_FAILED) {
-        m_size = size;
+    void *addr;
+
+    addr = mmap(nullptr, size, PROT_WRITE, MAP_SHARED, m_fd, 0);
+    if (addr == MAP_FAILED) {
+        return false;
     }
 
-    return m_addr != MAP_FAILED;
+    m_size = size;
+    m_msgstore = reinterpret_cast<MessageStore *>(addr);
+    return true;
 }
 
 bool SharedMemoryTransport::unmap() {
-    int ret;
+    bool ret;
 
-    ret = munmap(m_addr, m_size);
-    m_addr = nullptr;
+    m_size = 0;
+    if (!m_msgstore) {
+        return true;
+    }
+
+    if (m_actor_sem.wait()) {
+        if (m_msgstore->actors.num_actors > 0) {
+            m_msgstore->actors.num_actors--;
+        }
+        m_actor_sem.post();
+    }
+
+    ret = munmap(m_msgstore, m_size) == 0;
+    m_msgstore = nullptr;
     m_size = 0;
 
-    return ret == 0;
+    return ret;
 }
 
 ITransport::IOResult SharedMemoryTransport::recv(Seraphim::Message &msg) {
     int elapsed_ms = 0;
-    MessageStore *msgstore = reinterpret_cast<MessageStore *>(m_addr);
+    unsigned char *msg_ptr;
 
-    if (m_id == 0) {
-        m_id = msgstore->id;
+    if (!m_msgstore) {
+        return ITransport::IOResult::ERROR;
     }
 
     // block until a message is available
-    while (m_id == msgstore->id || msgstore->status != MessageStoreStatus::MESSAGE_UNREAD) {
+    while (m_msgstore->msg.status != MessageStoreStatus::MESSAGE_UNREAD ||
+           m_msgstore->msg.id == m_actor_id) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         elapsed_ms++;
         if (elapsed_ms < 0) {
@@ -164,25 +196,28 @@ ITransport::IOResult SharedMemoryTransport::recv(Seraphim::Message &msg) {
     }
 
     // read the message
-    if (!msg.ParseFromArray(static_cast<char *>(m_addr) + sizeof(MessageStore),
-                            msgstore->msg_size)) {
+    msg_ptr = reinterpret_cast<unsigned char *>(m_msgstore) + sizeof(MessageStore);
+    if (!msg.ParseFromArray(msg_ptr, m_msgstore->msg.size)) {
         return ITransport::IOResult::ERROR;
     }
 
-    msgstore->status = MessageStoreStatus::MESSAGE_READ;
+    m_msgstore->msg.status = MessageStoreStatus::MESSAGE_READ;
     return ITransport::IOResult::OK;
 }
 
 ITransport::IOResult SharedMemoryTransport::send(const Seraphim::Message &msg) {
     int elapsed_ms = 0;
-    MessageStore *msgstore = reinterpret_cast<MessageStore *>(m_addr);
 
-    if (msg.ByteSizeLong() > m_size - sizeof(MessageStore::msg_size)) {
+    if (!m_msgstore) {
+        return ITransport::IOResult::ERROR;
+    }
+
+    if (msg.ByteSizeLong() > m_size - sizeof(MessageStore)) {
         return ITransport::IOResult::ERROR;
     }
 
     // block until a message was read and can thus be overwritten
-    while ((!m_sem.trywait()) || (msgstore->status != MessageStoreStatus::MESSAGE_READ)) {
+    while (m_msgstore->msg.status != MessageStoreStatus::MESSAGE_READ || !m_msg_sem.trywait()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         elapsed_ms++;
         if (elapsed_ms < 0) {
@@ -194,18 +229,16 @@ ITransport::IOResult SharedMemoryTransport::send(const Seraphim::Message &msg) {
         }
     }
 
-    msg.SerializeToArray(static_cast<char *>(m_addr) + sizeof(MessageStore), msg.ByteSize());
+    msg.SerializeToArray(reinterpret_cast<unsigned char *>(m_msgstore) + sizeof(MessageStore),
+                         msg.ByteSize());
 
     // prevent us from reading our own messages in recv() by keeping track of
     // who sent a message and waiting for the next one
-    msgstore->id++;
-    if (msgstore->id == 0) {
-        msgstore->id = 1;
-    }
-    m_id = msgstore->id;
-    msgstore->msg_size = msg.ByteSize();
-    msgstore->status = MessageStoreStatus::MESSAGE_UNREAD;
-    m_sem.post();
+    m_msgstore->msg.id = m_actor_id;
+    m_msgstore->msg.status = MessageStoreStatus::MESSAGE_UNREAD;
+    m_msgstore->msg.size = msg.ByteSize();
+
+    m_msg_sem.post();
 
     return ITransport::IOResult::OK;
 }

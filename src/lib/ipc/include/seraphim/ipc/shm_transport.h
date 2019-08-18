@@ -20,34 +20,6 @@ namespace sph {
 namespace ipc {
 
 /**
- * @brief Status of the message store.
- */
-enum MessageStoreStatus {
-    /// A message has been read as the last operation.
-    MESSAGE_READ = 0,
-    /// A message has been written as the last operation.
-    MESSAGE_UNREAD
-};
-
-/**
- * @brief Shared memory area layout.
- *
- * Facilitates RX/TX with more than two peers writing and reading simultaneously by keeping track
- * of read and write stats and holding an unnamed semaphore that must be acquired before writing to
- * the shared memory area.
- */
-struct MessageStore {
-    /// Message id, must be incremented after writing a message.
-    unsigned int id;
-    /// Message status (see @ref MessageStoreStatus).
-    int status;
-    /// Current message size
-    int msg_size;
-    /// Unnamed POSIX semaphore, must be acquired before writing a message.
-    sem_t sem;
-};
-
-/**
  * @brief Shared memory message transport.
  *
  * This class uses POSIX shared memory to exchange messages between two or more readers and
@@ -99,6 +71,56 @@ public:
     IOResult recv(Seraphim::Message &msg) override;
     IOResult send(const Seraphim::Message &msg) override;
 
+    /**
+     * @brief Actors perform read/write operations within the shared memory segment (MessageStore).
+     */
+    struct MessageStoreActors {
+        /// The current number of active actors.
+        /// An actor must increase this number when opening the message store and decrease it
+        /// once he wishes to no longer use it (aka close it).
+        unsigned int num_actors = 1;
+        /// Resource locking for the @ref num_actors field. Must be acquired before any operation
+        /// is performed on the field.
+        sem_t sem;
+    };
+
+    /**
+     * @brief Status of the message store.
+     */
+    enum MessageStoreStatus {
+        /// A message has been read as the last operation.
+        MESSAGE_READ = 0,
+        /// A message has been written as the last operation.
+        MESSAGE_UNREAD
+    };
+
+    /**
+     * @brief Messages are objects used for reading/writing information within the MessageStore.
+     */
+    struct MessageStoreMessage {
+        /// Message id, must be set to the actor id who wrote it.
+        unsigned int id;
+        /// Message status (see @ref MessageStoreStatus).
+        int status = MESSAGE_READ;
+        /// Current message size
+        int size;
+        /// Resource locking for the message. Must be acquired before performing any read/write
+        /// operation on the message segment.
+        sem_t sem;
+    };
+
+    /**
+     * @brief Shared memory area layout.
+     *
+     * Facilitates RX/TX with more than two peers writing and reading simultaneously by keeping
+     * track of read and write stats and holding an unnamed semaphore that must be acquired before
+     * writing to the shared memory area.
+     */
+    struct MessageStore {
+        MessageStoreActors actors;
+        MessageStoreMessage msg;
+    };
+
 private:
     /**
      * @brief Map a shared memory region.
@@ -114,14 +136,19 @@ private:
 
     std::string m_name;
     int m_fd;
-    void *m_addr;
     size_t m_size;
     int m_timeout;
     bool m_created;
-    unsigned int m_id;
 
-    /// semaphore for inter-process resource locking
-    Semaphore m_sem;
+    /// Unique identifier of this instance.
+    unsigned int m_actor_id;
+
+    /// The mapped MessageStore object.
+    MessageStore *m_msgstore;
+
+    /// semaphores for inter-process resource locking
+    Semaphore m_actor_sem;
+    Semaphore m_msg_sem;
 };
 
 } // namespace ipc
