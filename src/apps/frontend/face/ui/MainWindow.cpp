@@ -239,8 +239,9 @@ void MainWindow::backendWork() {
 
         Seraphim::Face::FaceDetector::DetectionResponse res;
 
-        if (!mTransport->send(msg)) {
-            std::cout << "Transport: failed to send(): " << strerror(errno) << std::endl;
+        sph::ipc::ITransport::IOResult result = mTransport->send(msg);
+        if (!result) {
+            std::cout << "Transport: failed to send(): " << result << std::endl;
         }
         mTransport->recv(msg);
         res = msg.res().face().face_detector().detection();
@@ -268,8 +269,9 @@ void MainWindow::backendWork() {
 
         Seraphim::Face::FacemarkDetector::DetectionResponse res;
 
-        if (!mTransport->send(msg)) {
-            std::cout << "Transport: failed to send(): " << strerror(errno) << std::endl;
+        sph::ipc::ITransport::IOResult result = mTransport->send(msg);
+        if (!result) {
+            std::cout << "Transport: failed to send(): " << result << std::endl;
         }
         mTransport->recv(msg);
         res = msg.res().face().facemark_detector().detection();
@@ -306,8 +308,9 @@ void MainWindow::backendWork() {
 
         Seraphim::Face::FaceRecognizer::RecognitionResponse res;
 
-        if (!mTransport->send(msg)) {
-            std::cout << "Transport: failed to send(): " << strerror(errno) << std::endl;
+        sph::ipc::ITransport::IOResult result = mTransport->send(msg);
+        if (!result) {
+            std::cout << "Transport: failed to send(): " << result << std::endl;
         }
         mTransport->recv(msg);
         res = msg.res().face().face_recognizer().recognition();
@@ -349,8 +352,9 @@ void MainWindow::backendWork() {
 
         Seraphim::Face::FaceRecognizer::TrainingResponse res;
 
-        if (!mTransport->send(msg)) {
-            std::cout << "Transport: failed to send(): " << strerror(errno) << std::endl;
+        sph::ipc::ITransport::IOResult result = mTransport->send(msg);
+        if (!result) {
+            std::cout << "Transport: failed to send(): " << result << std::endl;
         }
         mTransport->recv(msg);
         res = msg.res().face().face_recognizer().training();

@@ -257,8 +257,9 @@ void MainWindow::backendWork() {
 
         Seraphim::Object::Classifier::ClassificationResponse res;
 
-        if (!mTransport->send(msg)) {
-            std::cout << "Transport: failed to send(): " << strerror(errno) << std::endl;
+        sph::ipc::ITransport::IOResult result = mTransport->send(msg);
+        if (!result) {
+            std::cout << "Transport: failed to send(): " << result << std::endl;
         }
         mTransport->recv(msg);
         res = msg.res().object().classifier().classification();
