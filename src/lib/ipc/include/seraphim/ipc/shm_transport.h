@@ -85,25 +85,28 @@ public:
     };
 
     /**
-     * @brief Status of the message store.
+     * @brief Message type.
      */
-    enum MessageStoreStatus {
-        /// A message has been read as the last operation.
-        MESSAGE_READ = 0,
-        /// A message has been written as the last operation.
-        MESSAGE_UNREAD
+    enum MessageStoreType {
+        MESSAGE_TYPE_UNKNOWN = 0,
+        /// Corresponds to a Seraphim::Message request instance.
+        MESSAGE_TYPE_REQUEST,
+        /// Corresponds to a Seraphim::Message response instance.
+        MESSAGE_TYPE_RESPONSE
     };
 
     /**
      * @brief Messages are objects used for reading/writing information within the MessageStore.
      */
     struct MessageStoreMessage {
-        /// Message id, must be set to the actor id who wrote it.
-        unsigned int id;
-        /// Message status (see @ref MessageStoreStatus).
-        int status = MESSAGE_READ;
+        /// Source actor ID.
+        unsigned int source;
+        /// Destination actor ID.
+        unsigned int destination;
+        /// Type of the message, allows for multiple concurrent clients talking to a server.
+        int type;
         /// Current message size
-        int size;
+        int size = 0;
         /// Resource locking for the message. Must be acquired before performing any read/write
         /// operation on the message segment.
         sem_t sem;
@@ -149,6 +152,9 @@ private:
     /// semaphores for inter-process resource locking
     Semaphore m_actor_sem;
     Semaphore m_msg_sem;
+
+    /// Type of the message that was sent by this instance
+    int m_last_msg_type;
 };
 
 } // namespace ipc

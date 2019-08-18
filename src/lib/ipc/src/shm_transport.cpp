@@ -24,6 +24,7 @@ SharedMemoryTransport::SharedMemoryTransport() {
     m_actor_id = 0;
     m_created = false;
     m_msgstore = nullptr;
+    m_last_msg_type = -1;
 }
 
 SharedMemoryTransport::~SharedMemoryTransport() {
@@ -113,8 +114,9 @@ bool SharedMemoryTransport::create(const std::string &name, const long &size) {
     }
 
     m_msgstore->actors.num_actors = 1;
-    m_msgstore->msg.id = 1;
-    m_msgstore->msg.status = MESSAGE_READ;
+    m_msgstore->msg.source = 0;
+    m_msgstore->msg.destination = 0;
+    m_msgstore->msg.type = MESSAGE_TYPE_UNKNOWN;
     m_msgstore->msg.size = 0;
     // create semaphores for the segment
     if (!m_actor_sem.create(&m_msgstore->actors.sem, 1) ||
@@ -182,8 +184,7 @@ ITransport::IOResult SharedMemoryTransport::recv(Seraphim::Message &msg) {
     }
 
     // block until a message is available
-    while (m_msgstore->msg.status != MessageStoreStatus::MESSAGE_UNREAD ||
-           m_msgstore->msg.id == m_actor_id) {
+    while (m_msgstore->msg.type == m_last_msg_type || m_msgstore->msg.destination != m_actor_id) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         elapsed_ms++;
         if (elapsed_ms < 0) {
@@ -201,7 +202,6 @@ ITransport::IOResult SharedMemoryTransport::recv(Seraphim::Message &msg) {
         return ITransport::IOResult::ERROR;
     }
 
-    m_msgstore->msg.status = MessageStoreStatus::MESSAGE_READ;
     return ITransport::IOResult::OK;
 }
 
@@ -217,7 +217,8 @@ ITransport::IOResult SharedMemoryTransport::send(const Seraphim::Message &msg) {
     }
 
     // block until a message was read and can thus be overwritten
-    while (m_msgstore->msg.status != MessageStoreStatus::MESSAGE_READ || !m_msg_sem.trywait()) {
+    while (m_msgstore->msg.type == m_last_msg_type || m_msgstore->msg.source == m_actor_id ||
+           !m_msg_sem.trywait()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         elapsed_ms++;
         if (elapsed_ms < 0) {
@@ -234,11 +235,12 @@ ITransport::IOResult SharedMemoryTransport::send(const Seraphim::Message &msg) {
 
     // prevent us from reading our own messages in recv() by keeping track of
     // who sent a message and waiting for the next one
-    m_msgstore->msg.id = m_actor_id;
-    m_msgstore->msg.status = MessageStoreStatus::MESSAGE_UNREAD;
+    m_msgstore->msg.destination = m_actor_id == 1 ? m_msgstore->msg.source : 1;
+    m_msgstore->msg.source = m_actor_id;
     m_msgstore->msg.size = msg.ByteSize();
 
     m_msg_sem.post();
 
+    m_last_msg_type = msg.has_req() ? MESSAGE_TYPE_REQUEST : MESSAGE_TYPE_RESPONSE;
     return ITransport::IOResult::OK;
 }
