@@ -8,6 +8,9 @@
 #ifndef SPH_CORE_IMAGE_H
 #define SPH_CORE_IMAGE_H
 
+#include <cstddef>
+#include <cstdint>
+
 #include "image_buffer.h"
 
 namespace sph {
@@ -23,6 +26,12 @@ namespace core {
 class IImage {
 public:
     virtual ~IImage() = default;
+
+    /**
+     * @brief Retrieve a pointer to the underlying data of the image.
+     * @return Start of the first row of the image.
+     */
+    virtual const unsigned char *data() const = 0;
 
     /**
      * @brief Check whether the buffer is empty.
@@ -43,6 +52,13 @@ public:
     virtual size_t height() const = 0;
 
     /**
+     * @brief Length of one pixel row (including padding).
+     *        For images with no padding, this equals height * sizeof(pixel).
+     * @return Length in bytes.
+     */
+    virtual size_t stride() const = 0;
+
+    /**
      * @brief The number of bits for each channel.
      *        E.g. for RGB32 this would return 32.
      * @return
@@ -54,28 +70,6 @@ public:
      * @return 1 for grayscale, 3 for BGR, 4 for BGRA.
      */
     virtual int channels() const = 0;
-
-    /**
-     * @brief RGB Pixel data.
-     */
-    struct RGBPixel {
-        /// red [0, 255]
-        int r;
-        /// green [0, 255]
-        int g;
-        /// blue [0, 255]
-        int b;
-        /// transparency, 0 is opaque, 255 is transparent
-        int a;
-    };
-
-    /**
-     * @brief Read RGB pixel intensities at the specified offsets.
-     * @param x X offset.
-     * @param y Y offset.
-     * @return Pixel intensities.
-     */
-    virtual struct RGBPixel rgb(const uint32_t &x, const uint32_t &y) const = 0;
 
     /**
      * @brief Unary "not" operator, checks whether the instance is valid.
@@ -95,12 +89,13 @@ public:
     Image() = default;
     explicit Image(const ImageBuffer &buf);
 
+    const unsigned char *data() const override { return m_buffer.data(); }
     bool empty() const override { return m_buffer.empty(); }
     size_t width() const override { return m_buffer.format().width; }
     size_t height() const override { return m_buffer.format().height; }
+    size_t stride() const override { return m_buffer.format().stride; }
     int depth() const override;
     int channels() const override;
-    struct RGBPixel rgb(const uint32_t &x, const uint32_t &y) const override;
     bool operator!() const override { return !empty(); }
 
     /**
