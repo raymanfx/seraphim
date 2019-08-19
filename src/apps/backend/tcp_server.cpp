@@ -24,8 +24,11 @@ TCPServer::~TCPServer() {
     }
 }
 
-bool TCPServer::init(const std::string &address, const uint16_t &port) {
-    std::string uri = "tcp://" + address + ":" + std::to_string(port);
+bool TCPServer::init(const std::string &uri) {
+    if (uri.find("tcp://", 0, strlen("tcp://")) == std::string::npos) {
+        return false;
+    }
+
     m_transport = sph::ipc::TransportFactory::Instance().create(uri);
     m_init = m_transport != nullptr;
     return m_init;

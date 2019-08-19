@@ -22,11 +22,10 @@ public:
     SharedMemoryServer();
     ~SharedMemoryServer() override;
 
+    bool init(const std::string &uri) override;
     bool run() override;
     void terminate() override;
     void register_event_handler(const event_t &mask, const event_handler_t handler) override;
-
-    bool init(const std::string &shm_name, const long &shm_size);
     void handle_event(const event_t &event, void *data);
 
 private:

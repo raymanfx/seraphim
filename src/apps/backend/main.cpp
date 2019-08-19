@@ -255,17 +255,11 @@ int main(int argc, char **argv) {
     // start servers
     server_running = true;
 
-    val = ConfigStore::Instance().get_value("shm_server");
+    val = ConfigStore::Instance().get_value("shm_server_uri");
     if (!val.empty()) {
-        val = ConfigStore::Instance().get_value("shm_server_name");
-        if (val.empty()) {
-            std::cout << "[ERROR] Missing conf key: shm_server_name" << std::endl;
-            return 1;
-        }
-
-        std::cout << "Creating SHM server on /seraphim" << std::endl;
+        std::cout << "Creating SHM server (uri: " << val << ")" << std::endl;
         SharedMemoryServer *server = new SharedMemoryServer();
-        if (!server->init(val, 1024 * 1000 * 10 /* 10 MB */)) {
+        if (!server->init(val)) {
             std::cout << "Failed to create SHM segment: " << strerror(errno) << std::endl;
             delete server;
         } else {
@@ -280,35 +274,12 @@ int main(int argc, char **argv) {
         }
     }
 
-    val = ConfigStore::Instance().get_value("tcp_server");
+    val = ConfigStore::Instance().get_value("tcp_server_uri");
     if (!val.empty()) {
-        std::string address;
-        uint16_t port;
-
-        val = ConfigStore::Instance().get_value("tcp_server_address");
-        if (val.empty()) {
-            std::cout << "[ERROR] Missing conf key: tcp_server_address" << std::endl;
-            return 1;
-        }
-        address = val;
-
-        val = ConfigStore::Instance().get_value("tcp_server_port");
-        if (val.empty()) {
-            std::cout << "[ERROR] Missing conf key: tcp_server_port" << std::endl;
-            return 1;
-        }
-
-        try {
-            port = static_cast<uint16_t>(std::stoi(val));
-        } catch (...) {
-            std::cout << "[ERROR] Invalid conf value for key: tcp_server_port" << std::endl;
-            return 1;
-        }
-
-        std::cout << "Creating TCP server on port: " << port << std::endl;
+        std::cout << "Creating TCP server (uri: " << val << ")" << std::endl;
         TCPServer *server = new TCPServer();
-        if (!server->init(address, port)) {
-            std::cout << "Failed to create TCP segment: " << strerror(errno) << std::endl;
+        if (!server->init(val)) {
+            std::cout << "Failed to create TCP server: " << strerror(errno) << std::endl;
             delete server;
         } else {
             server->register_event_handler(IServer::EVENT_MESSAGE_INCOMING, message_incoming);

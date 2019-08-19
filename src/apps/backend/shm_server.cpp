@@ -21,8 +21,11 @@ SharedMemoryServer::~SharedMemoryServer() {
     }
 }
 
-bool SharedMemoryServer::init(const std::string &shm_name, const long &shm_size) {
-    std::string uri = "shm://" + shm_name + ":" + std::to_string(shm_size);
+bool SharedMemoryServer::init(const std::string &uri) {
+    if (uri.find("shm://", 0, strlen("shm://")) == std::string::npos) {
+        return false;
+    }
+
     m_transport = sph::ipc::TransportFactory::Instance().create(uri);
     m_init = m_transport != nullptr;
     return m_init;

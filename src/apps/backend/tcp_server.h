@@ -22,11 +22,11 @@ public:
     TCPServer();
     ~TCPServer() override;
 
+    bool init(const std::string &uri) override;
     bool run() override;
     void terminate() override;
     void register_event_handler(const event_t &mask, const event_handler_t handler) override;
 
-    bool init(const std::string &address, const uint16_t &port);
     void handle_event(const event_t &event, void *data);
 
 private:
