@@ -42,7 +42,7 @@ ITransport::IOResult TCPTransport::send(const Seraphim::Message &msg) {
         return ITransport::IOResult::ERROR;
     }
 
-    if (!m_stream.send(m_tx_buffer.data(), m_tx_buffer.size())) {
+    if (m_stream.send(m_tx_buffer.data(), m_tx_buffer.size()) <= 0) {
         return m_stream.socket().state() == sph::ipc::net::Socket::STATE_TIMEOUT
                    ? ITransport::IOResult::TIMEOUT
                    : ITransport::IOResult::ERROR;
@@ -81,7 +81,7 @@ ITransport::IOResult TCPTransport::send(const int &fd, const Seraphim::Message &
         return ITransport::IOResult::ERROR;
     }
 
-    if (!m_stream.send(fd, m_tx_buffer.data(), m_tx_buffer.size())) {
+    if (m_stream.send(fd, m_tx_buffer.data(), m_tx_buffer.size()) <= 0) {
         return m_stream.socket().state() == sph::ipc::net::Socket::STATE_TIMEOUT
                    ? ITransport::IOResult::TIMEOUT
                    : ITransport::IOResult::ERROR;
