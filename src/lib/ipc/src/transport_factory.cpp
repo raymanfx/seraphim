@@ -5,11 +5,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <iostream>
-
+#include "seraphim/ipc/transport_factory.h"
 #include "seraphim/ipc/shm_transport.h"
 #include "seraphim/ipc/tcp_transport.h"
-#include "seraphim/ipc/transport_factory.h"
 
 using namespace sph::ipc;
 
@@ -18,13 +16,9 @@ std::unique_ptr<ITransport> TransportFactory::create(const std::string &uri) {
 
     // delegate the real instance creation to helper functions
     if (uri.rfind("shm", 0) == 0) {
-        std::cout << "[INFO] Creating SHM transport with URI: " << uri << std::endl;
         instance = create_shm(uri);
     } else if (uri.rfind("tcp", 0) == 0) {
-        std::cout << "[INFO] Creating TCP transport with URI: " << uri << std::endl;
         instance = create_tcp(uri);
-    } else {
-        std::cout << "[WARN] Unknown transport URI: " << uri << std::endl;
     }
 
     return instance;
@@ -35,13 +29,9 @@ std::unique_ptr<ITransport> TransportFactory::open(const std::string &uri) {
 
     // delegate the real instance creation to helper functions
     if (uri.rfind("shm", 0) == 0) {
-        std::cout << "[INFO] Opening SHM transport with URI: " << uri << std::endl;
         instance = open_shm(uri);
     } else if (uri.rfind("tcp", 0) == 0) {
-        std::cout << "[INFO] Opening TCP transport with URI: " << uri << std::endl;
         instance = open_tcp(uri);
-    } else {
-        std::cout << "[WARN] Unknown transport URI: " << uri << std::endl;
     }
 
     return instance;
@@ -57,7 +47,6 @@ std::unique_ptr<ITransport> TransportFactory::create_shm(const std::string &uri)
     size_t size_start = uri.rfind(":");
     if (name_start == std::string::npos || size_start == std::string::npos ||
         name_start >= size_start) {
-        std::cout << "[WARN] Missing delimiter '/' or ':' in URI" << std::endl;
         return nullptr;
     }
     // offset positions to capture the actual properties
@@ -66,20 +55,17 @@ std::unique_ptr<ITransport> TransportFactory::create_shm(const std::string &uri)
 
     name = uri.substr(name_start, size_start - name_start - 1);
     if (name.empty()) {
-        std::cout << "[WARN] Empty name" << std::endl;
         return nullptr;
     }
     try {
         size = std::stol(uri.substr(size_start));
     } catch (std::invalid_argument) {
-        std::cout << "[WARN] Size must be an integral type" << std::endl;
         return nullptr;
     }
 
     // actually create the transport instance
     instance = new SharedMemoryTransport();
     if (!instance->create(name, size)) {
-        std::cout << "[WARN] Failed to create segment: " << strerror(errno) << std::endl;
         delete instance;
         return nullptr;
     }
@@ -97,7 +83,6 @@ std::unique_ptr<ITransport> TransportFactory::create_tcp(const std::string &uri)
     size_t port_start = uri.rfind(":");
     if (address_start == std::string::npos || port_start == std::string::npos ||
         address_start >= port_start) {
-        std::cout << "[WARN] Missing delimiter '/' or ':' in URI" << std::endl;
         return nullptr;
     }
     // offset positions to capture the actual properties
@@ -108,12 +93,10 @@ std::unique_ptr<ITransport> TransportFactory::create_tcp(const std::string &uri)
     try {
         port = std::stoi(uri.substr(port_start));
     } catch (std::invalid_argument) {
-        std::cout << "[WARN] Port must be an integral type" << std::endl;
         return nullptr;
     }
     // port must be a uint16_t
     if (port < 0 || port > 65535) {
-        std::cout << "[WARN] Port must be within [0, 65535] range" << std::endl;
         return nullptr;
     }
 
@@ -127,14 +110,12 @@ std::unique_ptr<ITransport> TransportFactory::create_tcp(const std::string &uri)
         domain = AF_INET6;
     }
     if (domain == -1) {
-        std::cout << "[WARN] Invalid IP address: " << address << std::endl;
         return nullptr;
     }
 
     // actually create the transport instance
     instance = new TCPTransport(domain);
     if (!instance->bind(static_cast<uint16_t>(port))) {
-        std::cout << "[WARN] Failed to bind to port: " << strerror(errno) << std::endl;
         delete instance;
         return nullptr;
     }
@@ -149,7 +130,6 @@ std::unique_ptr<ITransport> TransportFactory::open_shm(const std::string &uri) {
     // parse the name from the description
     size_t name_start = uri.rfind("/");
     if (name_start == std::string::npos) {
-        std::cout << "[WARN] Missing delimiter '/' in URI" << std::endl;
         return nullptr;
     }
     // offset positions to capture the actual properties
@@ -160,7 +140,6 @@ std::unique_ptr<ITransport> TransportFactory::open_shm(const std::string &uri) {
     // actually create the transport instance
     instance = new SharedMemoryTransport();
     if (!instance->open(name)) {
-        std::cout << "[WARN] Failed to open segment: " << strerror(errno) << std::endl;
         delete instance;
         return nullptr;
     }
@@ -178,7 +157,6 @@ std::unique_ptr<ITransport> TransportFactory::open_tcp(const std::string &uri) {
     size_t port_start = uri.rfind(":");
     if (address_start == std::string::npos || port_start == std::string::npos ||
         address_start >= port_start) {
-        std::cout << "[WARN] Missing delimiter '/' or ':' in URI" << std::endl;
         return nullptr;
     }
     // offset positions to capture the actual properties
@@ -189,12 +167,10 @@ std::unique_ptr<ITransport> TransportFactory::open_tcp(const std::string &uri) {
     try {
         port = std::stoi(uri.substr(port_start));
     } catch (std::invalid_argument) {
-        std::cout << "[WARN] Port must be an integral type" << std::endl;
         return nullptr;
     }
     // port must be a uint16_t
     if (port < 0 || port > 65535) {
-        std::cout << "[WARN] Port must be within [0, 65535] range" << std::endl;
         return nullptr;
     }
 
@@ -208,14 +184,12 @@ std::unique_ptr<ITransport> TransportFactory::open_tcp(const std::string &uri) {
         domain = AF_INET6;
     }
     if (domain == -1) {
-        std::cout << "[WARN] Invalid IP address: " << address << std::endl;
         return nullptr;
     }
 
     // actually create the transport instance
     instance = new TCPTransport(domain);
     if (!instance->connect(address, static_cast<uint16_t>(port))) {
-        std::cout << "[WARN] Failed to connect to TCP peer: " << strerror(errno) << std::endl;
         delete instance;
         return nullptr;
     }
