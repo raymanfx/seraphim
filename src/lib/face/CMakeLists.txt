@@ -6,6 +6,7 @@ set(MODULE_VERSION_PATCH 0)
 set(SOURCES
     src/module.cpp
     src/hog_face_detector.cpp
+    src/kazemi_facemark_detector.cpp
     src/lbp_face_detector.cpp
     src/lbp_face_recognizer.cpp
     src/lbf_facemark_detector.cpp
@@ -18,6 +19,7 @@ set(HEADERS
     include/seraphim/face/face_recognizer.h
     include/seraphim/face/facemark_detector.h
     include/seraphim/face/hog_face_detector.h
+    include/seraphim/face/kazemi_facemark_detector.h
     include/seraphim/face/lbf_facemark_detector.h
     include/seraphim/face/lbp_face_detector.h
     include/seraphim/face/lbp_face_recognizer.h
