@@ -144,7 +144,7 @@ int main(int argc, char **argv) {
                            .count();
 
         for (const auto &poly : faces) {
-            cv::rectangle(frame, cv::Rect(poly.bl().x, poly.bl().y, poly.width(), poly.height()),
+            cv::rectangle(frame, cv::Rect(poly.tl().x, poly.tl().y, poly.width(), poly.height()),
                           cv::Scalar(0, 255, 0), 2);
         }
 

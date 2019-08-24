@@ -80,7 +80,7 @@ bool LBFFacemarkDetector::detect_facemarks(const sph::core::Image &img,
     }
 
     for (const auto &poly : faces) {
-        faces_.emplace_back(cv::Rect(poly.bl().x, poly.bl().y, poly.width(), poly.height()));
+        faces_.emplace_back(cv::Rect(poly.tl().x, poly.tl().y, poly.width(), poly.height()));
     }
 
     // perform the actual detection

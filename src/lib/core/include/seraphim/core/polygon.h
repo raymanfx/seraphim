@@ -20,6 +20,9 @@ namespace core {
 /**
  * @brief Polygon object in 2D (euclidian) space.
  * By default, the type of the coordinates is integer.
+ * Seraphim uses a top-down coordinate system, meaning the coordinate space origin is in the top
+ * left hand corner (0, 0) and the bottom right hand corner is (x_max, y_max).
+ * Thus, bl().y > tl().y for example.
  */
 template <typename T = int> class Polygon {
 public:
@@ -159,7 +162,7 @@ public:
      * @brief Height of the polygon.
      * @return Height as type T.
      */
-    T height() const { return tl().y - bl().y; }
+    T height() const { return bl().y - tl().y; }
 
     /**
      * @brief Bounding rectangle.
@@ -185,7 +188,8 @@ public:
             }
         }
 
-        return Polygon({ { min_x, min_y }, { min_x, max_y }, { max_x, max_y }, { max_x, min_y } });
+        // bl, tl, tr, br
+        return Polygon({ { min_x, max_y }, { min_x, min_y }, { max_x, min_y }, { max_x, max_y } });
     }
 
 private:
