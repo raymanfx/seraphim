@@ -15,10 +15,6 @@
 
 using namespace sph::ipc;
 
-TCPTransport::TCPTransport(const int &domain) : m_stream(domain) {
-    m_client_disconnected = false;
-}
-
 ITransport::IOResult TCPTransport::recv(Seraphim::Message &msg) {
     if (m_stream.receive(m_rx_buffer) == -1) {
         return m_stream.socket().state() == sph::ipc::net::Socket::STATE_TIMEOUT

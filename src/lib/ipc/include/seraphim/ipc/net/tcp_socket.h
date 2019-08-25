@@ -23,7 +23,6 @@ namespace net {
 class TCPSocket : public Socket {
 public:
     explicit TCPSocket(const int &domain);
-    ~TCPSocket();
 
     /* listen for clients */
     bool listen(const int &backlog);

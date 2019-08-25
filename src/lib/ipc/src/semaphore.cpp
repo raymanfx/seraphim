@@ -9,12 +9,6 @@
 
 using namespace sph::ipc;
 
-Semaphore::Semaphore() {
-    m_sem = SEM_FAILED;
-    m_name = "";
-    m_created = false;
-}
-
 Semaphore::~Semaphore() {
     if (m_sem != SEM_FAILED && m_created) {
         destroy();
@@ -52,7 +46,13 @@ bool Semaphore::create(sem_t *sem, const unsigned int &value, const bool &inter_
 
 bool Semaphore::create(const std::string &name, const unsigned int &value) {
     m_sem = ::sem_open(name.c_str(), O_CREAT, 0666, value);
-    return m_sem != SEM_FAILED;
+    if (m_sem == SEM_FAILED) {
+        return false;
+    }
+
+    m_name = name;
+    m_created = true;
+    return true;
 }
 
 bool Semaphore::destroy() {

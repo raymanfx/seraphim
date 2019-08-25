@@ -17,16 +17,8 @@
 
 using namespace sph::ipc::net;
 
-Socket::Socket(const int &domain, const int &type, const int &protocol) {
-    /* socket attributes */
-    m_domain = domain;
-    m_type = type;
-    m_protocol = protocol;
-
-    /* socket state */
-    m_state = STATE_OK;
-    m_connected = false;
-    m_bound = false;
+Socket::Socket(const int &domain, const int &type, const int &protocol)
+    : m_domain(domain), m_type(type), m_protocol(protocol) {
 
     /* initial socket */
     m_fd = socket(m_domain, m_type, m_protocol);

@@ -21,10 +21,6 @@ TCPSocket::TCPSocket(const int &domain) : Socket(domain, SOCK_STREAM, IPPROTO_TC
     set_opt(SOL_SOCKET, SO_REUSEADDR, &opt_val, sizeof(opt_val));
 }
 
-TCPSocket::~TCPSocket() {
-    // dummy
-}
-
 bool TCPSocket::listen(const int &backlog) {
     return ::listen(m_fd, backlog) == 0;
 }

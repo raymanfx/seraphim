@@ -25,7 +25,7 @@ public:
     /**
      * @brief TCP message transport.
      */
-    explicit TCPTransport(const int &domain);
+    explicit TCPTransport(const int &domain) : m_stream(domain) {}
 
     /**
      * @brief Get the stream associated with this transport.
@@ -105,7 +105,7 @@ private:
     /// TX buffer used for storing serialized, outbound messages
     std::vector<uint8_t> m_tx_buffer;
     /// Whether or not a client has just disconnected
-    bool m_client_disconnected;
+    bool m_client_disconnected = false;
 };
 
 } // namespace ipc

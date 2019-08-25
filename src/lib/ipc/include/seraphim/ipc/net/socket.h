@@ -66,9 +66,9 @@ protected:
     int m_fd;
 
     /* socket state */
-    state_t m_state;
-    bool m_connected;
-    bool m_bound;
+    state_t m_state = STATE_OK;
+    bool m_connected = false;
+    bool m_bound = false;
 
 private:
     /* socket attributes */

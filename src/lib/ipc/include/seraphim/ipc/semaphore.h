@@ -31,7 +31,7 @@ public:
     /**
      * @brief Semaphore wrapper, the constructor does nothing in itself.
      */
-    Semaphore();
+    Semaphore() = default;
 
     /**
      * @brief Semaphore destructor.
@@ -104,13 +104,13 @@ public:
 
 private:
     /// POSIX sem_t
-    sem_t *m_sem;
+    sem_t *m_sem = SEM_FAILED;
 
     /// name of the semaphore (empty for unnamed ones)
-    std::string m_name;
+    std::string m_name = "";
 
     /// whether this instance has created the underlying semaphore object
-    bool m_created;
+    bool m_created = false;
 };
 
 } // namespace ipc

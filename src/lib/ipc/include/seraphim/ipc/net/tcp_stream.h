@@ -22,7 +22,6 @@ namespace net {
 class TCPStream {
 public:
     explicit TCPStream(const int &domain);
-    ~TCPStream() = default;
 
     struct MessageHeader {
         // transmission size

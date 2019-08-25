@@ -30,7 +30,7 @@ public:
     /**
      * @brief Shared memory message transport.
      */
-    SharedMemoryTransport();
+    SharedMemoryTransport() = default;
 
     /**
      * @brief Shared memory message transport destructor.
@@ -138,23 +138,23 @@ private:
     bool unmap();
 
     std::string m_name;
-    int m_fd;
-    size_t m_size;
-    int m_timeout;
-    bool m_created;
+    int m_fd = -1;
+    size_t m_size = 0;
+    int m_timeout = 0;
+    bool m_created = false;
 
     /// Unique identifier of this instance.
     unsigned int m_actor_id;
 
     /// The mapped MessageStore object.
-    MessageStore *m_msgstore;
+    MessageStore *m_msgstore = nullptr;
 
     /// semaphores for inter-process resource locking
     Semaphore m_actor_sem;
     Semaphore m_msg_sem;
 
     /// Type of the message that was sent by this instance
-    int m_last_msg_type;
+    int m_last_msg_type = -1;
 };
 
 } // namespace ipc

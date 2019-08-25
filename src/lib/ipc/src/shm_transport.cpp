@@ -16,17 +16,6 @@
 
 using namespace sph::ipc;
 
-SharedMemoryTransport::SharedMemoryTransport() {
-    m_fd = -1;
-    m_size = 0;
-    m_timeout = 0;
-
-    m_actor_id = 0;
-    m_created = false;
-    m_msgstore = nullptr;
-    m_last_msg_type = -1;
-}
-
 SharedMemoryTransport::~SharedMemoryTransport() {
     if (m_msgstore != nullptr) {
         unmap();
