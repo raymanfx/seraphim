@@ -25,7 +25,7 @@ namespace gui {
  */
 class GLWindow : public IWindow {
 public:
-    GLWindow();
+    GLWindow() : m_ui_active(false) {}
     ~GLWindow() override;
 
     bool create(const std::string &title) override;
@@ -34,16 +34,16 @@ public:
 
 private:
     /// window impl
-    GLFWwindow *m_window;
+    GLFWwindow *m_window = nullptr;
 
     /// ui thread for event emitting etc
     std::thread m_ui_thread;
     std::atomic<bool> m_ui_active;
 
     /// window width
-    int m_width;
+    int m_width = 0;
     /// window height
-    int m_height;
+    int m_height = 0;
 
     /// GL shader program
     GLuint m_shader_program;
@@ -52,9 +52,9 @@ private:
     GLuint m_texture;
 
     /// GL image properties
-    GLint m_input_internal_format;
-    GLenum m_input_format;
-    GLenum m_input_type;
+    GLint m_input_internal_format = 0;
+    GLenum m_input_format = 0;
+    GLenum m_input_type = 0;
 
     /// Vertex Array Object (VAO)
     GLuint m_vao;

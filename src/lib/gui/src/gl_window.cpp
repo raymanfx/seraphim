@@ -12,16 +12,6 @@
 
 using namespace sph::gui;
 
-GLWindow::GLWindow() {
-    m_window = nullptr;
-    m_ui_active = false;
-    m_width = 0;
-    m_height = 0;
-    m_input_internal_format = 0;
-    m_input_format = 0;
-    m_input_type = 0;
-}
-
 GLWindow::~GLWindow() {
     destroy();
 }
