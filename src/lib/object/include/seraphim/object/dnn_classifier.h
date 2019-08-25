@@ -27,23 +27,22 @@ namespace object {
  */
 class DNNClassifier : public Classifier, public sph::core::IComputable {
 public:
-    DNNClassifier();
-    ~DNNClassifier() override;
+    DNNClassifier() = default;
 
     /**
      * @brief Parameters used for preparing input images.
      */
     struct BlobParameters {
         /// input image scaling
-        double scalefactor;
+        double scalefactor = 1.0;
         /// input image resizing
-        cv::Size size;
+        cv::Size size = cv::Size(300, 300);
         /// mean substraction
-        cv::Scalar mean;
+        cv::Scalar mean = cv::Scalar();
         /// whether to swap R/B channels of the input image
-        bool swap_rb;
+        bool swap_rb = false;
         /// input image cropping
-        bool crop;
+        bool crop = false;
     };
 
     void set_blob_parameters(const struct BlobParameters &params) { m_blob_params = params; }
@@ -88,7 +87,7 @@ private:
     struct BlobParameters m_blob_params;
 
     /// Layer names have to be refreshed after @ref read_net was called.
-    bool m_refresh_layer_names;
+    bool m_refresh_layer_names = false;
 
     std::mutex m_target_mutex;
 };

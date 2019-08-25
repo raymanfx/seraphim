@@ -12,21 +12,6 @@
 using namespace sph::core;
 using namespace sph::object;
 
-DNNClassifier::DNNClassifier() {
-    m_blob_params = {};
-    m_blob_params.scalefactor = 1.0;
-    m_blob_params.size = cv::Size(300, 300);
-    m_blob_params.mean = cv::Scalar();
-    m_blob_params.swap_rb = false;
-    m_blob_params.crop = false;
-
-    m_refresh_layer_names = false;
-}
-
-DNNClassifier::~DNNClassifier() {
-    // dummy
-}
-
 bool DNNClassifier::read_net(const std::string &model, const std::string &config,
                              const std::string &framework) {
     try {
