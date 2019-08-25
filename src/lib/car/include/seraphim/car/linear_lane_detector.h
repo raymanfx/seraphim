@@ -32,8 +32,7 @@ namespace car {
  */
 class LinearLaneDetector : public ILaneDetector, public sph::core::IComputable {
 public:
-    LinearLaneDetector();
-    ~LinearLaneDetector() override;
+    LinearLaneDetector() = default;
 
     /**
      * @brief Parameters used by algorithms in the image processing pipeline.
@@ -99,14 +98,14 @@ public:
 
 private:
     /// parameters used by the image processing pipeline
-    Parameters m_params;
+    Parameters m_params = {};
 
     // region of interest masking
     sph::core::Polygon<int> m_roi;
 
     cv::Mat m_mat_buf;
     cv::UMat m_umat_buf;
-    target_t m_target;
+    target_t m_target = TARGET_CPU;
     std::mutex m_target_mutex;
 };
 

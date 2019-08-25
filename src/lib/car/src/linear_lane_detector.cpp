@@ -12,27 +12,6 @@
 using namespace sph::core;
 using namespace sph::car;
 
-LinearLaneDetector::LinearLaneDetector() {
-    m_params = {};
-
-    m_params.canny_low_thresh = 50;
-    m_params.canny_ratio = 3;
-    m_params.canny_kernel_size = 3;
-    m_params.canny_use_l2_dist = false;
-
-    m_params.hough_rho = 1;
-    m_params.hough_theta = CV_PI / 180;
-    m_params.hough_thresh = 20;
-    m_params.hough_min_line_len = 20;
-    m_params.hough_max_line_len = 30;
-
-    m_target = TARGET_CPU;
-}
-
-LinearLaneDetector::~LinearLaneDetector() {
-    // dummy
-}
-
 void LinearLaneDetector::preprocess(cv::InputArray img, cv::OutputArray out) {
     // convert image to grayscale
     if (img.channels() > 1) {

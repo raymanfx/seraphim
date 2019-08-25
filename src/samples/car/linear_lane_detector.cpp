@@ -121,6 +121,19 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    // initialize parameters for lane detector
+    sph::car::LinearLaneDetector::Parameters params = {};
+    params.canny_low_thresh = 50;
+    params.canny_ratio = 3;
+    params.canny_kernel_size = 3;
+    params.canny_use_l2_dist = false;
+    params.hough_rho = 1;
+    params.hough_theta = CV_PI / 180;
+    params.hough_thresh = 20;
+    params.hough_min_line_len = 20;
+    params.hough_max_line_len = 30;
+    lane_detector.set_parameters(params);
+
     // tune the ROI according to your input video
     // in this case, use a 4-point polygon shape to match the "project_video.mp4"
     // clip of the udacity course at https://github.com/udacity/CarND-Vehicle-Detection
