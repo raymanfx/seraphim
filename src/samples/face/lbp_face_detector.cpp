@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
     int camera_index = 0;
     std::string cascade_path;
     ::LBPFaceDetector detector;
-    std::vector<sph::core::Polygon<>> faces;
+    std::vector<sph::core::Polygon<int>> faces;
     sph::core::Image image;
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;

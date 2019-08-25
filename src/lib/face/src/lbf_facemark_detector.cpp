@@ -46,7 +46,7 @@ bool LBFFacemarkDetector::load_facemark_model(const std::string &path) {
 }
 
 bool LBFFacemarkDetector::detect_facemarks(const sph::core::Image &img,
-                                           const std::vector<sph::core::Polygon<>> &faces,
+                                           const std::vector<sph::core::Polygon<int>> &faces,
                                            std::vector<Facemarks> &facemarks) {
     std::vector<cv::Rect> faces_;
     std::vector<std::vector<cv::Point2f>> landmarks;
@@ -104,11 +104,11 @@ bool LBFFacemarkDetector::detect_facemarks(const sph::core::Image &img,
         Facemarks marks;
 
         for (const auto &elem : Facemark_LUT) {
-            std::vector<sph::core::Polygon<>::Point> points;
+            std::vector<sph::core::Point2i> points;
 
             for (size_t i = elem.second.first; i <= elem.second.second; i++) {
-                points.push_back(
-                    { static_cast<int>(facepoints[i].x), static_cast<int>(facepoints[i].y) });
+                points.emplace_back(static_cast<int>(facepoints[i].x),
+                                    static_cast<int>(facepoints[i].y));
             }
             marks.landmarks.emplace_back(std::make_pair(elem.first, points));
         }

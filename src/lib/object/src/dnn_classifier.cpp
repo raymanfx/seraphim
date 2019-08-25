@@ -177,11 +177,11 @@ bool DNNClassifier::predict(const Image &img, std::vector<Prediction> &preds) {
         Prediction pred = {};
         pred.class_id = class_ids[idx];
         pred.confidence = confidences[idx];
-        pred.poly =
-            Polygon<>({ { boxes[idx].x, boxes[idx].y },
-                        { boxes[idx].x, boxes[idx].y + boxes[idx].height },
-                        { boxes[idx].x + boxes[idx].width, boxes[idx].y },
-                        { boxes[idx].x + boxes[idx].width, boxes[idx].y + boxes[idx].height } });
+        pred.poly = Polygon<int>(
+            Point2i(boxes[idx].x, boxes[idx].y),
+            Point2i(boxes[idx].x, boxes[idx].y + boxes[idx].height),
+            Point2i(boxes[idx].x + boxes[idx].width, boxes[idx].y),
+            Point2i(boxes[idx].x + boxes[idx].width, boxes[idx].y + boxes[idx].height));
         preds.push_back(pred);
     }
 

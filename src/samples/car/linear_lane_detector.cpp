@@ -76,7 +76,7 @@ void signal_handler(int signal) {
 int main(int argc, char **argv) {
     std::string file_path;
     sph::car::LinearLaneDetector lane_detector;
-    std::vector<sph::core::Polygon<>> lanes;
+    std::vector<sph::core::Polygon<int>> lanes;
     sph::core::Image image;
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;
@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
     // tune the ROI according to your input video
     // in this case, use a 4-point polygon shape to match the "project_video.mp4"
     // clip of the udacity course at https://github.com/udacity/CarND-Vehicle-Detection
-    sph::core::Polygon<> roi;
+    sph::core::Polygon<int> roi;
     // bottom left
     roi.add_point({ 210, frame.rows });
     // top left

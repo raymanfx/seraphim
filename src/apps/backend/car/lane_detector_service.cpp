@@ -36,8 +36,8 @@ bool LaneDetectorService::handle_detection_request(
     const Seraphim::Car::LaneDetector::DetectionRequest &req,
     Seraphim::Car::LaneDetector::DetectionResponse &res) {
     Image image;
-    Polygon<> polyroi;
-    std::vector<Polygon<>> lanes;
+    Polygon<int> polyroi;
+    std::vector<Polygon<int>> lanes;
 
     if (!sph::backend::Image2DtoImage(req.image(), image)) {
         return false;
@@ -45,7 +45,7 @@ bool LaneDetectorService::handle_detection_request(
 
     if (req.has_polyroi()) {
         for (const auto &point : req.polyroi().points()) {
-            polyroi.add_point({ point.x(), point.y() });
+            polyroi.add_point(Point2i(point.x(), point.y()));
         }
         m_detector->set_roi(polyroi);
     } else {

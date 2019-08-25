@@ -139,8 +139,7 @@ bool LBPFaceRecognizer::predict(const sph::core::Image &img, std::vector<Predict
     preds.clear();
 
     // TODO: add rectangular region prediction
-    Polygon<>::Point p = { 0, 0 };
-    pred.poly = Polygon<>({ p, p, p, p });
+    pred.poly = Polygon<int>({ Point2i(0, 0), Point2i(0, 0), Point2i(0, 0), Point2i(0, 0) });
 
     if (m_faces.size() == 0) {
         return false;

@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
     std::shared_ptr<LBPFaceDetector> face_detector =
         std::shared_ptr<LBPFaceDetector>(new LBPFaceDetector());
     LBFFacemarkDetector facemark_detector(face_detector);
-    std::vector<sph::core::Polygon<>> faces;
+    std::vector<sph::core::Polygon<int>> faces;
     std::vector<IFacemarkDetector::Facemarks> facemarks;
     sph::core::Image image;
     cv::Mat frame;

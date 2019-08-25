@@ -83,7 +83,7 @@ bool LinearLaneDetector::set_target(const target_t &target) {
     return true;
 }
 
-bool LinearLaneDetector::detect(const Image &img, std::vector<Polygon<>> &lanes) {
+bool LinearLaneDetector::detect(const Image &img, std::vector<Polygon<int>> &lanes) {
     cv::Mat mat;
     std::vector<cv::Point> roi;
     std::vector<cv::Vec4i> segments;
@@ -167,10 +167,10 @@ bool LinearLaneDetector::detect(const Image &img, std::vector<Polygon<>> &lanes)
     // the line parameters:
     // find the point on the line that intersects with the bottom line of the image going
     // from (0, rows) to (cols, rows)
-    Polygon<>::Point lane_bl;
-    Polygon<>::Point lane_tl;
-    Polygon<>::Point lane_tr;
-    Polygon<>::Point lane_br;
+    Point2i lane_bl;
+    Point2i lane_tl;
+    Point2i lane_tr;
+    Point2i lane_br;
 
     // recall: (x,y) = ([2], [3]) + t * ([0], [1]), where t is a scalar
     // find t by plugging in our y values and then scale [2] to find our final x
@@ -218,7 +218,7 @@ bool LinearLaneDetector::detect(const Image &img, std::vector<Polygon<>> &lanes)
     tr_t = (lane_tr.y - right_line_params[3]) / right_line_params[1];
     lane_tr.x = static_cast<int>(right_line_params[2] + tr_t * right_line_params[0]);
 
-    lanes.emplace_back(Polygon<>({ lane_bl, lane_tl, lane_tr, lane_br }));
+    lanes.emplace_back(Polygon<int>({ lane_bl, lane_tl, lane_tr, lane_br }));
 
     return true;
 }

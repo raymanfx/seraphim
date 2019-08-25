@@ -25,7 +25,7 @@ public:
     ~HOGFaceDetector() override;
 
     bool detect_faces(const sph::core::Image &img,
-                      std::vector<sph::core::Polygon<>> &faces) override;
+                      std::vector<sph::core::Polygon<int>> &faces) override;
 
     bool set_target(const target_t &target) override;
 

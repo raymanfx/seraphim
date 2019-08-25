@@ -34,14 +34,15 @@ public:
      * @param lanes Output vector containing polygon lane shapes.
      * @return Whether detection was successful.
      */
-    virtual bool detect(const sph::core::Image &img, std::vector<sph::core::Polygon<>> &lanes) = 0;
+    virtual bool detect(const sph::core::Image &img,
+                        std::vector<sph::core::Polygon<int>> &lanes) = 0;
 
     /**
      * @brief Define a polygon-shaped region of interest for lane detection.
      * @param polyroi The polygon shape.
      * @return True on success, false otherwise.
      */
-    virtual bool set_roi(const sph::core::Polygon<> &poly) = 0;
+    virtual bool set_roi(const sph::core::Polygon<int> &poly) = 0;
 
 protected:
     ILaneDetector() = default;

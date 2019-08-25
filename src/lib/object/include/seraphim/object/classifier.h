@@ -33,7 +33,7 @@ public:
         /// class id (taken from the dataset that was used in @ref predict)
         int class_id;
         /// bounding polygon, relative to the input image
-        sph::core::Polygon<> poly;
+        sph::core::Polygon<int> poly;
         /// confidence (value between 0 and 1)
         float confidence;
     };

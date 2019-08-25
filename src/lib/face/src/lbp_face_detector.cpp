@@ -84,7 +84,7 @@ bool LBPFaceDetector::load_face_cascade(const std::string &path) {
     return m_face_cascade.load(path);
 }
 
-bool LBPFaceDetector::detect_faces(const Image &img, std::vector<Polygon<>> &faces) {
+bool LBPFaceDetector::detect_faces(const Image &img, std::vector<Polygon<int>> &faces) {
     cv::Mat mat;
     std::vector<cv::Rect> faces_;
 
@@ -103,10 +103,10 @@ bool LBPFaceDetector::detect_faces(const Image &img, std::vector<Polygon<>> &fac
 
     faces.clear();
     for (const auto &rect : faces_) {
-        faces.emplace_back(Polygon<>({ { rect.x, rect.y },
-                                       { rect.x, rect.y + rect.height },
-                                       { rect.x + rect.width, rect.y },
-                                       { rect.x + rect.width, rect.y + rect.height } }));
+        faces.emplace_back(Polygon<int>(Point2i(rect.x, rect.y),
+                                        Point2i(rect.x, rect.y + rect.height),
+                                        Point2i(rect.x + rect.width, rect.y),
+                                        Point2i(rect.x + rect.width, rect.y + rect.height)));
     }
 
     return true;

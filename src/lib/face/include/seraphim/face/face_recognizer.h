@@ -21,7 +21,7 @@ public:
 
     struct Prediction {
         int label;
-        sph::core::Polygon<> poly;
+        sph::core::Polygon<int> poly;
         double confidence;
     };
 

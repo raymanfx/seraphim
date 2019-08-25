@@ -25,7 +25,7 @@ HOGFaceDetector::~HOGFaceDetector() {
     // dummy
 }
 
-bool HOGFaceDetector::detect_faces(const Image &img, std::vector<Polygon<>> &faces) {
+bool HOGFaceDetector::detect_faces(const Image &img, std::vector<Polygon<int>> &faces) {
     // http://dlib.net/face_detection_ex.cpp.html
     dlib::array2d<unsigned char> dlib_gray_image;
     std::vector<dlib::rectangle> dets;
@@ -53,11 +53,11 @@ bool HOGFaceDetector::detect_faces(const Image &img, std::vector<Polygon<>> &fac
     dets = m_detector(dlib_gray_image);
 
     for (auto const &box : dets) {
-        faces.emplace_back(Polygon<>(
-            { { static_cast<int>(box.bl_corner().x()), static_cast<int>(box.bl_corner().y()) },
-              { static_cast<int>(box.tl_corner().x()), static_cast<int>(box.tl_corner().y()) },
-              { static_cast<int>(box.tr_corner().x()), static_cast<int>(box.tr_corner().y()) },
-              { static_cast<int>(box.br_corner().x()), static_cast<int>(box.br_corner().y()) } }));
+        faces.emplace_back(Polygon<int>(
+            Point2i(static_cast<int>(box.bl_corner().x()), static_cast<int>(box.bl_corner().y())),
+            Point2i(static_cast<int>(box.tl_corner().x()), static_cast<int>(box.tl_corner().y())),
+            Point2i(static_cast<int>(box.tr_corner().x()), static_cast<int>(box.tr_corner().y())),
+            Point2i(static_cast<int>(box.br_corner().x()), static_cast<int>(box.br_corner().y()))));
     }
 
     return true;

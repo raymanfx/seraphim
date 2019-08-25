@@ -20,7 +20,7 @@ public:
     virtual ~IFaceDetector() = default;
 
     virtual bool detect_faces(const sph::core::Image &img,
-                              std::vector<sph::core::Polygon<>> &faces) = 0;
+                              std::vector<sph::core::Polygon<int>> &faces) = 0;
 
     float confidence_threshold() const { return m_confidence_threshold; }
     void set_confidence_threshold(const float &threshold) { m_confidence_threshold = threshold; }

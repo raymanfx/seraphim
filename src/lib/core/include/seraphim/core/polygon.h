@@ -14,28 +14,19 @@
 #include <string>
 #include <vector>
 
+#include "point.h"
+
 namespace sph {
 namespace core {
 
 /**
  * @brief Polygon object in 2D (euclidian) space.
- * By default, the type of the coordinates is integer.
  * Seraphim uses a top-down coordinate system, meaning the coordinate space origin is in the top
  * left hand corner (0, 0) and the bottom right hand corner is (x_max, y_max).
  * Thus, bl().y > tl().y for example.
  */
-template <typename T = int> class Polygon {
+template <typename T> class Polygon {
 public:
-    /**
-     * @brief Point coordinates defining a point in 2D (euclidian) space.
-     */
-    struct Point {
-        /// x coordinate
-        T x;
-        /// y coordinate
-        T y;
-    };
-
     /**
      * @brief Default constructor for an empty polygon.
      * Points have to be added manually via @ref add_point.
@@ -43,19 +34,15 @@ public:
     Polygon() = default;
     /**
      * @brief Create a new polygon shape.
-     * @param list List of points defining the polygon.
+     * @param points List of points defining the polygon.
      */
-    Polygon(std::initializer_list<Point> list) {
-        for (const auto &entry : list) {
-            m_points.push_back(entry);
-        }
-    }
+    template <typename... Points> Polygon(Points &&... points) : m_points{ points... } {}
 
     /**
      * @brief Check whether the polygon is empty (i.e. undefined).
      * @return True if there are less than three points, false otherwise.
      */
-    bool empty() { return m_points.size() < 3; }
+    bool empty() const { return m_points.size() < 3; }
     /**
      * @brief Clear the polygon, removing all its points.
      */
@@ -65,21 +52,23 @@ public:
      * @brief Get the points that make the polygon shape.
      * @return Set of points in order of appearance.
      */
-    std::vector<Point> points() const { return m_points; }
+    std::vector<Point2<T>> points() const { return m_points; }
     /**
      * @brief Add a point to the polygon.
      * @param p Point with type T.
      */
-    void add_point(const Point &p) { m_points.push_back(p); }
+    void add_point(const Point2<T> &p) { m_points.push_back(p); }
 
     /**
      * @brief Bottom left point.
      * @return Point as set of coordinates with type T.
      */
-    Point bl() const {
-        Point p = m_points[0];
+    Point2<T> bl() const {
+        assert(!empty());
+
+        Point2<T> p = m_points[0];
         Polygon rect = bounding_rect();
-        Point rect_bl = rect.points()[0];
+        Point2<T> rect_bl = rect.points()[0];
 
         for (const auto &p_ : m_points) {
             // metric: absolute distance to bounding rect
@@ -96,10 +85,12 @@ public:
      * @brief Top left point.
      * @return Point as set of coordinates with type T.
      */
-    Point tl() const {
-        Point p = m_points[0];
+    Point2<T> tl() const {
+        assert(!empty());
+
+        Point2<T> p = m_points[0];
         Polygon rect = bounding_rect();
-        Point rect_tl = rect.points()[1];
+        Point2<T> rect_tl = rect.points()[1];
 
         for (const auto &p_ : m_points) {
             // metric: absolute distance to bounding rect
@@ -116,10 +107,12 @@ public:
      * @brief Top right point.
      * @return Point as set of coordinates with type T.
      */
-    Point tr() const {
-        Point p = m_points[0];
+    Point2<T> tr() const {
+        assert(!empty());
+
+        Point2<T> p = m_points[0];
         Polygon rect = bounding_rect();
-        Point rect_tr = rect.points()[2];
+        Point2<T> rect_tr = rect.points()[2];
 
         for (const auto &p_ : m_points) {
             // metric: absolute distance to bounding rect
@@ -136,10 +129,12 @@ public:
      * @brief Bottom right point.
      * @return Point as set of coordinates with type T.
      */
-    Point br() const {
-        Point p = m_points[0];
+    Point2<T> br() const {
+        assert(!empty());
+
+        Point2<T> p = m_points[0];
         Polygon rect = bounding_rect();
-        Point rect_br = rect.points()[3];
+        Point2<T> rect_br = rect.points()[3];
 
         for (const auto &p_ : m_points) {
             // metric: absolute distance to bounding rect
@@ -169,6 +164,8 @@ public:
      * @return Rectangle as polygon with type T.
      */
     Polygon bounding_rect() const {
+        assert(!empty());
+
         T min_x, max_x;
         T min_y, max_y;
 
@@ -189,12 +186,13 @@ public:
         }
 
         // bl, tl, tr, br
-        return Polygon({ { min_x, max_y }, { min_x, min_y }, { max_x, min_y }, { max_x, max_y } });
+        return Polygon(Point2<T>(min_x, max_y), Point2<T>(min_x, min_y), Point2<T>(max_x, min_y),
+                       Point2<T>(max_x, max_y));
     }
 
 private:
     /// Points defining the polygon in 2D (euclidian) space.
-    std::vector<Point> m_points;
+    std::vector<Point2<T>> m_points;
 };
 
 } // namespace core

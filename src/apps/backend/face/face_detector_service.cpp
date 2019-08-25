@@ -36,7 +36,7 @@ bool FaceDetectorService::handle_detection_request(
     const Seraphim::Face::FaceDetector::DetectionRequest &req,
     Seraphim::Face::FaceDetector::DetectionResponse &res) {
     Image image;
-    std::vector<Polygon<>> faces;
+    std::vector<Polygon<int>> faces;
     cv::Mat mat;
     cv::Rect2i roi;
 
