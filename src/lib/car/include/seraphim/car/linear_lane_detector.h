@@ -87,7 +87,7 @@ public:
      */
     void set_parameters(const Parameters &params) { m_params = params; }
 
-    bool set_target(const target_t &target) override;
+    bool set_target(const Target &target) override;
 
     bool detect(const sph::core::Image &img, std::vector<sph::core::Polygon<int>> &lanes) override;
 
@@ -105,7 +105,7 @@ private:
 
     cv::Mat m_mat_buf;
     cv::UMat m_umat_buf;
-    target_t m_target = TARGET_CPU;
+    Target m_target = Target::CPU;
     std::mutex m_target_mutex;
 };
 

@@ -26,15 +26,15 @@ public:
      * @brief Computation target.
      * These are all the targets which may be supported by the algorithm.
      */
-    enum target_t {
+    enum class Target {
         /// CPU computation target
-        TARGET_CPU,
+        CPU,
         /// GPU computation target (using OpenCL kernels)
-        TARGET_OPENCL,
+        OPENCL,
         /// GPU computation target (using OpenCL FP16 kernels)
-        TARGET_OPENCL_FP16,
+        OPENCL_FP16,
         /// Vision Processing Unit (VPU) target
-        TARGET_VPU
+        VPU
     };
 
     /**
@@ -44,7 +44,7 @@ public:
      *         Note that a return value of true does not guarantee that computation will now happen
      *         on the selected target; it is merely a hint to the implementation.
      */
-    virtual bool set_target(const target_t &target) = 0;
+    virtual bool set_target(const Target &target) = 0;
 
 protected:
     IComputable() = default;

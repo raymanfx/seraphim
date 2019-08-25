@@ -139,7 +139,7 @@ int main(int argc, char **argv) {
         std::cout << "[ERROR Failed to read net" << std::endl;
         return 1;
     }
-    classifier.set_target(sph::core::IComputable::TARGET_CPU);
+    classifier.set_target(sph::core::IComputable::Target::CPU);
 
     // parameters from:
     // https://becominghuman.ai/face-detection-with-opencv-and-deep-learning-90b84735f421

@@ -26,12 +26,12 @@ public:
     bool detect_faces(const sph::core::Image &img,
                       std::vector<sph::core::Polygon<int>> &faces) override;
 
-    bool set_target(const target_t &target) override;
+    bool set_target(const Target &target) override;
 
 private:
     dlib::frontal_face_detector m_detector;
 
-    target_t m_target = TARGET_CPU;
+    Target m_target = Target::CPU;
     std::mutex m_target_mutex;
 };
 

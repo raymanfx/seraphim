@@ -34,7 +34,7 @@ public:
                           const std::vector<sph::core::Polygon<int>> &faces,
                           std::vector<Facemarks> &facemarks) override;
 
-    bool set_target(const target_t &target) override;
+    bool set_target(const Target &target) override;
 
 private:
     std::shared_ptr<IFaceDetector> m_detector;
@@ -43,7 +43,7 @@ private:
     cv::face::FacemarkLBF::Params m_facemark_params;
     bool face_detector(cv::InputArray img, cv::OutputArray ROIs);
 
-    target_t m_target = TARGET_CPU;
+    Target m_target = Target::CPU;
     std::mutex m_target_mutex;
 };
 

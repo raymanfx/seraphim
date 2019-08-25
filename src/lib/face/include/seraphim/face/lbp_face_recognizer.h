@@ -34,7 +34,7 @@ public:
     void update(const std::vector<sph::core::Image> &imgs, const std::vector<int> &labels,
                 bool invalidate = false) override;
 
-    bool set_target(const target_t &target) override;
+    bool set_target(const Target &target) override;
 
 private:
     cv::Ptr<cv::face::FaceRecognizer> m_impl = cv::face::LBPHFaceRecognizer::create();
@@ -42,7 +42,7 @@ private:
     // internal database
     std::map<int, std::vector<cv::Mat>> m_faces;
 
-    target_t m_target = TARGET_CPU;
+    Target m_target = Target::CPU;
     std::mutex m_target_mutex;
 };
 

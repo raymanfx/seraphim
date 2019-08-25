@@ -116,7 +116,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    detector.set_target(sph::core::IComputable::TARGET_CPU);
+    detector.set_target(sph::core::IComputable::Target::CPU);
 
     while (main_loop) {
         t_loop_start = std::chrono::high_resolution_clock::now();

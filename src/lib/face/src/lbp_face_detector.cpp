@@ -21,7 +21,7 @@ bool LBPFaceDetector::face_cascade_impl(cv::InputArray img, cv::OutputArray ROIs
     // preprocessing stage: create the appropriate input buffer
     // convert to 8-bit single channel if necessary
     switch (m_target) {
-    case TARGET_CPU:
+    case Target::CPU:
         if (img.channels() > 1) {
             cv::cvtColor(img, gray, cv::COLOR_BGR2GRAY);
             cv::equalizeHist(gray, gray);
@@ -29,7 +29,7 @@ bool LBPFaceDetector::face_cascade_impl(cv::InputArray img, cv::OutputArray ROIs
             cv::equalizeHist(img, gray);
         }
         break;
-    case TARGET_OPENCL:
+    case Target::OPENCL:
         if (img.channels() > 1) {
             cv::cvtColor(img, gray_umat, cv::COLOR_BGR2GRAY);
             cv::equalizeHist(gray_umat, gray_umat);
@@ -44,12 +44,12 @@ bool LBPFaceDetector::face_cascade_impl(cv::InputArray img, cv::OutputArray ROIs
 
     // main stage: run the cascade classifier to detect faces
     switch (m_target) {
-    case TARGET_CPU:
+    case Target::CPU:
         m_face_cascade.detectMultiScale(gray, faces, m_params.cascade_scale_factor,
                                         m_params.cascade_min_neighbours, m_params.cascade_flags,
                                         m_params.cascade_min_size);
         break;
-    case TARGET_OPENCL:
+    case Target::OPENCL:
         m_face_cascade.detectMultiScale(gray_umat, faces, m_params.cascade_scale_factor,
                                         m_params.cascade_min_neighbours, m_params.cascade_flags,
                                         m_params.cascade_min_size);
@@ -99,12 +99,12 @@ bool LBPFaceDetector::detect_faces(const Image &img, std::vector<Polygon<int>> &
     return true;
 }
 
-bool LBPFaceDetector::set_target(const target_t &target) {
+bool LBPFaceDetector::set_target(const Target &target) {
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
     switch (target) {
-    case TARGET_CPU:
-    case TARGET_OPENCL:
+    case Target::CPU:
+    case Target::OPENCL:
         m_target = target;
         break;
     default:

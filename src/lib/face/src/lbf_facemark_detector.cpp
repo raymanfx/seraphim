@@ -58,9 +58,9 @@ bool LBFFacemarkDetector::detect_facemarks(const sph::core::Image &img,
 
     // prepare the compute buffer
     switch (m_target) {
-    case TARGET_CPU:
+    case Target::CPU:
         break;
-    case TARGET_OPENCL:
+    case Target::OPENCL:
         mat.copyTo(umat);
         break;
     default:
@@ -79,12 +79,12 @@ bool LBFFacemarkDetector::detect_facemarks(const sph::core::Image &img,
 
     // perform the actual detection
     switch (m_target) {
-    case TARGET_CPU:
+    case Target::CPU:
         if (!m_facemark_impl->fit(mat, faces_, landmarks)) {
             return false;
         }
         break;
-    case TARGET_OPENCL:
+    case Target::OPENCL:
         if (!m_facemark_impl->fit(umat, faces_, landmarks)) {
             return false;
         }
@@ -112,12 +112,12 @@ bool LBFFacemarkDetector::detect_facemarks(const sph::core::Image &img,
     return true;
 }
 
-bool LBFFacemarkDetector::set_target(const target_t &target) {
+bool LBFFacemarkDetector::set_target(const Target &target) {
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
     switch (target) {
-    case TARGET_CPU:
-    case TARGET_OPENCL:
+    case Target::CPU:
+    case Target::OPENCL:
         m_target = target;
         break;
     default:

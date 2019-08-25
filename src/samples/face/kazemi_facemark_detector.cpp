@@ -132,13 +132,13 @@ int main(int argc, char **argv) {
         }
     }
 
-    face_detector->set_target(sph::core::IComputable::TARGET_CPU);
+    face_detector->set_target(sph::core::IComputable::Target::CPU);
 
     if (!facemark_detector.load_facemark_model(model_path)) {
         std::cout << "[ERROR Failed to read model" << std::endl;
         return 1;
     }
-    facemark_detector.set_target(sph::core::IComputable::TARGET_CPU);
+    facemark_detector.set_target(sph::core::IComputable::Target::CPU);
 
     while (main_loop) {
         t_loop_start = std::chrono::high_resolution_clock::now();

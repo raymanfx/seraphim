@@ -46,12 +46,12 @@ void LinearLaneDetector::detect_lines(cv::InputArray img, cv::OutputArray &lines
                     m_params.hough_min_line_len, m_params.hough_max_line_len);
 }
 
-bool LinearLaneDetector::set_target(const target_t &target) {
+bool LinearLaneDetector::set_target(const Target &target) {
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
     switch (target) {
-    case TARGET_CPU:
-    case TARGET_OPENCL:
+    case Target::CPU:
+    case Target::OPENCL:
         m_target = target;
         break;
     default:
@@ -83,13 +83,13 @@ bool LinearLaneDetector::detect(const Image &img, std::vector<Polygon<int>> &lan
     }
 
     switch (m_target) {
-    case TARGET_CPU:
+    case Target::CPU:
         preprocess(mat, m_mat_buf);
         filter_edges(m_mat_buf, m_mat_buf);
         apply_mask(m_mat_buf, m_mat_buf, roi);
         detect_lines(m_mat_buf, segments);
         break;
-    case TARGET_OPENCL:
+    case Target::OPENCL:
         preprocess(mat, m_umat_buf);
         filter_edges(m_umat_buf, m_umat_buf);
         apply_mask(m_umat_buf, m_umat_buf, roi);

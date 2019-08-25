@@ -40,17 +40,17 @@ std::vector<std::string> DNNClassifier::get_unconnected_out_layer_names() {
     return names;
 }
 
-bool DNNClassifier::set_target(const target_t &target) {
+bool DNNClassifier::set_target(const Target &target) {
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
     switch (target) {
-    case TARGET_CPU:
+    case Target::CPU:
         m_net.setPreferableTarget(cv::dnn::Target::DNN_TARGET_CPU);
         break;
-    case TARGET_OPENCL:
+    case Target::OPENCL:
         m_net.setPreferableTarget(cv::dnn::Target::DNN_TARGET_OPENCL);
         break;
-    case TARGET_OPENCL_FP16:
+    case Target::OPENCL_FP16:
         m_net.setPreferableTarget(cv::dnn::Target::DNN_TARGET_OPENCL_FP16);
         break;
     default:

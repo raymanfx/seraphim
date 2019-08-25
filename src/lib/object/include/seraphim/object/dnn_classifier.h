@@ -75,7 +75,7 @@ public:
      */
     void set_preferrable_target(const int &id) { m_net.setPreferableTarget(id); }
 
-    bool set_target(const target_t &target) override;
+    bool set_target(const Target &target) override;
 
     bool predict(const sph::core::Image &img, std::vector<Prediction> &preds) override;
 

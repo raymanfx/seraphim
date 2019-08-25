@@ -47,7 +47,7 @@ public:
      */
     void set_parameters(const Parameters &params) { m_params = params; }
 
-    bool set_target(const target_t &target) override;
+    bool set_target(const Target &target) override;
 
 private:
     /// parameters used by the image processing pipeline
@@ -56,7 +56,7 @@ private:
     cv::CascadeClassifier m_face_cascade;
     bool face_cascade_impl(cv::InputArray img, cv::OutputArray ROIs);
 
-    target_t m_target = TARGET_CPU;
+    Target m_target = Target::CPU;
     std::mutex m_target_mutex;
 };
 

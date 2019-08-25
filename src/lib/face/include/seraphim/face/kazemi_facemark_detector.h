@@ -31,14 +31,14 @@ public:
                           const std::vector<sph::core::Polygon<int>> &faces,
                           std::vector<Facemarks> &facemarks) override;
 
-    bool set_target(const target_t &target) override;
+    bool set_target(const Target &target) override;
 
 private:
     std::shared_ptr<IFaceDetector> m_detector;
 
     dlib::shape_predictor m_predictor;
 
-    target_t m_target = TARGET_CPU;
+    Target m_target = Target::CPU;
     std::mutex m_target_mutex;
 };
 

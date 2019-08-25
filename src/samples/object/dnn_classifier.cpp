@@ -138,7 +138,7 @@ int main(int argc, char **argv) {
         std::cout << "[ERROR Failed to read net" << std::endl;
         return 1;
     }
-    classifier.set_target(sph::core::IComputable::TARGET_CPU);
+    classifier.set_target(sph::core::IComputable::Target::CPU);
 
     // set parameters for MobileNet V2 (2018_03_29)
     // see https://github.com/opencv/opencv/wiki/TensorFlow-Object-Detection-API

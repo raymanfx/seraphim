@@ -109,12 +109,12 @@ bool LBPFaceRecognizer::predict(const sph::core::Image &img, std::vector<Predict
 
     // convert to 8-bit single channel if necessary
     switch (m_target) {
-    case TARGET_CPU:
+    case Target::CPU:
         if (gray.channels() > 1) {
             cv::cvtColor(gray, gray, cv::COLOR_BGR2GRAY);
         }
         break;
-    case TARGET_OPENCL:
+    case Target::OPENCL:
         if (gray.channels() > 1) {
             cv::cvtColor(gray, gray_umat, cv::COLOR_BGR2GRAY);
         } else {
@@ -137,10 +137,10 @@ bool LBPFaceRecognizer::predict(const sph::core::Image &img, std::vector<Predict
 
     // main stage: predict the faces using local binary pattern matching
     switch (m_target) {
-    case TARGET_CPU:
+    case Target::CPU:
         m_impl->predict(gray, pred.label, pred.confidence);
         break;
-    case TARGET_OPENCL:
+    case Target::OPENCL:
         m_impl->predict(gray_umat, pred.label, pred.confidence);
         break;
     default:
@@ -155,12 +155,12 @@ bool LBPFaceRecognizer::predict(const sph::core::Image &img, std::vector<Predict
     return true;
 }
 
-bool LBPFaceRecognizer::set_target(const target_t &target) {
+bool LBPFaceRecognizer::set_target(const Target &target) {
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
     switch (target) {
-    case TARGET_CPU:
-    case TARGET_OPENCL:
+    case Target::CPU:
+    case Target::OPENCL:
         m_target = target;
         break;
     default:
