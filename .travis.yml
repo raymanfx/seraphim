@@ -45,7 +45,12 @@ jobs:
       script:
         - >
           docker run -v $(pwd):$(pwd) -w $(pwd) -it builder bash .travis.sh build
+    - stage: test
+      script:
+        - >
+          docker run -v $(pwd):$(pwd) -w $(pwd) -it builder bash .travis.sh test
 
 stages:
   - lint
   - build
+  - test
