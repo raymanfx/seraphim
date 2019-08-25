@@ -17,7 +17,7 @@ before_cache:
   - echo "$(docker images -a)"
   - >
     mkdir -p $HOME/docker && if [[ ! -f "$HOME/docker/$(docker images --format '{{.Repository}} {{.ID}}' | grep builder | xargs -n 2 | cut -d' ' -f2).tar.gz" ]]; then echo 'docker save builder:latest fedora:latest | gzip -2 > $HOME/docker/$1.tar.gz' | bash /dev/stdin $(docker images --format '{{.Repository}} {{.ID}}' | grep builder | xargs -n 2 | cut -d' ' -f2); fi
-  - if [[ "$(ls -1 $HOME/docker | wc -l)" -gt 1 ]]; then rm "$(ls -d -t $HOME/docker | tail -1)"; fi
+  - if [[ "$(ls -1 $HOME/docker | wc -l)" -gt 1 ]]; then rm "$(ls -d -t $HOME/docker/* | tail -1)"; fi
   - echo "$(ls $HOME/docker)"
 
 before_install:
