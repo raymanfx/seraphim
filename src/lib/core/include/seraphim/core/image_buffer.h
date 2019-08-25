@@ -26,7 +26,7 @@ namespace core {
  */
 class ImageBuffer {
 public:
-    ImageBuffer();
+    ImageBuffer() = default;
     ImageBuffer(const ImageBuffer &buf);
     ~ImageBuffer();
 
@@ -176,12 +176,12 @@ public:
 
 protected:
     /// pixel buffer address, must reside in host memory (DRAM) for now
-    unsigned char *m_data;
+    unsigned char *m_data = nullptr;
     /// back buffer, used for internal data allocations
     std::vector<unsigned char> m_data_buffer;
 
     /// buffer format
-    Format m_format;
+    Format m_format = {};
 };
 
 } // namespace core

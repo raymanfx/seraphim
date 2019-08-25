@@ -87,7 +87,7 @@ public:
 class Image : public IImage {
 public:
     Image() = default;
-    explicit Image(const ImageBuffer &buf);
+    explicit Image(const ImageBuffer &buf) : m_buffer(buf) {}
 
     const unsigned char *data() const override { return m_buffer.data(); }
     bool empty() const override { return m_buffer.empty(); }

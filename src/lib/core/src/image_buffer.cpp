@@ -40,10 +40,6 @@ static bool validate_format(ImageBuffer::Format &fmt) {
     return true;
 }
 
-ImageBuffer::ImageBuffer() {
-    clear();
-}
-
 ImageBuffer::ImageBuffer(const ImageBuffer &buf) {
     // create a shallow copy
     m_data = const_cast<unsigned char *>(buf.data());

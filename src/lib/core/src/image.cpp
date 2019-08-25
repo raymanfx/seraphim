@@ -2,10 +2,6 @@
 
 using namespace sph::core;
 
-Image::Image(const ImageBuffer &buf) {
-    m_buffer = buf;
-}
-
 int Image::depth() const {
     switch (m_buffer.format().pixfmt) {
     case ImageBuffer::Pixelformat::BGR24:
