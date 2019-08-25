@@ -10,6 +10,7 @@ string(CONCAT CMAKE_CXX_FLAGS
               " -Werror=implicit-fallthrough")
 
 add_subdirectory(src)
+add_subdirectory(tests)
 add_subdirectory(deploy)
 
 # Generate package config

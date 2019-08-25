@@ -27,6 +27,9 @@ clean:
 format:
 	clang-format -i -style=file $(SOURCES) $(HEADERS)
 
+test: build
+	find build/tests -type f -executable | xargs -L 1 sh -c
+
 tidy:
 	mkdir -p build
 	cd build && cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
