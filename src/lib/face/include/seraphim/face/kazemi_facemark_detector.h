@@ -22,7 +22,8 @@ namespace face {
 
 class KazemiFacemarkDetector : public IFacemarkDetector, sph::core::IComputable {
 public:
-    explicit KazemiFacemarkDetector(std::shared_ptr<IFaceDetector> detector);
+    explicit KazemiFacemarkDetector(std::shared_ptr<IFaceDetector> detector)
+        : m_detector(detector) {}
 
     bool load_facemark_model(const std::string &path);
 
@@ -37,7 +38,7 @@ private:
 
     dlib::shape_predictor m_predictor;
 
-    target_t m_target;
+    target_t m_target = TARGET_CPU;
     std::mutex m_target_mutex;
 };
 

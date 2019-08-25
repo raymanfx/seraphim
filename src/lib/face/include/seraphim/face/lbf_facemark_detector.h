@@ -24,7 +24,6 @@ namespace face {
 class LBFFacemarkDetector : public IFacemarkDetector, sph::core::IComputable {
 public:
     explicit LBFFacemarkDetector(std::shared_ptr<IFaceDetector> detector);
-    ~LBFFacemarkDetector() override;
 
     bool empty() const { return m_facemark_impl.empty(); }
     void write(cv::FileStorage &fs) const { return m_facemark_impl->write(fs); }
@@ -44,7 +43,7 @@ private:
     cv::face::FacemarkLBF::Params m_facemark_params;
     bool face_detector(cv::InputArray img, cv::OutputArray ROIs);
 
-    target_t m_target;
+    target_t m_target = TARGET_CPU;
     std::mutex m_target_mutex;
 };
 

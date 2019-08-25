@@ -13,16 +13,6 @@
 using namespace sph::core;
 using namespace sph::face;
 
-LBPFaceRecognizer::LBPFaceRecognizer() {
-    m_impl = cv::face::LBPHFaceRecognizer::create();
-
-    m_target = TARGET_CPU;
-}
-
-LBPFaceRecognizer::~LBPFaceRecognizer() {
-    // dummy
-}
-
 void LBPFaceRecognizer::train(const std::vector<sph::core::Image> &imgs,
                               const std::vector<int> &labels) {
     std::vector<cv::Mat> gray_imgs;

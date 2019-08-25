@@ -21,18 +21,17 @@ namespace face {
 
 class LBPFaceDetector : public IFaceDetector, sph::core::IComputable {
 public:
-    LBPFaceDetector();
-    ~LBPFaceDetector() override;
+    LBPFaceDetector() = default;
 
     /**
      * @brief Parameters used by algorithms in the image processing pipeline.
      */
     struct Parameters {
         // casecade classifier params
-        double cascade_scale_factor;
-        int cascade_min_neighbours;
-        int cascade_flags;
-        cv::Size cascade_min_size;
+        double cascade_scale_factor = 1.1;
+        int cascade_min_neighbours = 3;
+        int cascade_flags = cv::CASCADE_SCALE_IMAGE;
+        cv::Size cascade_min_size = cv::Size(30, 30);
     };
 
     bool empty() const { return m_face_cascade.empty(); }
@@ -57,7 +56,7 @@ private:
     cv::CascadeClassifier m_face_cascade;
     bool face_cascade_impl(cv::InputArray img, cv::OutputArray ROIs);
 
-    target_t m_target;
+    target_t m_target = TARGET_CPU;
     std::mutex m_target_mutex;
 };
 

@@ -17,12 +17,6 @@ using namespace sph::face;
 
 HOGFaceDetector::HOGFaceDetector() {
     m_detector = dlib::get_frontal_face_detector();
-
-    m_target = TARGET_CPU;
-}
-
-HOGFaceDetector::~HOGFaceDetector() {
-    // dummy
 }
 
 bool HOGFaceDetector::detect_faces(const Image &img, std::vector<Polygon<int>> &faces) {

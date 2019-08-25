@@ -21,8 +21,7 @@ namespace face {
 
 class LBPFaceRecognizer : public IFaceRecognizer, sph::core::IComputable {
 public:
-    LBPFaceRecognizer();
-    ~LBPFaceRecognizer() override;
+    LBPFaceRecognizer() = default;
 
     bool empty() const { return m_impl.empty(); }
     double getThreshold() const { return m_impl->getThreshold(); }
@@ -38,12 +37,12 @@ public:
     bool set_target(const target_t &target) override;
 
 private:
-    cv::Ptr<cv::face::FaceRecognizer> m_impl;
+    cv::Ptr<cv::face::FaceRecognizer> m_impl = cv::face::LBPHFaceRecognizer::create();
 
     // internal database
     std::map<int, std::vector<cv::Mat>> m_faces;
 
-    target_t m_target;
+    target_t m_target = TARGET_CPU;
     std::mutex m_target_mutex;
 };
 

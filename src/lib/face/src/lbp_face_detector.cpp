@@ -12,19 +12,6 @@
 using namespace sph::core;
 using namespace sph::face;
 
-LBPFaceDetector::LBPFaceDetector() {
-    m_params.cascade_scale_factor = 1.1;
-    m_params.cascade_min_neighbours = 3;
-    m_params.cascade_flags = cv::CASCADE_SCALE_IMAGE;
-    m_params.cascade_min_size = cv::Size(30, 30);
-
-    m_target = TARGET_CPU;
-}
-
-LBPFaceDetector::~LBPFaceDetector() {
-    // dummy
-}
-
 bool LBPFaceDetector::face_cascade_impl(cv::InputArray img, cv::OutputArray ROIs) {
     cv::Mat gray;
     cv::UMat gray_umat;

@@ -22,11 +22,6 @@ static constexpr std::pair<IFacemarkDetector::FacemarkType, std::pair<size_t, si
                        { IFacemarkDetector::FacemarkType::LEFT_EYE, { 42, 47 } },
                        { IFacemarkDetector::FacemarkType::MOUTH, { 48, 67 } } };
 
-KazemiFacemarkDetector::KazemiFacemarkDetector(std::shared_ptr<IFaceDetector> detector) {
-    m_detector = detector;
-    m_target = TARGET_CPU;
-}
-
 bool KazemiFacemarkDetector::load_facemark_model(const std::string &path) {
     try {
         dlib::deserialize(path) >> m_predictor;

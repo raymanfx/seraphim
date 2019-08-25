@@ -22,7 +22,6 @@ namespace face {
 class HOGFaceDetector : public IFaceDetector, sph::core::IComputable {
 public:
     HOGFaceDetector();
-    ~HOGFaceDetector() override;
 
     bool detect_faces(const sph::core::Image &img,
                       std::vector<sph::core::Polygon<int>> &faces) override;
@@ -32,7 +31,7 @@ public:
 private:
     dlib::frontal_face_detector m_detector;
 
-    target_t m_target;
+    target_t m_target = TARGET_CPU;
     std::mutex m_target_mutex;
 };
 
