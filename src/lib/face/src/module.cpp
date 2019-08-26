@@ -21,8 +21,7 @@ extern "C" void *create(int clazz, ...) {
     case CLASS_LBPFaceRecognizer:
         return new LBPFaceRecognizer;
     case CLASS_LBFFacemarkDetector:
-        return new LBFFacemarkDetector(
-            std::shared_ptr<IFaceDetector>(static_cast<IFaceDetector *>(va_arg(args, void *))));
+        return new LBFFacemarkDetector;
     case CLASS_HOGFaceDetector:
         return new HOGFaceDetector;
     }

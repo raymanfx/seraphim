@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
     std::string cascade_path;
     std::shared_ptr<HOGFaceDetector> face_detector =
         std::shared_ptr<HOGFaceDetector>(new HOGFaceDetector());
-    KazemiFacemarkDetector facemark_detector(face_detector);
+    KazemiFacemarkDetector facemark_detector;
     std::vector<sph::core::Polygon<int>> faces;
     std::vector<IFacemarkDetector::Facemarks> facemarks;
     sph::core::Image image;

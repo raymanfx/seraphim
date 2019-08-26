@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
     std::string cascade_path;
     std::shared_ptr<LBPFaceDetector> face_detector =
         std::shared_ptr<LBPFaceDetector>(new LBPFaceDetector());
-    LBFFacemarkDetector facemark_detector(face_detector);
+    LBFFacemarkDetector facemark_detector;
     std::vector<sph::core::Polygon<int>> faces;
     std::vector<IFacemarkDetector::Facemarks> facemarks;
     sph::core::Image image;

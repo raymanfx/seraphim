@@ -42,7 +42,7 @@ static std::shared_ptr<sph::face::LBPFaceDetector> face_detector(new sph::face::
 static std::shared_ptr<sph::face::LBPFaceRecognizer>
     face_recognizer(new sph::face::LBPFaceRecognizer());
 static std::shared_ptr<sph::face::LBFFacemarkDetector>
-    facemark_detector(new sph::face::LBFFacemarkDetector(face_detector));
+    facemark_detector(new sph::face::LBFFacemarkDetector());
 static std::shared_ptr<sph::object::DNNClassifier>
     object_classifier(new sph::object::DNNClassifier());
 

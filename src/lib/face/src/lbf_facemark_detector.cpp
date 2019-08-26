@@ -21,8 +21,7 @@ static constexpr std::pair<IFacemarkDetector::FacemarkType, std::pair<size_t, si
                        { IFacemarkDetector::FacemarkType::LEFT_EYE, { 42, 47 } },
                        { IFacemarkDetector::FacemarkType::MOUTH, { 48, 67 } } };
 
-LBFFacemarkDetector::LBFFacemarkDetector(std::shared_ptr<IFaceDetector> detector)
-    : m_detector(detector) {
+LBFFacemarkDetector::LBFFacemarkDetector() {
     m_facemark_impl = cv::face::FacemarkLBF::create(m_facemark_params);
 }
 
