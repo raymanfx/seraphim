@@ -1,7 +1,7 @@
 # protobuf messages
 add_subdirectory(data)
 
-set(MODULE_NAME seraphim_ipc)
+set(MODULE_NAME ipc)
 set(MODULE_VERSION_MAJOR 0)
 set(MODULE_VERSION_MINOR 0)
 set(MODULE_VERSION_PATCH 0)
@@ -29,9 +29,10 @@ set(HEADERS
     include/seraphim/ipc/tcp_transport.h)
 
 add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})
+add_library(seraphim::${MODULE_NAME} ALIAS ${MODULE_NAME})
 
 # set the shared lib name
-set_target_properties(${MODULE_NAME} PROPERTIES OUTPUT_NAME ${MODULE_NAME})
+set_target_properties(${MODULE_NAME} PROPERTIES OUTPUT_NAME seraphim_${MODULE_NAME})
 
 # set the shared lib version
 set_target_properties(${MODULE_NAME} PROPERTIES VERSION
@@ -49,7 +50,7 @@ find_package(Protobuf REQUIRED)
 target_link_libraries(${MODULE_NAME} PUBLIC ${PROTOBUF_LIBRARY})
 target_link_libraries(${MODULE_NAME} PRIVATE seraphim_messages)
 
-target_link_libraries(${MODULE_NAME} PUBLIC seraphim_core)
+target_link_libraries(${MODULE_NAME} PUBLIC seraphim::core)
 
 # Make sure the compiler can find include files for our library
 # when other libraries or executables link to it
@@ -65,4 +66,4 @@ install(DIRECTORY include/seraphim DESTINATION include)
 install(TARGETS ${MODULE_NAME} EXPORT ${MODULE_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # add cmake install target
-install(EXPORT ${MODULE_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR}/seraphim)
+install(EXPORT ${MODULE_NAME} NAMESPACE seraphim:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/seraphim)

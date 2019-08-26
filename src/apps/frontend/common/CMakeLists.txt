@@ -37,4 +37,4 @@ target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 find_package(Qt5 COMPONENTS Core Multimedia Quick REQUIRED)
 target_link_libraries(${MODULE_NAME} PRIVATE Qt5::Core Qt5::Multimedia Qt5::Quick)
 
-target_link_libraries(${MODULE_NAME} PRIVATE seraphim_core)
+target_link_libraries(${MODULE_NAME} PRIVATE seraphim::core)
