@@ -1,17 +1,35 @@
 # the (library) modules to build
-set(SERAPHIM_MODULES "core" "car" "face" "gui" "iop" "ipc" "object")
+set(SERAPHIM_MODULES "core")
 
-# the core module must always be built
-if (NOT "core" IN_LIST SERAPHIM_MODULES)
-  list(APPEND SERAPHIM_MODULES "core")
+set(MODULE_CAR ON CACHE BOOL "Car module")
+set(MODULE_FACE ON CACHE BOOL "Face module")
+set(MODULE_GUI ON CACHE BOOL "GUI module")
+set(MODULE_IOP ON CACHE BOOL "Interoperability module")
+set(MODULE_IPC ON CACHE BOOL "Inter-process communication module")
+set(MODULE_OBJECT ON CACHE BOOL "Object module")
+
+# build the list of enabled modules
+if (MODULE_CAR)
+    list(APPEND SERAPHIM_MODULES "car")
+endif ()
+if (MODULE_FACE)
+    list(APPEND SERAPHIM_MODULES "face")
+endif ()
+if (MODULE_GUI)
+    list(APPEND SERAPHIM_MODULES "gui")
+endif ()
+if (MODULE_IOP)
+    list(APPEND SERAPHIM_MODULES "iop")
+endif ()
+if (MODULE_IPC)
+    list(APPEND SERAPHIM_MODULES "ipc")
+endif ()
+if (MODULE_OBJECT)
+    list(APPEND SERAPHIM_MODULES "object")
 endif ()
 
 foreach (module ${SERAPHIM_MODULES})
-  if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${module}")
     add_subdirectory(${module})
-  else ()
-    message(WARNING "Module \"${module}\" does not exist.")
-  endif ()
 endforeach ()
 
 set(SERAPHIM_MODULES ${SERAPHIM_MODULES} CACHE INTERNAL "List of modules" FORCE)
