@@ -3,8 +3,8 @@
 # delegates 'real' building tasks to cmake.
 #
 
-SOURCES = $(shell find . -name *.c -o -name *.cc -o -name *.cpp -o -name *.cxx)
-HEADERS = $(shell find . -name *.h -o -name *.hpp)
+SOURCES = $(shell find src -name *.c -o -name *.cc -o -name *.cpp -o -name *.cxx)
+HEADERS = $(shell find src -name *.h -o -name *.hpp)
 
 all: build
 
