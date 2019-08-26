@@ -1,3 +1,9 @@
+find_package(Catch2 QUIET)
+if (NOT Catch2_FOUND)
+    message(STATUS "Could not find Catch2, not building unit tests.")
+    return()
+endif ()
+
 # the tests to build
 set(SERAPHIM_TESTS "core")
 
