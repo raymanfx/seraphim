@@ -50,7 +50,7 @@ public:
      */
     std::array<T, N> coords() const { return m_coords; }
 
-private:
+protected:
     /// Coordinates of the point in n-dimensional space, where n = array size.
     std::array<T, N> m_coords;
 };
@@ -63,17 +63,29 @@ public:
     /**
      * @brief Default constructor for an empty point.
      */
-    Point2() = default;
+    Point2() : Point<T, 2>(T(), T()) {}
 
     /**
      * @brief Constructor for a 2-dimensional point.
      */
-    Point2(const T &x, const T &y) : x(x), y(y) {}
+    Point2(const T &x, const T &y) : Point<T, 2>(x, y) {}
+
+    /**
+     * @brief Copy constructor, creates a new instance and initializes x and y members.
+     * @param p Instance to copy.
+     */
+    Point2(const Point2 &p) : Point2(p.x, p.y) {}
+
+    /**
+     * @brief Assignment operator, assigning the internal coordinate container.
+     * @param p Instance to copy from.
+     */
+    void operator=(const Point2 &p) { this->m_coords = p.coords(); }
 
     /// X coordinate.
-    T x;
+    T &x = this->m_coords[0];
     /// Y coordinate.
-    T y;
+    T &y = this->m_coords[1];
 };
 
 /**
@@ -84,19 +96,31 @@ public:
     /**
      * @brief Default constructor for an empty point.
      */
-    Point3() = default;
+    Point3() : Point<T, 3>(T(), T(), T()) {}
 
     /**
      * @brief Constructor for a 3-dimensional point.
      */
-    Point3(const T &x, const T &y, const T &z) : x(x), y(y), z(z) {}
+    Point3(const T &x, const T &y, const T &z) : Point<T, 3>(x, y, z) {}
+
+    /**
+     * @brief Copy constructor, creates a new instance and initializes x and y members.
+     * @param p Instance to copy.
+     */
+    Point3(const Point3 &p) : Point3(p.x, p.y, p.z) {}
+
+    /**
+     * @brief Assignment operator, assigning the internal coordinate container.
+     * @param p Instance to copy from.
+     */
+    void operator=(const Point3 &p) { this->m_coords = p.coords(); }
 
     /// X coordinate.
-    T x;
+    T &x = this->m_coords[0];
     /// Y coordinate.
-    T y;
+    T &y = this->m_coords[1];
     /// Z coordinate.
-    T z;
+    T &z = this->m_coords[2];
 };
 
 /*
