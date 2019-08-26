@@ -41,14 +41,23 @@ static bool validate_format(ImageBuffer::Format &fmt) {
 }
 
 ImageBuffer::ImageBuffer(const ImageBuffer &buf) {
+    clear();
+
     // create a shallow copy
-    m_data = const_cast<unsigned char *>(buf.data());
-    m_data_buffer.clear();
+    m_data = buf.data();
     m_format = buf.format();
 }
 
 ImageBuffer::~ImageBuffer() {
     clear();
+}
+
+void ImageBuffer::operator=(const ImageBuffer &buf) {
+    clear();
+
+    // create a shallow copy
+    m_data = buf.data();
+    m_format = buf.format();
 }
 
 void ImageBuffer::clear() {
@@ -235,7 +244,7 @@ bool ImageBuffer::assign(unsigned char *src, const Format &fmt) {
     return true;
 }
 
-unsigned char *ImageBuffer::scanline(const uint32_t &y) const {
+const unsigned char *ImageBuffer::scanline(const uint32_t &y) const {
     size_t offset = y * m_format.stride;
 
     if (offset > size()) {
@@ -245,8 +254,8 @@ unsigned char *ImageBuffer::scanline(const uint32_t &y) const {
     return m_data + offset;
 }
 
-unsigned char *ImageBuffer::pixel(const uint32_t &x, const uint32_t &y) const {
-    unsigned char *scanline_ = scanline(y);
+const unsigned char *ImageBuffer::pixel(const uint32_t &x, const uint32_t &y) const {
+    const unsigned char *scanline_ = scanline(y);
     size_t offset;
 
     if (scanline_ == nullptr) {
@@ -359,7 +368,8 @@ bool ImageBuffer::convert(const Pixelformat &target) {
     bool converted = false;
 
     // try to convert in-place first
-    converted = ImageBufferConverter::Instance().convert(m_data, src_fmt, m_data_buffer, dst_fmt);
+    converted = ImageBufferConverter::Instance().convert(const_cast<unsigned char *>(m_data),
+                                                         src_fmt, m_data_buffer, dst_fmt);
 
     if (!converted) {
         // allocate a new buffer by first moving the contents to an alternative location

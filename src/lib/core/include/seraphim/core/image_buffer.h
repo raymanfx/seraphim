@@ -31,6 +31,12 @@ public:
     ~ImageBuffer();
 
     /**
+     * @brief Assignment operator, performing a shallow copy.
+     * @param buf Instance to copy from.
+     */
+    void operator=(const ImageBuffer &buf);
+
+    /**
      * @brief Pixelformat of an image buffer.
      * This is basically a listing of our internal types that we know and support.
      * That means we know the bits per pixel and other such properties.
@@ -157,7 +163,7 @@ public:
      * @param y Y offset.
      * @return Pixel scanline address in memory.
      */
-    unsigned char *scanline(const uint32_t &y) const;
+    const unsigned char *scanline(const uint32_t &y) const;
 
     /**
      * @brief Get the pixel position in memory.
@@ -165,7 +171,7 @@ public:
      * @param y Y offset.
      * @return Pixel address in memory.
      */
-    unsigned char *pixel(const uint32_t &x, const uint32_t &y) const;
+    const unsigned char *pixel(const uint32_t &x, const uint32_t &y) const;
 
     /**
      * @brief Convert between internal formats.
@@ -176,7 +182,7 @@ public:
 
 protected:
     /// pixel buffer address, must reside in host memory (DRAM) for now
-    unsigned char *m_data = nullptr;
+    const unsigned char *m_data = nullptr;
     /// back buffer, used for internal data allocations
     std::vector<unsigned char> m_data_buffer;
 
