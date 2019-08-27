@@ -53,6 +53,12 @@ bool DNNClassifier::set_target(const Target &target) {
     case Target::OPENCL_FP16:
         m_net.setPreferableTarget(cv::dnn::Target::DNN_TARGET_OPENCL_FP16);
         break;
+#ifdef WITH_VULKAN
+    case Target::VULKAN:
+        m_net.setPreferableBackend(cv::dnn::Backend::DNN_BACKEND_VKCOM);
+        m_net.setPreferableTarget(cv::dnn::Target::DNN_TARGET_VULKAN);
+        break;
+#endif
     default:
         /* unsupported */
         return false;

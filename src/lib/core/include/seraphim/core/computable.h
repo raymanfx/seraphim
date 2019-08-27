@@ -34,7 +34,9 @@ public:
         /// GPU computation target (using OpenCL FP16 kernels)
         OPENCL_FP16,
         /// Vision Processing Unit (VPU) target
-        VPU
+        VPU,
+        /// Vulkan compute target
+        VULKAN
     };
 
     /**
