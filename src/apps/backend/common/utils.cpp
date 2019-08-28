@@ -20,7 +20,7 @@ bool sph::backend::Image2DtoImage(const Seraphim::Types::Image2D &src, sph::core
     fmt.width = src.width();
     fmt.height = src.height();
     fmt.stride = src.stride();
-    fmt.pixfmt = sph::core::ImageBuffer::as_pixelformat(src.fourcc());
+    fmt.pixfmt = sph::core::ImageBuffer::fourcc2pixfmt(src.fourcc());
 
     if (!img.mutable_buffer().assign(
             const_cast<unsigned char *>(

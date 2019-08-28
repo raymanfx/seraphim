@@ -70,7 +70,7 @@ void ImageBuffer::shrink() {
     m_data_buffer.shrink_to_fit();
 }
 
-ImageBuffer::Pixelformat ImageBuffer::as_pixelformat(const uint32_t &fourcc) {
+ImageBuffer::Pixelformat ImageBuffer::fourcc2pixfmt(const uint32_t &fourcc) {
     switch (fourcc) {
     case ::fourcc('B', 'G', 'R', '3'):
         return Pixelformat::BGR24;
@@ -141,57 +141,14 @@ bool ImageBuffer::load(const unsigned char *src, const ImageBufferConverter::Sou
 
     fmt.width = src_fmt.width;
     fmt.height = src_fmt.height;
-    fmt.pixfmt = ImageBuffer::Pixelformat::UNKNOWN;
-
-    // check whether conversion is necessary
-    switch (src_fmt.fourcc) {
-    case fourcc('B', 'G', 'R', '3'):
-        fmt.pixfmt = Pixelformat::BGR24;
-        break;
-    case fourcc('B', 'G', 'R', '4'):
-        fmt.pixfmt = Pixelformat::BGR32;
-        break;
-    case fourcc('R', 'G', 'B', '3'):
-        fmt.pixfmt = Pixelformat::RGB24;
-        break;
-    case fourcc('R', 'G', 'B', '4'):
-        fmt.pixfmt = Pixelformat::RGB32;
-        break;
-    case fourcc('G', 'R', 'E', 'Y'):
-        fmt.pixfmt = Pixelformat::Y8;
-        break;
-    case fourcc('Y', '1', '6', ' '):
-        fmt.pixfmt = Pixelformat::Y16;
-        break;
-    default:
-        break;
-    }
+    fmt.pixfmt = fourcc2pixfmt(src_fmt.fourcc);
 
     if (!validate_format(fmt)) {
         return false;
     }
 
-    // determine the format to convert to
-    switch (pixfmt) {
-    case Pixelformat::BGR24:
-        dst_fmt.fourcc = fourcc('B', 'G', 'R', '3');
-        break;
-    case Pixelformat::BGR32:
-        dst_fmt.fourcc = fourcc('B', 'G', 'R', '4');
-        break;
-    case Pixelformat::RGB24:
-        dst_fmt.fourcc = fourcc('R', 'G', 'B', '3');
-        break;
-    case Pixelformat::RGB32:
-        dst_fmt.fourcc = fourcc('R', 'G', 'B', '4');
-        break;
-    case Pixelformat::Y8:
-        dst_fmt.fourcc = fourcc('G', 'R', 'E', 'Y');
-        break;
-    case Pixelformat::Y16:
-        dst_fmt.fourcc = fourcc('Y', '1', '6', ' ');
-        break;
-    default:
+    dst_fmt.fourcc = pixfmt2fourcc(pixfmt);
+    if (dst_fmt.fourcc == 0) {
         return false;
     }
 
@@ -306,52 +263,33 @@ bool ImageBuffer::convert(const Pixelformat &target) {
     src_fmt.width = m_format.width;
     src_fmt.height = m_format.height;
     src_fmt.stride = m_format.stride;
-    switch (m_format.pixfmt) {
-    case Pixelformat::BGR24:
-        src_fmt.fourcc = fourcc('B', 'G', 'R', '3');
-        break;
-    case Pixelformat::BGR32:
-        src_fmt.fourcc = fourcc('B', 'G', 'R', '4');
-        break;
-    case Pixelformat::RGB24:
-        src_fmt.fourcc = fourcc('R', 'G', 'B', '3');
-        break;
-    case Pixelformat::RGB32:
-        src_fmt.fourcc = fourcc('R', 'G', 'B', '4');
-        break;
-    case Pixelformat::Y8:
-        src_fmt.fourcc = fourcc('G', 'R', 'E', 'Y');
-        break;
-    case Pixelformat::Y16:
-        src_fmt.fourcc = fourcc('Y', '1', '6', ' ');
-        break;
-    default:
+    src_fmt.fourcc = pixfmt2fourcc(m_format.pixfmt);
+    if (src_fmt.fourcc == 0) {
+        return false;
+    }
+
+    dst_fmt.fourcc = pixfmt2fourcc(target);
+    if (dst_fmt.fourcc == 0) {
         return false;
     }
 
     switch (target) {
     case Pixelformat::BGR24:
-        dst_fmt.fourcc = fourcc('B', 'G', 'R', '3');
         dst_pixel_size = 3;
         break;
     case Pixelformat::BGR32:
-        dst_fmt.fourcc = fourcc('B', 'G', 'R', '4');
         dst_pixel_size = 4;
         break;
     case Pixelformat::RGB24:
-        dst_fmt.fourcc = fourcc('R', 'G', 'B', '3');
         dst_pixel_size = 3;
         break;
     case Pixelformat::RGB32:
-        dst_fmt.fourcc = fourcc('R', 'G', 'B', '4');
         dst_pixel_size = 4;
         break;
     case Pixelformat::Y8:
-        dst_fmt.fourcc = fourcc('G', 'R', 'E', 'Y');
         dst_pixel_size = 1;
         break;
     case Pixelformat::Y16:
-        dst_fmt.fourcc = fourcc('Y', '1', '6', ' ');
         dst_pixel_size = 2;
         break;
     default:

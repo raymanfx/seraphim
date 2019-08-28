@@ -42,16 +42,16 @@ public:
      * That means we know the bits per pixel and other such properties.
      */
     enum class Pixelformat {
-        /* RGB formats */
-        BGR24,
-        BGR32,
-        RGB24,
-        RGB32,
-        /* Luminance Chrominance formats */
-        Y8,
-        Y16,
         /* Unspecified format */
-        UNKNOWN
+        UNKNOWN,
+        /* RGB formats */
+        BGR24 = fourcc('B', 'G', 'R', '3'),
+        BGR32 = fourcc('B', 'G', 'R', '4'),
+        RGB24 = fourcc('R', 'G', 'B', '3'),
+        RGB32 = fourcc('R', 'G', 'B', '4'),
+        /* Luminance Chrominance formats */
+        Y8 = fourcc('G', 'R', 'E', 'Y'),
+        Y16 = fourcc('Y', '1', '6', ' ')
     };
 
     /**
@@ -60,7 +60,14 @@ public:
      * @param fourcc The four character code.
      * @return A known format or FMT_CUSTOM if we cannot handle it.
      */
-    static Pixelformat as_pixelformat(const uint32_t &fourcc);
+    static Pixelformat fourcc2pixfmt(const uint32_t &fourcc);
+
+    /**
+     * @brief Convert a well defined pixelformat to its fourcc representation.
+     * @param fmt The pixelformat.
+     * @return Four character code.
+     */
+    static uint32_t pixfmt2fourcc(const Pixelformat &fmt) { return static_cast<uint32_t>(fmt); }
 
     /**
      * @brief Image format description.
