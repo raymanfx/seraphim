@@ -44,13 +44,8 @@ void ImageBuffer::operator=(const ImageBuffer &buf) {
 }
 
 void ImageBuffer::clear() {
-    m_data = nullptr;
     m_data_buffer.clear();
     m_format = {};
-}
-
-void ImageBuffer::shrink() {
-    m_data_buffer.shrink_to_fit();
 }
 
 ImageBuffer::Pixelformat ImageBuffer::fourcc2pixfmt(const uint32_t &fourcc) {
@@ -90,8 +85,6 @@ uint8_t ImageBuffer::pixsize(const Pixelformat &fmt) {
 }
 
 bool ImageBuffer::load(const ImageBuffer &buf) {
-    const unsigned char *src = buf.data();
-    size_t src_len = buf.size();
     Format src_fmt = buf.format();
 
     if (!validate_format(src_fmt)) {
@@ -108,15 +101,15 @@ bool ImageBuffer::load(const ImageBuffer &buf) {
         clear();
     }
 
-    m_data_buffer.assign(src, src + src_len);
-    m_data = m_data_buffer.data();
+    Matrix<unsigned char>(buf.data(), buf.format().height,
+                          buf.format().width * pixsize(buf.format().pixfmt), buf.format().stride)
+        .copy(m_data_buffer);
     m_format = src_fmt;
 
     return true;
 }
 
-bool ImageBuffer::load(const unsigned char *src, const Format &fmt) {
-    size_t src_len;
+bool ImageBuffer::load(unsigned char *src, const Format &fmt) {
     Format src_fmt = fmt;
 
     if (!validate_format(src_fmt)) {
@@ -126,10 +119,8 @@ bool ImageBuffer::load(const unsigned char *src, const Format &fmt) {
     // clear old data
     clear();
 
-    src_len = src_fmt.height * src_fmt.stride;
-
-    m_data_buffer.assign(src, src + src_len);
-    m_data = m_data_buffer.data();
+    Matrix<unsigned char>(src, fmt.height, fmt.width * pixsize(fmt.pixfmt), fmt.stride)
+        .copy(m_data_buffer);
     m_format = src_fmt;
 
     return true;
@@ -188,7 +179,7 @@ bool ImageBuffer::load(const ImageBufferConverter::Source &src, const Pixelforma
 
     // prepare target buffer
     if (dst_size > m_data_buffer.size()) {
-        m_data_buffer.resize(dst_size);
+        m_data_buffer.resize(1, dst_size);
         dst.buf = m_data_buffer.data();
         dst.buf_len = m_data_buffer.size();
     }
@@ -301,27 +292,28 @@ bool ImageBuffer::convert(const Pixelformat &target) {
     }
 
     // prepare target buffer
-    std::vector<unsigned char> tmp;
+    Matrix<unsigned char> tmp;
     if (dst_size > m_data_buffer.size()) {
         if (src.buf == dst.buf) {
             // backup the current buffer first so we don't lose the source
-            m_data_buffer.swap(tmp);
+            m_data_buffer.move(tmp);
             src.buf = tmp.data();
         }
-        m_data_buffer.resize(dst_size);
+        m_data_buffer.resize(1, dst_size);
         dst.buf = m_data_buffer.data();
         dst.buf_len = m_data_buffer.size();
     }
 
     bool converted = false;
+    std::vector<unsigned char> buf;
 
     // try to convert in-place first
     converted = ImageBufferConverter::Instance().convert(src, dst);
 
     if (!converted) {
         // allocate a new buffer by first moving the contents to an alternative location
-        std::vector<unsigned char> tmp;
-        m_data_buffer.swap(tmp);
+        Matrix<unsigned char> tmp;
+        m_data_buffer.move(tmp);
         src.buf = tmp.data();
         converted = ImageBufferConverter::Instance().convert(src, dst);
     }

@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "image_buffer_converter.h"
+#include "matrix.h"
 
 namespace sph {
 namespace core {
@@ -105,13 +106,6 @@ public:
     void clear();
 
     /**
-     * @brief Reclaim unneeded memory that is occupied by the internal buffer.
-     *        Since this will cause reallocation, use it only if you absolutely need to reclaim
-     *        the occupied memory.
-     */
-    void shrink();
-
-    /**
      * @brief Copy an image buffer so this instance owns the data.
      * @param buf The source image buffer to load data from.
      * @return True on success, false otherwise.
@@ -124,7 +118,7 @@ public:
      * @param fmt Pixelformat of the source buffer.
      * @return True on success, false otherwise.
      */
-    bool load(const unsigned char *src, const Format &fmt);
+    bool load(unsigned char *src, const Format &fmt);
 
     /**
      * @brief Copy an image buffer so this instance owns the data.
@@ -195,8 +189,8 @@ public:
 protected:
     /// pixel buffer address, must reside in host memory (DRAM) for now
     unsigned char *m_data = nullptr;
-    /// back buffer, used for internal data allocations
-    std::vector<unsigned char> m_data_buffer;
+    /// matrix back buffer
+    Matrix<unsigned char> m_data_buffer;
 
     /// buffer format
     Format m_format = {};
