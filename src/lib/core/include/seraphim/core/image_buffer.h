@@ -130,12 +130,10 @@ public:
      * @brief Copy an image buffer so this instance owns the data.
      *        Convert the buffer if necessary prior to loading it.
      * @param src Address of the source buffer.
-     * @param src_fmt Pixelformat of the source buffer.
      * @param pixfmt Pixelformat of the target buffer.
      * @return True on success, false otherwise.
      */
-    bool load(const unsigned char *src, const ImageBufferConverter::SourceFormat &src_fmt,
-              const Pixelformat &pixfmt);
+    bool load(const ImageBufferConverter::Source &src, const Pixelformat &pixfmt);
 
     /**
      * @brief Wrap an image buffer and optionally pass ownership to the instance.
@@ -149,7 +147,7 @@ public:
      * @brief Pointer to the internal pixel buffer.
      * @return Pixel buffer as bytes.
      */
-    const unsigned char *data() const { return m_data; }
+    unsigned char *data() const { return m_data; }
 
     /**
      * @brief Buffer format description.
@@ -177,7 +175,7 @@ public:
      * @param y Y offset.
      * @return Pixel scanline address in memory.
      */
-    const unsigned char *scanline(const uint32_t &y) const;
+    unsigned char *scanline(const uint32_t &y) const;
 
     /**
      * @brief Get the pixel position in memory.
@@ -185,7 +183,7 @@ public:
      * @param y Y offset.
      * @return Pixel address in memory.
      */
-    const unsigned char *pixel(const uint32_t &x, const uint32_t &y) const;
+    unsigned char *pixel(const uint32_t &x, const uint32_t &y) const;
 
     /**
      * @brief Convert between internal formats.
@@ -196,7 +194,7 @@ public:
 
 protected:
     /// pixel buffer address, must reside in host memory (DRAM) for now
-    const unsigned char *m_data = nullptr;
+    unsigned char *m_data = nullptr;
     /// back buffer, used for internal data allocations
     std::vector<unsigned char> m_data_buffer;
 

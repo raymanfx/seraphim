@@ -42,13 +42,15 @@ public:
     /**
      * @brief Source buffer description.
      */
-    struct SourceFormat {
+    struct Source {
+        /// pixel source
+        unsigned char *buf;
         /// width in pixels
-        uint32_t width;
+        uint32_t width = 0;
         /// height in pixels
-        uint32_t height;
+        uint32_t height = 0;
         /// pixelformat
-        uint32_t fourcc;
+        uint32_t fourcc = 0;
         /// length of one pixel row in bytes
         size_t stride = width;
     };
@@ -56,9 +58,13 @@ public:
     /**
      * @brief Target buffer description.
      */
-    struct TargetFormat {
+    struct Target {
+        /// target pixel buffer, must be preallocated
+        unsigned char *buf;
+        /// number of bytes allocated in the target buffer
+        size_t buf_len = 0;
         /// pixelformat
-        uint32_t fourcc;
+        uint32_t fourcc = 0;
         /// pixel row alignment
         /// sensible choices are:
         /// 1 (one-byte alignment)
@@ -69,9 +75,7 @@ public:
     /**
      * @brief Convert arbitrary pixel data into a supported format.
      */
-    typedef std::function<bool(unsigned char *src, const SourceFormat &src_fmt,
-                               std::vector<unsigned char> &dst, const TargetFormat &dst_fmt)>
-        ConverterFunction;
+    typedef std::function<bool(const Source &src, Target &dst)> ConverterFunction;
 
     /**
      * @brief Converter entity that converts between image buffer formats.
@@ -96,14 +100,19 @@ public:
 
     /**
      * @brief Create a new image buffer.
-     * @param src Pixelbuffer source.
-     * @param src_fmt Pixelbuffer source format.
-     * @param dst Target buffer.
-     * @param dst_fmt Target buffer format.
+     * @param src Source buffer description.
+     * @param src Source buffer description.
      * @return True on success, false otherwise.
      */
-    bool convert(unsigned char *src, const SourceFormat &src_fmt, std::vector<unsigned char> &dst,
-                 const TargetFormat &dst_fmt);
+    bool convert(const Source &src, Target &dst);
+
+    /**
+     * @brief Probe image buffer conversion.
+     * @param src Source buffer description.
+     * @param src Source buffer description.
+     * @return Size of the target buffer in bytes.
+     */
+    static size_t probe(const Source &src, Target &dst);
 
 private:
     ImageBufferConverter();

@@ -104,7 +104,9 @@ bool ImageBuffer::load(const ImageBuffer &buf) {
     }
 
     // clear old data
-    clear();
+    if (this != &buf) {
+        clear();
+    }
 
     m_data_buffer.assign(src, src + src_len);
     m_data = m_data_buffer.data();
@@ -133,47 +135,66 @@ bool ImageBuffer::load(const unsigned char *src, const Format &fmt) {
     return true;
 }
 
-bool ImageBuffer::load(const unsigned char *src, const ImageBufferConverter::SourceFormat &src_fmt,
-                       const Pixelformat &pixfmt) {
+bool ImageBuffer::load(const ImageBufferConverter::Source &src, const Pixelformat &pixfmt) {
     Format fmt = {};
-    ImageBufferConverter::TargetFormat dst_fmt = {};
+    ImageBufferConverter::Source src_ = {};
+    ImageBufferConverter::Target dst = {};
     size_t dst_padding;
 
-    fmt.width = src_fmt.width;
-    fmt.height = src_fmt.height;
-    fmt.pixfmt = fourcc2pixfmt(src_fmt.fourcc);
+    fmt.width = src.width;
+    fmt.height = src.height;
+    fmt.pixfmt = fourcc2pixfmt(src.fourcc);
 
     if (!validate_format(fmt)) {
         return false;
     }
 
-    dst_fmt.fourcc = pixfmt2fourcc(pixfmt);
-    if (dst_fmt.fourcc == 0) {
+    src_.buf = src.buf;
+    src_.width = src.width;
+    src_.height = src.height;
+    src_.fourcc = src.fourcc;
+    src_.stride = fmt.stride;
+
+    dst.buf = m_data_buffer.data();
+    dst.buf_len = m_data_buffer.size();
+    dst.fourcc = pixfmt2fourcc(pixfmt);
+    if (dst.fourcc == 0) {
         return false;
     }
 
     // always align on word boundaries
-    dst_fmt.alignment = 4;
+    dst.alignment = 4;
 
     // the general formula is:
     // padding = (ALIGN - (LENGTH % ALIGN)) % ALIGN
-    dst_padding = (dst_fmt.alignment - (src_fmt.stride % dst_fmt.alignment)) % dst_fmt.alignment;
+    dst_padding = (dst.alignment - (src_.stride % dst.alignment)) % dst.alignment;
 
     // calculate the target stride
     fmt.stride = fmt.width + dst_padding;
 
     if (fmt.pixfmt != Pixelformat::UNKNOWN) {
         // we know the format, so load the data right away
-        return load(src, fmt);
+        return load(src_.buf, fmt);
     }
 
     // clear old data
     clear();
 
+    // probe the target buffer size
+    size_t dst_size = ImageBufferConverter::probe(src, dst);
+    if (dst_size == 0) {
+        return false;
+    }
+
+    // prepare target buffer
+    if (dst_size > m_data_buffer.size()) {
+        m_data_buffer.resize(dst_size);
+        dst.buf = m_data_buffer.data();
+        dst.buf_len = m_data_buffer.size();
+    }
+
     // looks like we need to convert the buffer
-    bool converted = false;
-    unsigned char *src_ = const_cast<unsigned char *>(src);
-    converted = ImageBufferConverter::Instance().convert(src_, src_fmt, m_data_buffer, dst_fmt);
+    bool converted = ImageBufferConverter::Instance().convert(src_, dst);
     if (!converted) {
         // something went wrong in the converter code
         clear();
@@ -201,7 +222,7 @@ bool ImageBuffer::assign(unsigned char *src, const Format &fmt) {
     return true;
 }
 
-const unsigned char *ImageBuffer::scanline(const uint32_t &y) const {
+unsigned char *ImageBuffer::scanline(const uint32_t &y) const {
     size_t offset = y * m_format.stride;
 
     if (offset > size()) {
@@ -211,8 +232,8 @@ const unsigned char *ImageBuffer::scanline(const uint32_t &y) const {
     return m_data + offset;
 }
 
-const unsigned char *ImageBuffer::pixel(const uint32_t &x, const uint32_t &y) const {
-    const unsigned char *scanline_ = scanline(y);
+unsigned char *ImageBuffer::pixel(const uint32_t &x, const uint32_t &y) const {
+    unsigned char *scanline_ = scanline(y);
     size_t offset;
     uint8_t pixsize;
 
@@ -238,23 +259,26 @@ const unsigned char *ImageBuffer::pixel(const uint32_t &x, const uint32_t &y) co
 bool ImageBuffer::convert(const Pixelformat &target) {
     size_t dst_padding;
     size_t dst_pixel_size;
-    ImageBufferConverter::SourceFormat src_fmt = {};
-    ImageBufferConverter::TargetFormat dst_fmt = {};
+    ImageBufferConverter::Source src = {};
+    ImageBufferConverter::Target dst = {};
 
     if (m_format.pixfmt == target) {
         return true;
     }
 
-    src_fmt.width = m_format.width;
-    src_fmt.height = m_format.height;
-    src_fmt.stride = m_format.stride;
-    src_fmt.fourcc = pixfmt2fourcc(m_format.pixfmt);
-    if (src_fmt.fourcc == 0) {
+    src.buf = m_data;
+    src.width = m_format.width;
+    src.height = m_format.height;
+    src.stride = m_format.stride;
+    src.fourcc = pixfmt2fourcc(m_format.pixfmt);
+    if (src.fourcc == 0) {
         return false;
     }
 
-    dst_fmt.fourcc = pixfmt2fourcc(target);
-    if (dst_fmt.fourcc == 0) {
+    dst.buf = m_data_buffer.data();
+    dst.buf_len = m_data_buffer.size();
+    dst.fourcc = pixfmt2fourcc(target);
+    if (dst.fourcc == 0) {
         return false;
     }
 
@@ -264,24 +288,42 @@ bool ImageBuffer::convert(const Pixelformat &target) {
     }
 
     // always align on word boundaries
-    dst_fmt.alignment = 4;
+    dst.alignment = 4;
 
     // the general formula is:
     // padding = (ALIGN - (LENGTH % ALIGN)) % ALIGN
-    dst_padding = (dst_fmt.alignment - (src_fmt.stride % dst_fmt.alignment)) % dst_fmt.alignment;
+    dst_padding = (dst.alignment - (src.stride % dst.alignment)) % dst.alignment;
+
+    // probe the target buffer size
+    size_t dst_size = ImageBufferConverter::probe(src, dst);
+    if (dst_size == 0) {
+        return false;
+    }
+
+    // prepare target buffer
+    std::vector<unsigned char> tmp;
+    if (dst_size > m_data_buffer.size()) {
+        if (src.buf == dst.buf) {
+            // backup the current buffer first so we don't lose the source
+            m_data_buffer.swap(tmp);
+            src.buf = tmp.data();
+        }
+        m_data_buffer.resize(dst_size);
+        dst.buf = m_data_buffer.data();
+        dst.buf_len = m_data_buffer.size();
+    }
 
     bool converted = false;
 
     // try to convert in-place first
-    converted = ImageBufferConverter::Instance().convert(const_cast<unsigned char *>(m_data),
-                                                         src_fmt, m_data_buffer, dst_fmt);
+    converted = ImageBufferConverter::Instance().convert(src, dst);
 
     if (!converted) {
         // allocate a new buffer by first moving the contents to an alternative location
         std::vector<unsigned char> tmp;
         m_data_buffer.swap(tmp);
-        converted =
-            ImageBufferConverter::Instance().convert(tmp.data(), src_fmt, m_data_buffer, dst_fmt);
+        src.buf = tmp.data();
+        converted = ImageBufferConverter::Instance().convert(src, dst);
     }
 
     if (!converted) {
@@ -292,10 +334,10 @@ bool ImageBuffer::convert(const Pixelformat &target) {
 
     // at this point the new buffer is available
     m_data = m_data_buffer.data();
-    m_format.width = src_fmt.width;
-    m_format.height = src_fmt.height;
+    m_format.width = src.width;
+    m_format.height = src.height;
     m_format.pixfmt = target;
-    m_format.stride = (src_fmt.width + dst_padding) * dst_pixel_size;
+    m_format.stride = (src.width + dst_padding) * dst_pixel_size;
 
     return true;
 }
