@@ -14,6 +14,7 @@ set(HEADERS
     include/seraphim/core/image.h
     include/seraphim/core/image_buffer.h
     include/seraphim/core/image_buffer_converter.h
+    include/seraphim/core/matrix.h
     include/seraphim/core/module.h
     include/seraphim/core/point.h
     include/seraphim/core/polygon.h)

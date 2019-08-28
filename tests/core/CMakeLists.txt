@@ -2,6 +2,7 @@ set(TEST_NAME core_tests)
 
 set(SOURCES
     main.cpp
+    matrix.cpp
     point.cpp
     polygon.cpp)
 
