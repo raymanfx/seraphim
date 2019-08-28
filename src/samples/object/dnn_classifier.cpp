@@ -197,7 +197,7 @@ int main(int argc, char **argv) {
                 }
 
                 cv::rectangle(frame,
-                              cv::Rect(pred.poly.bl().x, pred.poly.bl().y, pred.poly.width(),
+                              cv::Rect(pred.poly.tl().x, pred.poly.tl().y, pred.poly.width(),
                                        pred.poly.height()),
                               cv::Scalar(0, 255, 0), 2);
                 std::string label = cv::format("%.2f", pred.confidence);
