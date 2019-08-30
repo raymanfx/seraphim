@@ -17,27 +17,10 @@ static bool validate_format(ImageBuffer::Format &fmt) {
     }
 
     if (fmt.stride == 0) {
-        switch (fmt.pixfmt) {
-        case ImageBuffer::Pixelformat::BGR24:
-        case ImageBuffer::Pixelformat::RGB24:
-            fmt.stride = fmt.width * 3;
-            break;
-        case ImageBuffer::Pixelformat::BGR32:
-        case ImageBuffer::Pixelformat::RGB32:
-            fmt.stride = fmt.width * 4;
-            break;
-        case ImageBuffer::Pixelformat::Y8:
-            fmt.stride = fmt.width * 1;
-            break;
-        case ImageBuffer::Pixelformat::Y16:
-            fmt.stride = fmt.width * 2;
-            break;
-        default:
-            return false;
-        }
+        fmt.stride = fmt.width * ImageBuffer::pixsize(fmt.pixfmt);
     }
 
-    return true;
+    return fmt.stride > 0;
 }
 
 ImageBuffer::ImageBuffer(const ImageBuffer &buf) {
@@ -86,6 +69,23 @@ ImageBuffer::Pixelformat ImageBuffer::fourcc2pixfmt(const uint32_t &fourcc) {
         return Pixelformat::Y16;
     default:
         return Pixelformat::UNKNOWN;
+    }
+}
+
+uint8_t ImageBuffer::pixsize(const Pixelformat &fmt) {
+    switch (fmt) {
+    case Pixelformat::BGR24:
+    case Pixelformat::RGB24:
+        return 3;
+    case Pixelformat::BGR32:
+    case Pixelformat::RGB32:
+        return 4;
+    case Pixelformat::Y8:
+        return 1;
+    case Pixelformat::Y16:
+        return 2;
+    default:
+        return 0;
     }
 }
 
@@ -214,34 +214,19 @@ const unsigned char *ImageBuffer::scanline(const uint32_t &y) const {
 const unsigned char *ImageBuffer::pixel(const uint32_t &x, const uint32_t &y) const {
     const unsigned char *scanline_ = scanline(y);
     size_t offset;
+    uint8_t pixsize;
 
     if (scanline_ == nullptr) {
         return nullptr;
     }
 
-    switch (m_format.pixfmt) {
-    case Pixelformat::BGR24:
-    case Pixelformat::RGB24:
-        /* each pixel is three bytes */
-        offset = x * 3;
-        break;
-    case Pixelformat::BGR32:
-    case Pixelformat::RGB32:
-        /* each pixel is four bytes */
-        offset = x * 4;
-        break;
-    case Pixelformat::Y8:
-        /* each pixel is one byte */
-        offset = x;
-        break;
-    case Pixelformat::Y16:
-        /* each pixel is two bytes */
-        offset = x * 2;
-        break;
-    default:
+    pixsize = ImageBuffer::pixsize(m_format.pixfmt);
+    if (pixsize == 0) {
+        // invalid format
         return nullptr;
     }
 
+    offset = x * pixsize;
     if (offset > size()) {
         // asked for an invalid pixel
         return nullptr;
@@ -273,26 +258,8 @@ bool ImageBuffer::convert(const Pixelformat &target) {
         return false;
     }
 
-    switch (target) {
-    case Pixelformat::BGR24:
-        dst_pixel_size = 3;
-        break;
-    case Pixelformat::BGR32:
-        dst_pixel_size = 4;
-        break;
-    case Pixelformat::RGB24:
-        dst_pixel_size = 3;
-        break;
-    case Pixelformat::RGB32:
-        dst_pixel_size = 4;
-        break;
-    case Pixelformat::Y8:
-        dst_pixel_size = 1;
-        break;
-    case Pixelformat::Y16:
-        dst_pixel_size = 2;
-        break;
-    default:
+    dst_pixel_size = ImageBuffer::pixsize(target);
+    if (dst_pixel_size == 0) {
         return false;
     }
 

@@ -70,6 +70,13 @@ public:
     static uint32_t pixfmt2fourcc(const Pixelformat &fmt) { return static_cast<uint32_t>(fmt); }
 
     /**
+     * @brief Size of a single pixel in the buffer.
+     * @param fmt Pixelformat.
+     * @return Size in bytes.
+     */
+    static uint8_t pixsize(const Pixelformat &fmt);
+
+    /**
      * @brief Image format description.
      */
     struct Format {
