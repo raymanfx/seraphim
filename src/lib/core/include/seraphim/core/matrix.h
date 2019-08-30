@@ -130,6 +130,15 @@ public:
         }
     }
 
+    /**
+     * @brief Move constructor, moves another matrices elements.
+     * @param m Instance to move from.
+     */
+    Matrix(Matrix &&m) : Matrix(m.data(), m.rows(), m.cols(), m.step(), true) {
+        m.m_elements_owned = false;
+        m.clear();
+    }
+
     ~Matrix() { clear(); }
 
     /**
@@ -145,6 +154,28 @@ public:
             m_rows = m.rows();
             m_cols = m.cols();
             m_step = m.step();
+        }
+        return *this;
+    }
+
+    /**
+     * @brief Move assignment operator, moves the arguments' elements.
+     * @param m Instance to move from.
+     * @return Current instance.
+     */
+    Matrix &operator=(Matrix &&m) {
+        if (this != &m) {
+            clear();
+
+            m_rows = m.rows();
+            m_cols = m.cols();
+            m_step = m.step();
+            m_elements = m.data();
+            m_elements_owned = true;
+            m_elements_capacity = m.m_elements_capacity;
+
+            m.m_elements_owned = false;
+            m.clear();
         }
         return *this;
     }

@@ -79,6 +79,22 @@ TEST_CASE( "Matrix constructor", "[Matrix<T>]" ) {
         REQUIRE( m2[2][0] == m1[2][0] );
         REQUIRE( m2[2][1] == m1[2][1] );
     }
+    SECTION( "move constructor moves elements into a new matrix" ) {
+        Matrix<int> m1({
+            { 1, 2 },
+            { 9, 8 },
+            { 1, 3 }
+        });
+        Matrix<int> m2(std::move(m1));
+
+        REQUIRE( m1.empty() );
+        REQUIRE( m2[0][0] == 1 );
+        REQUIRE( m2[0][1] == 2 );
+        REQUIRE( m2[1][0] == 9 );
+        REQUIRE( m2[1][1] == 8 );
+        REQUIRE( m2[2][0] == 1 );
+        REQUIRE( m2[2][1] == 3 );
+    }
 }
 
 TEST_CASE( "Matrix runtime behavior", "[Matrix<T>]" ) {
@@ -100,6 +116,23 @@ TEST_CASE( "Matrix runtime behavior", "[Matrix<T>]" ) {
         REQUIRE( m2[1][1] == m1[1][1] );
         REQUIRE( m2[2][0] == m1[2][0] );
         REQUIRE( m2[2][1] == m1[2][1] );
+    }
+    SECTION( "move assignment operator moves elements" ) {
+        Matrix<int> m1({
+            { 1, 2 },
+            { 9, 8 },
+            { 1, 3 }
+        });
+        Matrix<int> m2;
+        m2 = std::move(m1);
+
+        REQUIRE( m1.empty() );
+        REQUIRE( m2[0][0] == 1 );
+        REQUIRE( m2[0][1] == 2 );
+        REQUIRE( m2[1][0] == 9 );
+        REQUIRE( m2[1][1] == 8 );
+        REQUIRE( m2[2][0] == 1 );
+        REQUIRE( m2[2][1] == 3 );
     }
     SECTION( "array subscript operator returns correct elements" ) {
         Matrix<int> m1({
