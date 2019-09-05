@@ -3,7 +3,7 @@
 
 #include "seraphim/core/fourcc.h"
 #include "seraphim/core/image_buffer.h"
-#include "seraphim/core/image_buffer_converter.h"
+#include "seraphim/core/image_converter.h"
 
 using namespace sph::core;
 
@@ -128,10 +128,10 @@ bool ImageBuffer::load(unsigned char *src, const Format &fmt) {
     return true;
 }
 
-bool ImageBuffer::load(const ImageBufferConverter::Source &src, const Pixelformat &pixfmt) {
+bool ImageBuffer::load(const ImageConverter::Source &src, const Pixelformat &pixfmt) {
     Format fmt = {};
-    ImageBufferConverter::Source src_ = {};
-    ImageBufferConverter::Target dst = {};
+    ImageConverter::Source src_ = {};
+    ImageConverter::Target dst = {};
     size_t dst_padding;
 
     fmt.width = src.width;
@@ -174,7 +174,7 @@ bool ImageBuffer::load(const ImageBufferConverter::Source &src, const Pixelforma
     clear();
 
     // probe the target buffer size
-    size_t dst_size = ImageBufferConverter::probe(src, dst);
+    size_t dst_size = ImageConverter::probe(src, dst);
     if (dst_size == 0) {
         return false;
     }
@@ -187,7 +187,7 @@ bool ImageBuffer::load(const ImageBufferConverter::Source &src, const Pixelforma
     }
 
     // looks like we need to convert the buffer
-    bool converted = ImageBufferConverter::Instance().convert(src_, dst);
+    bool converted = ImageConverter::Instance().convert(src_, dst);
     if (!converted) {
         // something went wrong in the converter code
         clear();
@@ -253,8 +253,8 @@ unsigned char *ImageBuffer::pixel(const uint32_t &x, const uint32_t &y) const {
 bool ImageBuffer::convert(const Pixelformat &target) {
     size_t dst_padding;
     size_t dst_pixel_size;
-    ImageBufferConverter::Source src = {};
-    ImageBufferConverter::Target dst = {};
+    ImageConverter::Source src = {};
+    ImageConverter::Target dst = {};
 
     if (m_format.pixfmt == target) {
         return true;
@@ -289,7 +289,7 @@ bool ImageBuffer::convert(const Pixelformat &target) {
     dst_padding = (dst.alignment - (src.stride % dst.alignment)) % dst.alignment;
 
     // probe the target buffer size
-    size_t dst_size = ImageBufferConverter::probe(src, dst);
+    size_t dst_size = ImageConverter::probe(src, dst);
     if (dst_size == 0) {
         return false;
     }
@@ -311,14 +311,14 @@ bool ImageBuffer::convert(const Pixelformat &target) {
     std::vector<unsigned char> buf;
 
     // try to convert in-place first
-    converted = ImageBufferConverter::Instance().convert(src, dst);
+    converted = ImageConverter::Instance().convert(src, dst);
 
     if (!converted) {
         // allocate a new buffer by first moving the contents to an alternative location
         Matrix<unsigned char> tmp;
         m_data_buffer.move(tmp);
         src.buf = tmp.data();
-        converted = ImageBufferConverter::Instance().convert(src, dst);
+        converted = ImageConverter::Instance().convert(src, dst);
     }
 
     if (!converted) {

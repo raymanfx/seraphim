@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include "seraphim/core/image_buffer_converter.h"
+#include "seraphim/core/image_converter.h"
 
 using namespace sph::core;
 
@@ -22,7 +22,7 @@ template <class T> static T clamp(const T &val, const T &min, const T &max) {
     return val;
 }
 
-static bool bgr_to_rgb(const ImageBufferConverter::Source &src, ImageBufferConverter::Target &dst) {
+static bool bgr_to_rgb(const ImageConverter::Source &src, ImageConverter::Target &dst) {
     size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
@@ -91,7 +91,7 @@ static bool bgr_to_rgb(const ImageBufferConverter::Source &src, ImageBufferConve
     return true;
 }
 
-static bool rgb_to_bgr(const ImageBufferConverter::Source &src, ImageBufferConverter::Target &dst) {
+static bool rgb_to_bgr(const ImageConverter::Source &src, ImageConverter::Target &dst) {
     size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
@@ -160,7 +160,7 @@ static bool rgb_to_bgr(const ImageBufferConverter::Source &src, ImageBufferConve
     return true;
 }
 
-static size_t rgb_to_y(const ImageBufferConverter::Source &src, ImageBufferConverter::Target &dst) {
+static size_t rgb_to_y(const ImageConverter::Source &src, ImageConverter::Target &dst) {
     size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
@@ -259,7 +259,7 @@ static size_t rgb_to_y(const ImageBufferConverter::Source &src, ImageBufferConve
     return true;
 }
 
-static bool y_to_bgr(const ImageBufferConverter::Source &src, ImageBufferConverter::Target &dst) {
+static bool y_to_bgr(const ImageConverter::Source &src, ImageConverter::Target &dst) {
     size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
@@ -335,8 +335,7 @@ static bool y_to_bgr(const ImageBufferConverter::Source &src, ImageBufferConvert
     return true;
 }
 
-static size_t yuy2_to_bgr(const ImageBufferConverter::Source &src,
-                          ImageBufferConverter::Target &dst) {
+static size_t yuy2_to_bgr(const ImageConverter::Source &src, ImageConverter::Target &dst) {
     size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
@@ -418,7 +417,7 @@ static size_t yuy2_to_bgr(const ImageBufferConverter::Source &src,
     return true;
 }
 
-ImageBufferConverter::ImageBufferConverter() {
+ImageConverter::ImageConverter() {
     Converter bgr_rgb;
     bgr_rgb.source_fmts = { fourcc('B', 'G', 'R', '3'), fourcc('B', 'G', 'R', '4') };
     bgr_rgb.target_fmts = { fourcc('R', 'G', 'B', '3'), fourcc('R', 'G', 'B', '4') };
@@ -452,7 +451,7 @@ ImageBufferConverter::ImageBufferConverter() {
     register_converter(yuy2_bgr, 0 /* prio */);
 }
 
-bool ImageBufferConverter::convert(const Source &src, Target &dst) {
+bool ImageConverter::convert(const Source &src, Target &dst) {
     Converter conv = {};
     int prio = -1;
 
@@ -475,7 +474,7 @@ bool ImageBufferConverter::convert(const Source &src, Target &dst) {
     return conv.function(src, dst);
 }
 
-size_t ImageBufferConverter::probe(const Source &src, Target &dst) {
+size_t ImageConverter::probe(const Source &src, Target &dst) {
     size_t dst_size;
     size_t dst_pixel_size;
     size_t dst_padding;

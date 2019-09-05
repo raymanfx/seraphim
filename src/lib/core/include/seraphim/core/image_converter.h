@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SPH_CORE_IMAGE_BUFFER_CONVERTER_H
-#define SPH_CORE_IMAGE_BUFFER_CONVERTER_H
+#ifndef SPH_CORE_IMAGE_CONVERTER_H
+#define SPH_CORE_IMAGE_CONVERTER_H
 
 #include <functional>
 #include <vector>
@@ -23,21 +23,21 @@ namespace core {
  * Some converters are implemented by default, but you should register your own (possibly more
  * efficient ones) here to everyone can profit.
  */
-class ImageBufferConverter {
+class ImageConverter {
 public:
     /**
      * @brief Singleton class instance.
      * @return The single, static instance of this class.
      */
-    static ImageBufferConverter &Instance() {
+    static ImageConverter &Instance() {
         // Guaranteed to be destroyed, instantiated on first use.
-        static ImageBufferConverter instance;
+        static ImageConverter instance;
         return instance;
     }
 
     // Remove copy and assignment constructors.
-    ImageBufferConverter(ImageBufferConverter const &) = delete;
-    void operator=(ImageBufferConverter const &) = delete;
+    ImageConverter(ImageConverter const &) = delete;
+    void operator=(ImageConverter const &) = delete;
 
     /**
      * @brief Source buffer description.
@@ -115,7 +115,7 @@ public:
     static size_t probe(const Source &src, Target &dst);
 
 private:
-    ImageBufferConverter();
+    ImageConverter();
 
     /// available image buffer converters
     std::vector<std::pair<int, Converter>> m_converters;
@@ -124,4 +124,4 @@ private:
 } // namespace core
 } // namespace sph
 
-#endif // SPH_CORE_IMAGE_BUFFER_CONVERTER_H
+#endif // SPH_CORE_IMAGE_CONVERTER_H

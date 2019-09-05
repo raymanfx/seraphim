@@ -14,7 +14,8 @@
 #include <string>
 #include <vector>
 
-#include "image_buffer_converter.h"
+#include "fourcc.h"
+#include "image_converter.h"
 #include "matrix.h"
 
 namespace sph {
@@ -127,7 +128,7 @@ public:
      * @param pixfmt Pixelformat of the target buffer.
      * @return True on success, false otherwise.
      */
-    bool load(const ImageBufferConverter::Source &src, const Pixelformat &pixfmt);
+    bool load(const ImageConverter::Source &src, const Pixelformat &pixfmt);
 
     /**
      * @brief Wrap an image buffer and optionally pass ownership to the instance.
