@@ -104,6 +104,7 @@ bool ImageBuffer::load(const ImageBuffer &buf) {
     Matrix<unsigned char>(buf.data(), buf.format().height,
                           buf.format().width * pixsize(buf.format().pixfmt), buf.format().stride)
         .copy(m_data_buffer);
+    m_data = m_data_buffer.data();
     m_format = src_fmt;
 
     return true;
@@ -121,6 +122,7 @@ bool ImageBuffer::load(unsigned char *src, const Format &fmt) {
 
     Matrix<unsigned char>(src, fmt.height, fmt.width * pixsize(fmt.pixfmt), fmt.stride)
         .copy(m_data_buffer);
+    m_data = m_data_buffer.data();
     m_format = src_fmt;
 
     return true;
@@ -192,6 +194,7 @@ bool ImageBuffer::load(const ImageBufferConverter::Source &src, const Pixelforma
         return false;
     }
 
+    m_data = m_data_buffer.data();
     m_format = fmt;
 
     return true;
