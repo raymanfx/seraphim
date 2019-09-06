@@ -10,8 +10,11 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <map>
 
-#include "image_buffer.h"
+#include "image_converter.h"
+#include "matrix.h"
+#include "pixelformat.h"
 
 namespace sph {
 namespace core {
@@ -43,13 +46,13 @@ public:
      * @brief Width of the image.
      * @return Width in pixels.
      */
-    virtual size_t width() const = 0;
+    virtual uint32_t width() const = 0;
 
     /**
      * @brief Height of the image.
      * @return Height in pixels.
      */
-    virtual size_t height() const = 0;
+    virtual uint32_t height() const = 0;
 
     /**
      * @brief Length of one pixel row (including padding).
@@ -59,17 +62,23 @@ public:
     virtual size_t stride() const = 0;
 
     /**
-     * @brief The number of bits for each channel.
-     *        E.g. for RGB32 this would return 32.
-     * @return
+     * @brief Format of each pixel in the image.
+     * @return Pixelformat UID, see @ref Pixelformat.
      */
-    virtual int depth() const = 0;
+    virtual Pixelformat::Enum pixfmt() const = 0;
 
     /**
      * @brief The number of channels of the image.
      * @return 1 for grayscale, 3 for BGR, 4 for BGRA.
      */
-    virtual int channels() const = 0;
+    virtual uint32_t channels() const = 0;
+
+    /**
+     * @brief The number of bits for each channel.
+     *        E.g. for RGB32 this would return 32.
+     * @return
+     */
+    virtual uint32_t depth() const = 0;
 
     /**
      * @brief Unary "not" operator, checks whether the instance is valid.
@@ -87,31 +96,72 @@ public:
 class Image : public IImage {
 public:
     Image() = default;
+    Image(unsigned char *data, const uint32_t &width, const uint32_t &height,
+          const Pixelformat::Enum &pixfmt, const size_t &stride = 0);
 
     const unsigned char *data() const override { return m_buffer.data(); }
     bool empty() const override { return m_buffer.empty(); }
-    size_t width() const override { return m_buffer.format().width; }
-    size_t height() const override { return m_buffer.format().height; }
-    size_t stride() const override { return m_buffer.format().stride; }
-    int depth() const override;
-    int channels() const override;
+    uint32_t width() const override { return m_width; }
+    uint32_t height() const override { return m_height; }
+    size_t stride() const override { return m_buffer.step(); }
+    Pixelformat::Enum pixfmt() const override { return m_pixfmt; }
+    uint32_t channels() const override;
+    uint32_t depth() const override;
     bool operator!() const override { return !empty(); }
 
-    /**
-     * @brief Const reference to the underlying pixel buffer.
-     * @return The pixel buffer instance.
-     */
-    const ImageBuffer &buffer() const { return m_buffer; }
+    void clear();
+    bool validate() const { return !empty() && m_pixfmt != Pixelformat::Enum::UNKNOWN; }
 
     /**
-     * @brief Mutable reference to the underlying pixel buffer.
-     * @return The pixel buffer instance.
+     * @brief Get the scanline position in memory.
+     * @param y Y offset.
+     * @return Pixel scanline address in memory.
      */
-    ImageBuffer &mutable_buffer() { return m_buffer; }
+    unsigned char *scanline(const uint32_t &y) const {
+        assert(y < m_height);
+        return m_buffer[y];
+    }
+
+    /**
+     * @brief Get the pixel position in memory.
+     * @param x X offset.
+     * @param y Y offset.
+     * @return Pixel address in memory.
+     */
+    unsigned char *pixel(const uint32_t &x, const uint32_t &y) const {
+        assert(x < m_width && y < m_height);
+        if (m_pixfmt == Pixelformat::Enum::UNKNOWN) {
+            return nullptr;
+        }
+        return m_buffer[y] + x * Pixelformat::bits(m_pixfmt) / 8;
+    }
+
+    /**
+     * @brief Copy an image buffer so this instance owns the data.
+     *        Convert the buffer if necessary prior to loading it.
+     * @param src Address of the source buffer.
+     * @param pixfmt Pixelformat of the target buffer.
+     * @return True on success, false otherwise.
+     */
+    bool load(const ImageConverter::Source &src, const Pixelformat::Enum &pixfmt);
+
+    /**
+     * @brief Convert between internal formats.
+     * @param target Target pixel format.
+     * @return True on success, false otherwise.
+     */
+    bool convert(const Pixelformat::Enum &target);
 
 private:
-    /// buffer to hold the underlying pixel data
-    ImageBuffer m_buffer;
+    /// matrix back buffer holding pixel data
+    Matrix<unsigned char> m_buffer;
+
+    /// width in pixels
+    uint32_t m_width = 0;
+    /// height in pixels
+    uint32_t m_height = 0;
+    /// pixelformat
+    Pixelformat::Enum m_pixfmt = Pixelformat::Enum::UNKNOWN;
 };
 
 } // namespace core

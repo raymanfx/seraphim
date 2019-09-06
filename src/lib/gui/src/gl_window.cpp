@@ -83,30 +83,30 @@ bool GLWindow::show(const sph::core::Image &img) {
 
     // use fast 4-byte alignment (default anyway) if possible
     // see: https://stackoverflow.com/a/16812529
-    glPixelStorei(GL_UNPACK_ALIGNMENT, static_cast<GLint>(img.buffer().row_alignment()));
+    glPixelStorei(GL_UNPACK_ALIGNMENT, static_cast<GLint>(img.stride() & 3 ? 1 : 4));
 
     // set amount of pixels of one complete row in data
     // see: https://stackoverflow.com/a/16812529
     glPixelStorei(GL_UNPACK_ROW_LENGTH, static_cast<GLint>(img.width()));
 
-    switch (img.buffer().format().pixfmt) {
-    case sph::core::ImageBuffer::Pixelformat::RGB24:
-    case sph::core::ImageBuffer::Pixelformat::RGB32:
+    switch (img.pixfmt()) {
+    case sph::core::Pixelformat::Enum::RGB24:
+    case sph::core::Pixelformat::Enum::RGB32:
         input_internal_format = GL_RGB;
         input_format = GL_RGB;
         input_type = GL_UNSIGNED_BYTE;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_RED);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_BLUE);
         break;
-    case sph::core::ImageBuffer::Pixelformat::BGR24:
-    case sph::core::ImageBuffer::Pixelformat::BGR32:
+    case sph::core::Pixelformat::Enum::BGR24:
+    case sph::core::Pixelformat::Enum::BGR32:
         input_internal_format = GL_RGB;
         input_format = GL_RGB;
         input_type = GL_UNSIGNED_BYTE;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_BLUE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
         break;
-    case sph::core::ImageBuffer::Pixelformat::Y8:
+    case sph::core::Pixelformat::Enum::GRAY8:
         input_internal_format = GL_R8;
         input_format = GL_RED;
         input_type = GL_UNSIGNED_BYTE;
@@ -150,15 +150,15 @@ bool GLWindow::show(const sph::core::Image &img) {
     }
 
     // Update the texture
-    glTexSubImage2D(GL_TEXTURE_2D,        // Type of texture
-                    0,                    // Pyramid level (for mip-mapping) - 0 is the top level
-                    0,                    // x offset
-                    0,                    // y offset
-                    m_width,              // Image width
-                    m_height,             // Image height
-                    m_input_format,       // Input image format (i.e. GL_RGB, GL_RGBA, GL_BGR etc.)
-                    m_input_type,         // Image data type
-                    img.buffer().data()); // The actual image data itself
+    glTexSubImage2D(GL_TEXTURE_2D,  // Type of texture
+                    0,              // Pyramid level (for mip-mapping) - 0 is the top level
+                    0,              // x offset
+                    0,              // y offset
+                    m_width,        // Image width
+                    m_height,       // Image height
+                    m_input_format, // Input image format (i.e. GL_RGB, GL_RGBA, GL_BGR etc.)
+                    m_input_type,   // Image data type
+                    img.data());    // The actual image data itself
 
     // setup the viewport
     glfwGetFramebufferSize(m_window, &w, &h);

@@ -5,17 +5,15 @@ set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
     src/image.cpp
-    src/image_buffer.cpp
     src/image_converter.cpp)
 
 set(HEADERS
     include/seraphim/core/computable.h
-    include/seraphim/core/fourcc.h
     include/seraphim/core/image.h
-    include/seraphim/core/image_buffer.h
     include/seraphim/core/image_converter.h
     include/seraphim/core/matrix.h
     include/seraphim/core/module.h
+    include/seraphim/core/pixelformat.h
     include/seraphim/core/point.h
     include/seraphim/core/polygon.h)
 

@@ -15,21 +15,16 @@
 
 bool sph::backend::Image2DtoImage(const Seraphim::Types::Image2D &src, sph::core::Image &dst) {
     sph::core::Image img;
-    sph::core::ImageBuffer::Format fmt = {};
+    sph::core::Pixelformat::Enum pixfmt;
+    unsigned char *data;
 
-    fmt.width = src.width();
-    fmt.height = src.height();
-    fmt.stride = src.stride();
-    fmt.pixfmt = sph::core::ImageBuffer::fourcc2pixfmt(src.fourcc());
-
-    if (!img.mutable_buffer().assign(
-            const_cast<unsigned char *>(
-                reinterpret_cast<const unsigned char *>(src.data().c_str())),
-            fmt)) {
+    pixfmt = sph::core::Pixelformat::uid(src.fourcc());
+    if (pixfmt == sph::core::Pixelformat::Enum::UNKNOWN) {
         return false;
     }
 
-    dst = img;
+    data = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(src.data().c_str()));
+    dst = sph::core::Image(data, src.width(), src.height(), pixfmt, src.stride());
     return true;
 }
 

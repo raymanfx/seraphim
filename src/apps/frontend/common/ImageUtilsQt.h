@@ -15,7 +15,8 @@ namespace sph {
 namespace frontend {
 
 static bool Image2QImage(const sph::core::Image &src, QImage &dst) {
-    const uchar *bytes = static_cast<const uchar *>(src.buffer().data());
+    const uchar *bytes = src.data();
+    uint32_t row_alignment;
 
     if (src.empty()) {
         return false;
@@ -23,20 +24,21 @@ static bool Image2QImage(const sph::core::Image &src, QImage &dst) {
 
     // QImage data must be 32-bit aligned, as must each individual scanline
     // ref: https://doc.qt.io/qt-5/qimage.html#QImage-3
-    if (src.buffer().row_alignment() != 4) {
+    row_alignment = src.stride() & 3 ? 1 : 4;
+    if (row_alignment != 4) {
         return false;
     }
 
     // https://doc.qt.io/qt-5/qvideoframe.html#PixelFormat-enum
-    switch (src.buffer().format().pixfmt) {
-    case sph::core::ImageBuffer::Pixelformat::BGR24:
-    case sph::core::ImageBuffer::Pixelformat::BGR32:
+    switch (src.pixfmt()) {
+    case sph::core::Pixelformat::Enum::BGR24:
+    case sph::core::Pixelformat::Enum::BGR32:
         dst = QImage(bytes, static_cast<int>(src.width()), static_cast<int>(src.height()),
                      QImage::Format_RGB888)
                   .rgbSwapped();
         break;
-    case sph::core::ImageBuffer::Pixelformat::RGB24:
-    case sph::core::ImageBuffer::Pixelformat::RGB32:
+    case sph::core::Pixelformat::Enum::RGB24:
+    case sph::core::Pixelformat::Enum::RGB32:
         dst = QImage(bytes, static_cast<int>(src.width()), static_cast<int>(src.height()),
                      QImage::Format_RGB888);
         break;

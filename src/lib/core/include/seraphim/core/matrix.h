@@ -171,7 +171,7 @@ public:
             m_cols = m.cols();
             m_step = m.step();
             m_elements = m.data();
-            m_elements_owned = true;
+            m_elements_owned = m.m_elements_owned;
             m_elements_capacity = m.m_elements_capacity;
 
             m.m_elements_owned = false;
@@ -323,8 +323,13 @@ public:
      * @param rows Number of rows.
      * @param cols Number of columns.
      */
-    void resize(const size_t &rows, const size_t &cols) {
-        if (rows * cols == m_rows * m_cols) {
+    void resize(const size_t &rows, const size_t &cols, const size_t &step = 0) {
+        size_t step_ = step;
+        if (step_ == 0) {
+            step_ = cols * sizeof(T);
+        }
+
+        if (rows * cols == m_rows * m_cols && step == step_) {
             return;
         }
 
@@ -332,7 +337,7 @@ public:
         reserve(rows, cols);
         m_rows = rows;
         m_cols = cols;
-        m_step = cols * sizeof(T);
+        m_step = step_;
     }
 
     /**

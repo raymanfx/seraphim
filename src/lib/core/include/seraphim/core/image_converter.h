@@ -11,7 +11,7 @@
 #include <functional>
 #include <vector>
 
-#include "fourcc.h"
+#include "pixelformat.h"
 
 namespace sph {
 namespace core {

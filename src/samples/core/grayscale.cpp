@@ -132,14 +132,14 @@ int main(int argc, char **argv) {
         }
 
         // convert to grayscale
-        if (!image.mutable_buffer().convert(sph::core::ImageBuffer::Pixelformat::Y16)) {
+        if (!image.convert(sph::core::Pixelformat::Enum::GRAY16)) {
             std::cout << "[ERROR] Failed to convert Image buffer to Y16" << std::endl;
             continue;
         }
 
         // back to BGR
-        if (!image.mutable_buffer().convert(sph::core::ImageBuffer::Pixelformat::BGR24)) {
-            std::cout << "[ERROR] Failed to convert Image buffer to BGR32" << std::endl;
+        if (!image.convert(sph::core::Pixelformat::Enum::BGR24)) {
+            std::cout << "[ERROR] Failed to convert Image buffer to BGR24" << std::endl;
             continue;
         }
 

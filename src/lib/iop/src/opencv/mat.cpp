@@ -14,32 +14,28 @@ using namespace sph::iop::cv;
     ::cv::Mat mat;
 
     if (img.empty()) {
-        return mat;
+        return ::cv::Mat();
     }
 
     // https://github.com/opencv/opencv/blob/master/modules/videoio/src/cap_v4l.cpp
-    switch (img.buffer().format().pixfmt) {
-    case sph::core::ImageBuffer::Pixelformat::BGR24:
+    switch (img.pixfmt()) {
+    case sph::core::Pixelformat::Enum::BGR24:
         mat = ::cv::Mat(static_cast<int>(img.height()), static_cast<int>(img.width()), CV_8UC3,
-                        const_cast<unsigned char *>(img.buffer().data()),
-                        img.buffer().format().stride);
+                        const_cast<unsigned char *>(img.data()), img.stride());
         break;
-    case sph::core::ImageBuffer::Pixelformat::RGB24:
+    case sph::core::Pixelformat::Enum::RGB24:
         mat = ::cv::Mat(static_cast<int>(img.height()), static_cast<int>(img.width()), CV_8UC3,
-                        const_cast<unsigned char *>(img.buffer().data()),
-                        img.buffer().format().stride)
+                        const_cast<unsigned char *>(img.data()), img.stride())
                   .clone();
         ::cv::cvtColor(mat, mat, ::cv::COLOR_RGB2BGR);
         break;
-    case sph::core::ImageBuffer::Pixelformat::Y8:
+    case sph::core::Pixelformat::Enum::GRAY8:
         mat = ::cv::Mat(static_cast<int>(img.height()), static_cast<int>(img.width()), CV_8UC1,
-                        const_cast<unsigned char *>(img.buffer().data()),
-                        img.buffer().format().stride);
+                        const_cast<unsigned char *>(img.data()), img.stride());
         break;
-    case sph::core::ImageBuffer::Pixelformat::Y16:
+    case sph::core::Pixelformat::Enum::GRAY16:
         mat = ::cv::Mat(static_cast<int>(img.height()), static_cast<int>(img.width()), CV_16UC1,
-                        const_cast<unsigned char *>(img.buffer().data()),
-                        img.buffer().format().stride);
+                        const_cast<unsigned char *>(img.data()), img.stride());
         break;
     default:
         break;
@@ -49,42 +45,42 @@ using namespace sph::iop::cv;
 }
 
 sph::core::Image MatFacility::to_image(const ::cv::Mat &mat) {
-    sph::core::Image img;
-    sph::core::ImageBuffer::Format fmt = {};
+    uint32_t width;
+    uint32_t height;
+    size_t stride;
+    sph::core::Pixelformat::Enum pixfmt;
 
     if (mat.empty()) {
-        return img;
+        return sph::core::Image();
     }
 
-    fmt.pixfmt = sph::core::ImageBuffer::Pixelformat::UNKNOWN;
+    pixfmt = sph::core::Pixelformat::Enum::UNKNOWN;
 
     // OpenCV images are always BGR
     switch (mat.channels()) {
     case 3:
         if (mat.elemSize1() == 1) {
-            fmt.pixfmt = sph::core::ImageBuffer::Pixelformat::BGR24;
+            pixfmt = sph::core::Pixelformat::Enum::BGR24;
         }
         break;
     case 1:
         if (mat.elemSize1() == 1) {
-            fmt.pixfmt = sph::core::ImageBuffer::Pixelformat::Y8;
+            pixfmt = sph::core::Pixelformat::Enum::GRAY8;
         } else if (mat.elemSize1() == 2) {
-            fmt.pixfmt = sph::core::ImageBuffer::Pixelformat::Y16;
+            pixfmt = sph::core::Pixelformat::Enum::GRAY16;
         }
         break;
     default:
         break;
     }
 
-    if (fmt.pixfmt == sph::core::ImageBuffer::Pixelformat::UNKNOWN) {
-        return img;
+    if (pixfmt == sph::core::Pixelformat::Enum::UNKNOWN) {
+        return sph::core::Image();
     }
 
-    fmt.width = static_cast<uint32_t>(mat.step / mat.elemSize());
-    fmt.height = static_cast<uint32_t>(mat.rows);
-    fmt.stride = mat.step;
+    width = static_cast<uint32_t>(mat.step / mat.elemSize());
+    height = static_cast<uint32_t>(mat.rows);
+    stride = mat.step;
 
-    img.mutable_buffer().assign(mat.data, fmt);
-
-    return img;
+    return sph::core::Image(mat.data, width, height, pixfmt, stride);
 }

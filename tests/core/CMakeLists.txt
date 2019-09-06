@@ -1,6 +1,8 @@
 set(TEST_NAME core_tests)
 
 set(SOURCES
+    image.cpp
+    image_converter.cpp
     main.cpp
     matrix.cpp
     point.cpp
