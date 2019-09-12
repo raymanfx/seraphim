@@ -71,11 +71,7 @@ public:
     /**
      * @brief Copy matrix elements from a two dimensional array living on the stack.
      */
-    Matrix(T (&elements)[rows][cols]) : m_rows(rows), m_cols(cols), m_step(cols * sizeof(T)) {
-        m_elements.reset(new T[rows * cols]);
-        m_elements_owned = true;
-        m_elements_capacity = rows * cols;
-
+    Matrix(T (&elements)[rows][cols]) : Matrix(rows, cols) {
         for (size_t i = 0; i < rows; i++) {
             for (size_t j = 0; j < cols; j++) {
                 m_elements.get()[i * cols + j] = elements[i][j];
@@ -89,11 +85,7 @@ public:
      * @param elements Two dimensional vector holding elements.
      */
     Matrix(const std::vector<std::vector<T>> &elements)
-        : m_rows(elements.size()), m_cols(elements[0].size()), m_step(m_cols * sizeof(T)) {
-        m_elements.reset(new T[m_rows * m_cols]);
-        m_elements_owned = true;
-        m_elements_capacity = m_rows * m_cols;
-
+        : Matrix(elements.size(), elements[0].size()) {
         for (size_t i = 0; i < m_rows; i++) {
             for (size_t j = 0; j < m_cols; j++) {
                 m_elements.get()[i * m_cols + j] = elements[i][j];
