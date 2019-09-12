@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <memory>
 #include <vector>
 
 namespace sph {
@@ -41,7 +42,7 @@ public:
         if (m_step == 0) {
             m_step = cols * sizeof(T);
         }
-        m_elements = new T[rows * m_step / sizeof(T)];
+        m_elements.reset(new T[rows * m_step / sizeof(T)]);
         m_elements_owned = true;
         m_elements_capacity = rows * m_step / sizeof(T);
     }
@@ -71,13 +72,13 @@ public:
      * @brief Copy matrix elements from a two dimensional array living on the stack.
      */
     Matrix(T (&elements)[rows][cols]) : m_rows(rows), m_cols(cols), m_step(cols * sizeof(T)) {
-        m_elements = new T[rows * cols];
+        m_elements.reset(new T[rows * cols]);
         m_elements_owned = true;
         m_elements_capacity = rows * cols;
 
         for (size_t i = 0; i < rows; i++) {
             for (size_t j = 0; j < cols; j++) {
-                m_elements[i * cols + j] = elements[i][j];
+                m_elements.get()[i * cols + j] = elements[i][j];
             }
         }
     }
@@ -89,13 +90,13 @@ public:
      */
     Matrix(const std::vector<std::vector<T>> &elements)
         : m_rows(elements.size()), m_cols(elements[0].size()), m_step(m_cols * sizeof(T)) {
-        m_elements = new T[m_rows * m_cols];
+        m_elements.reset(new T[m_rows * m_cols]);
         m_elements_owned = true;
         m_elements_capacity = m_rows * m_cols;
 
         for (size_t i = 0; i < m_rows; i++) {
             for (size_t j = 0; j < m_cols; j++) {
-                m_elements[i * m_cols + j] = elements[i][j];
+                m_elements.get()[i * m_cols + j] = elements[i][j];
             }
         }
     }
@@ -113,7 +114,7 @@ public:
         assert((i + rows) <= m.rows() && (j + cols) <= m.cols());
         for (size_t i_ = 0; i_ < rows; i_++) {
             for (size_t j_ = 0; j_ < cols; j_++) {
-                m_elements[i_ * m_cols + j_] = m[i_ + i][j_ + j];
+                m_elements.get()[i_ * m_cols + j_] = m[i_ + i][j_ + j];
             }
         }
     }
@@ -125,7 +126,7 @@ public:
     Matrix(const Matrix &m) : Matrix(m.rows(), m.cols()) {
         for (size_t i = 0; i < m.rows(); i++) {
             for (size_t j = 0; j < m.cols(); j++) {
-                m_elements[i * m_cols + j] = m[i][j];
+                m_elements.get()[i * m_cols + j] = m[i][j];
             }
         }
     }
@@ -150,7 +151,8 @@ public:
         if (this != &m) {
             clear();
 
-            m_elements = m.data();
+            m_elements.reset(m.data());
+            m_elements_owned = false;
             m_rows = m.rows();
             m_cols = m.cols();
             m_step = m.step();
@@ -170,7 +172,7 @@ public:
             m_rows = m.rows();
             m_cols = m.cols();
             m_step = m.step();
-            m_elements = m.data();
+            m_elements.reset(m.data());
             m_elements_owned = m.m_elements_owned;
             m_elements_capacity = m.m_elements_capacity;
 
@@ -187,7 +189,7 @@ public:
      */
     T *operator[](const size_t &i) const {
         assert(i < m_rows);
-        return m_elements + i * (m_step / sizeof(T));
+        return m_elements.get() + i * (m_step / sizeof(T));
     }
 
     /**
@@ -261,14 +263,14 @@ public:
      * @brief Read-only pointer to matrix memory.
      * @return Memory location of the first element.
      */
-    unsigned char *bytes() const { return reinterpret_cast<unsigned char *>(m_elements); }
+    unsigned char *bytes() const { return reinterpret_cast<unsigned char *>(m_elements.get()); }
 
     /**
      * @brief Read-only pointer to matrix elements.
      * @return Memory location of the first element.
      *         The memory space is continuous, but padding may lead to empty or invalid elements.
      */
-    T *data() const { return m_elements; }
+    T *data() const { return m_elements.get(); }
 
     /**
      * @brief Check whether the matrix owns its element backing memory.
@@ -290,8 +292,10 @@ public:
         m_rows = 0;
         m_cols = 0;
         m_step = 0;
-        if (m_elements_owned && m_elements) {
-            delete[] m_elements;
+        if (!m_elements_owned) {
+            // this does not actually free any resources, it just removes the responsibility from
+            // the unique_ptr instance (which is what we want in this case)
+            m_elements.release();
         }
         m_elements = nullptr;
         m_elements_owned = false;
@@ -312,7 +316,7 @@ public:
 
         clear();
         m_step = cols * sizeof(T);
-        m_elements = new T[rows * cols];
+        m_elements.reset(new T[rows * cols]);
         m_elements_owned = true;
         m_elements_capacity = rows * cols;
     }
@@ -373,7 +377,7 @@ public:
      * @param target Target instance which assumes element ownership.
      */
     void move(Matrix &target) {
-        target = Matrix(m_elements, m_rows, m_cols, m_step, m_elements_owned);
+        target = Matrix(m_elements.get(), m_rows, m_cols, m_step, m_elements_owned);
         m_elements_owned = false;
         clear();
     }
@@ -386,7 +390,7 @@ private:
     /// Matrix step (to account for padding), eqivalent to image stride.
     size_t m_step = 0;
     /// Matrix element pointer (can be arbitrary source or internal buffer).
-    T *m_elements = nullptr;
+    std::unique_ptr<T[]> m_elements = nullptr;
     /// Whether we own the element data.
     bool m_elements_owned = false;
     /// Number of matrix elements the backing buffer can hold.
