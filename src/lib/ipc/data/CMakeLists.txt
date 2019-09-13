@@ -13,32 +13,28 @@ set(Protobuf_IMPORT_DIRS
 
 # Find protocol definitions
 file(GLOB PROTO_FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/*.proto)
-message("PROTO_FILES = ${PROTO_FILES}")
+     ${CMAKE_CURRENT_SOURCE_DIR}/*.proto)
 
 # macOS relies on homebrew to satisfy dependencies.
 # Some headers like protobuf "port_def.inc" are not properly exposes at the
 # moment, so we have to include them manually for the project.
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  include_directories("/usr/local/opt/protobuf/include")
+    include_directories("/usr/local/opt/protobuf/include")
 endif ()
 
 # Generate the .h and .cxx files
-PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS ${PROTO_FILES})
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_FILES})
 
-# Print path to generated files
-message("PROTO_FILES = ${PROTO_FILES}")
-message("PROTO_SRCS = ${PROTO_SRCS}")
-message("PROTO_HDRS = ${PROTO_HDRS}")
+add_custom_target(generated_messages DEPENDS ${PROTO_SRCS} ${PROTO_HDRS})
 
 # Build a static library containing the message classes
 add_library(${COMPONENT_NAME} STATIC ${PROTO_FILES} ${PROTO_SRCS} ${PROTO_HDRS})
+add_dependencies(${COMPONENT_NAME} generated_messages)
 
 # Make sure the compiler can find include files for our library
 # when other libraries or executables link to it
 target_include_directories(${COMPONENT_NAME} PUBLIC
-                           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/data>
-                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/seraphim/ipc/data>)
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/data>)
 
 # shared libraries need PIC
 set_property(TARGET ${COMPONENT_NAME} PROPERTY POSITION_INDEPENDENT_CODE 1)
