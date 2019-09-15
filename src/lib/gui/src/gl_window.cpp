@@ -126,6 +126,9 @@ bool GLWindow::show(const sph::core::Image &img) {
         m_height = h;
         glfwSetWindowSize(m_window, w, h);
         setup_texture = true;
+
+        // enforce original aspect ratio
+        glfwSetWindowAspectRatio(m_window, w, h);
     }
 
     // recreate the texture if internal parameters have changed
