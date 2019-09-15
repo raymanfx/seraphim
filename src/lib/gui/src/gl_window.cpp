@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <GL/glew.h>
 #include <iostream>
 
 #include "seraphim/gui/gl_window.h"
@@ -29,7 +28,7 @@ bool GLWindow::create(const std::string &title) {
     m_height = 1;
 
     glfwMakeContextCurrent(m_window);
-    if (glewInit() != GLEW_OK) {
+    if (!gladLoadGLES2Loader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         glfwDestroyWindow(m_window);
         m_window = nullptr;
         return false;

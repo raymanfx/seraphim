@@ -8,7 +8,10 @@
 #ifndef SPH_GUI_GLFW_H
 #define SPH_GUI_GLFW_H
 
+#define GLFW_INCLUDE_NONE
+
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
 #include <iostream>
 
 namespace sph {

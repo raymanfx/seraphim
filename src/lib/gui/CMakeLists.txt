@@ -5,9 +5,12 @@ set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
     src/module.cpp
-    src/gl_window.cpp)
+    src/gl_window.cpp
+    src/glad.c)
 
 set(HEADERS
+    include/KHR/khrplatform.h
+    include/glad/glad.h
     include/seraphim/gui.h
     include/seraphim/gui/module.h
     include/seraphim/gui/window.h
@@ -25,10 +28,6 @@ set_target_properties(${MODULE_NAME} PROPERTIES VERSION
                       ${MODULE_VERSION_MAJOR}.${MODULE_VERSION_MINOR}.${MODULE_VERSION_PATCH})
 set_target_properties(${MODULE_NAME} PROPERTIES SOVERSION
                       ${MODULE_VERSION_MAJOR})
-
-# GLEW loader
-find_package(GLEW REQUIRED)
-target_link_libraries(${MODULE_NAME} PUBLIC GLEW)
 
 # GLFW dependency
 find_package(glfw3 REQUIRED)
