@@ -48,12 +48,6 @@ static GLFWwindow *glfw_create_window(const int &width, const int &height, const
                                       GLFWmonitor *monitor, GLFWwindow *share) {
     GLFWwindow *window;
 
-    // TODO: GLEW MX supports multiple contexts (thus multiple windows), but is not available in
-    // most distributions in the binary glew package
-    if (glfw_windows > 0) {
-        return nullptr;
-    }
-
     window = glfwCreateWindow(width, height, title, monitor, share);
     if (window) {
         glfw_windows++;

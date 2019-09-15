@@ -80,6 +80,9 @@ bool GLWindow::show(const sph::core::Image &img) {
         return false;
     }
 
+    // the current window context must be made current because OpenGL is a state machine
+    glfwMakeContextCurrent(m_window);
+
     // use fast 4-byte alignment (default anyway) if possible
     // see: https://stackoverflow.com/a/16812529
     glPixelStorei(GL_UNPACK_ALIGNMENT, static_cast<GLint>(img.stride() & 3 ? 1 : 4));
