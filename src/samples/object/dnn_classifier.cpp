@@ -10,6 +10,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/videoio.hpp>
 #include <seraphim/core/polygon.h>
+#include <seraphim/gui/gl_window.h>
 #include <seraphim/iop/opencv/mat.h>
 #include <seraphim/object/dnn_classifier.h>
 
@@ -140,6 +141,11 @@ int main(int argc, char **argv) {
     }
     classifier.set_target(sph::core::IComputable::Target::CPU);
 
+    sph::gui::GLWindow viewer;
+    if (!viewer.create("DNN classifier")) {
+        return 1;
+    }
+
     // set parameters for MobileNet V2 (2018_03_29)
     // see https://github.com/opencv/opencv/wiki/TensorFlow-Object-Detection-API
     // see https://github.com/opencv/opencv/blob/master/samples/dnn/models.yml
@@ -234,7 +240,8 @@ int main(int argc, char **argv) {
             elapsed = 0;
         }
 
-        cv::imshow("DNN Classifier", frame);
-        cv::waitKey(1);
+        if (!viewer.show(image)) {
+            std::cout << "[ERROR] Failed to show Image" << std::endl;
+        }
     }
 }

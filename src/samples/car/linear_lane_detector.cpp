@@ -10,6 +10,7 @@
 #include <opencv2/videoio.hpp>
 #include <seraphim/car/linear_lane_detector.h>
 #include <seraphim/core/polygon.h>
+#include <seraphim/gui/gl_window.h>
 #include <seraphim/iop/opencv/mat.h>
 
 static bool main_loop = true;
@@ -121,6 +122,11 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    sph::gui::GLWindow viewer;
+    if (!viewer.create("Linear Lane Detector")) {
+        return 1;
+    }
+
     // initialize parameters for lane detector
     sph::car::LinearLaneDetector::Parameters params = {};
     params.canny_low_thresh = 50;
@@ -199,7 +205,8 @@ int main(int argc, char **argv) {
             elapsed = 0;
         }
 
-        cv::imshow("EZ Lane Detector", frame);
-        cv::waitKey(1);
+        if (!viewer.show(image)) {
+            std::cout << "[ERROR] Failed to show Image" << std::endl;
+        }
     }
 }

@@ -8,9 +8,9 @@
 #include <chrono>
 #include <csignal>
 #include <getopt.h>
-#include <opencv2/opencv.hpp>
 #include <opencv2/videoio.hpp>
 #include <seraphim/core/image.h>
+#include <seraphim/gui/gl_window.h>
 #include <seraphim/iop/opencv/mat.h>
 
 static bool main_loop = true;
@@ -76,8 +76,8 @@ void signal_handler(int signal) {
 
 int main(int argc, char **argv) {
     int camera_index = 0;
-    sph::core::Image image;
-    cv::Mat frame, frame2;
+    sph::core::Image rgb_image, gray_image;
+    cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;
     std::chrono::high_resolution_clock::time_point t_frame_captured;
     long frame_time;
@@ -112,6 +112,16 @@ int main(int argc, char **argv) {
         }
     }
 
+    sph::gui::GLWindow rgb;
+    if (!rgb.create("RGB")) {
+        return 1;
+    }
+
+    sph::gui::GLWindow gray;
+    if (!gray.create("Grayscale")) {
+        return 1;
+    }
+
     while (main_loop) {
         t_loop_start = std::chrono::high_resolution_clock::now();
 
@@ -125,28 +135,27 @@ int main(int argc, char **argv) {
                          std::chrono::high_resolution_clock::now() - t_loop_start)
                          .count();
 
-        image = sph::iop::cv::MatFacility::to_image(frame);
-        if (image.empty()) {
+        rgb_image = sph::iop::cv::MatFacility::to_image(frame);
+        if (rgb_image.empty()) {
+            std::cout << "[ERROR] Failed to convert Mat to Image" << std::endl;
+            continue;
+        }
+
+        gray_image = sph::iop::cv::MatFacility::to_image(frame);
+        if (gray_image.empty()) {
             std::cout << "[ERROR] Failed to convert Mat to Image" << std::endl;
             continue;
         }
 
         // convert to grayscale
-        if (!image.convert(sph::core::Pixelformat::Enum::GRAY16)) {
+        if (!gray_image.convert(sph::core::Pixelformat::Enum::GRAY16)) {
             std::cout << "[ERROR] Failed to convert Image buffer to Y16" << std::endl;
             continue;
         }
 
-        // back to BGR
-        if (!image.convert(sph::core::Pixelformat::Enum::BGR24)) {
+        // back to RGB because our GL viewer does not support Y16 right now
+        if (!gray_image.convert(sph::core::Pixelformat::Enum::BGR24)) {
             std::cout << "[ERROR] Failed to convert Image buffer to BGR24" << std::endl;
-            continue;
-        }
-
-        // .. and back to mat
-        frame2 = sph::iop::cv::MatFacility::from_image(image);
-        if (frame2.empty()) {
-            std::cout << "[ERROR] Failed to convert Y16 Image to Mat" << std::endl;
             continue;
         }
 
@@ -169,8 +178,11 @@ int main(int argc, char **argv) {
             elapsed = 0;
         }
 
-        cv::imshow("Original", frame);
-        cv::imshow("Gray", frame2);
-        cv::waitKey(1);
+        if (!rgb.show(rgb_image)) {
+            std::cout << "[ERROR] Failed to show RGB Image" << std::endl;
+        }
+        if (!gray.show(gray_image)) {
+            std::cout << "[ERROR] Failed to show Grayscale Image" << std::endl;
+        }
     }
 }

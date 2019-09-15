@@ -7,9 +7,10 @@
 
 #include <csignal>
 #include <getopt.h>
-#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
 #include <seraphim/core/polygon.h>
+#include <seraphim/gui/gl_window.h>
 #include <seraphim/iop/opencv/mat.h>
 #include <seraphim/object/dnn_classifier.h>
 
@@ -141,6 +142,11 @@ int main(int argc, char **argv) {
     }
     classifier.set_target(sph::core::IComputable::Target::CPU);
 
+    sph::gui::GLWindow viewer;
+    if (!viewer.create("DNN classifier")) {
+        return 1;
+    }
+
     // parameters from:
     // https://becominghuman.ai/face-detection-with-opencv-and-deep-learning-90b84735f421
     sph::object::DNNClassifier::BlobParameters params = {};
@@ -214,7 +220,8 @@ int main(int argc, char **argv) {
             elapsed = 0;
         }
 
-        cv::imshow("DNN Classifier", frame);
-        cv::waitKey(1);
+        if (!viewer.show(image)) {
+            std::cout << "[ERROR] Failed to show Image" << std::endl;
+        }
     }
 }

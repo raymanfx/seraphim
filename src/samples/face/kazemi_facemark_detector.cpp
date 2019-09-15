@@ -7,11 +7,12 @@
 
 #include <csignal>
 #include <getopt.h>
-#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
 #include <seraphim/core/polygon.h>
 #include <seraphim/face/hog_face_detector.h>
 #include <seraphim/face/kazemi_facemark_detector.h>
+#include <seraphim/gui/gl_window.h>
 #include <seraphim/iop/opencv/mat.h>
 
 using namespace sph::face;
@@ -140,6 +141,11 @@ int main(int argc, char **argv) {
     }
     facemark_detector.set_target(sph::core::IComputable::Target::CPU);
 
+    sph::gui::GLWindow viewer;
+    if (!viewer.create("Kazemi Facemark Detector")) {
+        return 1;
+    }
+
     while (main_loop) {
         t_loop_start = std::chrono::high_resolution_clock::now();
 
@@ -192,7 +198,8 @@ int main(int argc, char **argv) {
             elapsed = 0;
         }
 
-        cv::imshow("Kazemi Facemark Detector", frame);
-        cv::waitKey(1);
+        if (!viewer.show(image)) {
+            std::cout << "[ERROR] Failed to show Image" << std::endl;
+        }
     }
 }
