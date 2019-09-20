@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include <thread>
 
 #include "seraphim/gui/gl_window.h"
 
@@ -48,6 +49,7 @@ bool GLWindow::create(const std::string &title) {
         while (m_ui_active) {
             // TODO: check glfwWindowShouldClose(m_window) and act accordingly
             glfwPollEvents();
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     });
 
