@@ -107,7 +107,7 @@ public:
     Pixelformat::Enum pixfmt() const override { return m_pixfmt; }
     uint32_t channels() const override;
     uint32_t depth() const override;
-    bool operator!() const override { return !empty(); }
+    bool operator!() const override { return !validate(); }
 
     void clear();
     bool validate() const { return !empty() && m_pixfmt != Pixelformat::Enum::UNKNOWN; }
