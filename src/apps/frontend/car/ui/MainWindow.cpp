@@ -201,7 +201,8 @@ bool MainWindow::openTransportSession(QString uri) {
         return false;
     }
 
-    mTransport->set_timeout(1000);
+    mTransport->set_rx_timeout(1000);
+    mTransport->set_tx_timeout(1000);
     return true;
 }
 
@@ -254,15 +255,15 @@ void MainWindow::backendWork() {
         br->set_x(static_cast<int>(img->width()) - 210);
         br->set_y(static_cast<int>(img->height()));
 
-        Seraphim::Car::LaneDetector::DetectionResponse res;
-
-        sph::ipc::ITransport::IOResult result = mTransport->send(msg);
-        if (!result) {
-            std::cout << "Transport: failed to send(): " << result << std::endl;
+        try {
+            mTransport->send(msg);
+            mTransport->receive(msg);
+        } catch (std::exception &e) {
+            std::cout << "[ERROR] Transport I/O error: " << e.what() << std::endl;
+            return;
         }
-        mTransport->recv(msg);
-        res = msg.res().car().detector().detection();
 
+        Seraphim::Car::LaneDetector::DetectionResponse res = msg.res().car().detector().detection();
         std::cout << "Server sent response:" << std::endl
                   << "  status=" << msg.res().status() << std::endl
                   << "  lanes=" << res.lanes().size() << std::endl;

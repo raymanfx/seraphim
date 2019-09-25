@@ -25,48 +25,34 @@ public:
     virtual ~ITransport() = default;
 
     /**
-     * @brief Input/Output operation result.
-     * The boolean operator is overloaded so it can be treated like a binary value, in which case
-     * true means "OK" and false everything else.
+     * @brief Set timeout for blocking RX operations.
+     *        Throws sph::core::RuntimeException in case of errors.
+     * @param ms Timeout in milliseconds, 0 means blocking.
      */
-    enum class IOResult { ERROR, OK, TIMEOUT };
-    inline friend bool operator!(const IOResult &res) { return res != IOResult::OK; }
-    inline friend std::ostream &operator<<(std::ostream &out, const IOResult &res) {
-        switch (res) {
-        case IOResult::ERROR:
-            out << "Error";
-            break;
-        case IOResult::OK:
-            out << "Ok";
-            break;
-        case IOResult::TIMEOUT:
-            out << "Timeout";
-            break;
-        }
-
-        return out;
-    }
+    virtual void set_rx_timeout(const int &ms) = 0;
 
     /**
-     * @brief Set timeout for blocking RX/TX operations.
+     * @brief Set timeout for blocking TX operations.
+     *        Throws sph::core::RuntimeException in case of errors.
      * @param ms Timeout in milliseconds, 0 means blocking.
-     * @return true on success, false otherwise.
      */
-    virtual void set_timeout(const int &ms) = 0;
+    virtual void set_tx_timeout(const int &ms) = 0;
 
     /**
      * @brief Receive a message.
+     *        Throws sph::core::RuntimeException in case of errors.
+     *        Throws sph::core::TimeoutException in case of timeouts.
      * @param msg The message, used as output parameter.
-     * @return true on success, false on error or timeout.
      */
-    virtual IOResult recv(Seraphim::Message &msg) = 0;
+    virtual void receive(Seraphim::Message &msg) = 0;
 
     /**
      * @brief Send a message.
+     *        Throws sph::core::RuntimeException in case of errors.
+     *        Throws sph::core::TimeoutException in case of timeouts.
      * @param msg The message.
-     * @return true on success, false on error or timeout.
      */
-    virtual IOResult send(const Seraphim::Message &msg) = 0;
+    virtual void send(const Seraphim::Message &msg) = 0;
 
 protected:
     ITransport() = default;

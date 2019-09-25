@@ -222,7 +222,8 @@ bool MainWindow::openTransportSession(QString uri) {
         return false;
     }
 
-    mTransport->set_timeout(1000);
+    mTransport->set_rx_timeout(1000);
+    mTransport->set_tx_timeout(1000);
     return true;
 }
 
@@ -258,15 +259,16 @@ void MainWindow::backendWork() {
         // force at least 0.5 confidence
         req->set_confidence(0.5f);
 
-        Seraphim::Object::Classifier::ClassificationResponse res;
-
-        sph::ipc::ITransport::IOResult result = mTransport->send(msg);
-        if (!result) {
-            std::cout << "Transport: failed to send(): " << result << std::endl;
+        try {
+            mTransport->send(msg);
+            mTransport->receive(msg);
+        } catch (std::exception &e) {
+            std::cout << "[ERROR] Transport I/O error: " << e.what() << std::endl;
+            return;
         }
-        mTransport->recv(msg);
-        res = msg.res().object().classifier().classification();
 
+        Seraphim::Object::Classifier::ClassificationResponse res =
+            msg.res().object().classifier().classification();
         std::cout << "Server sent response:" << std::endl
                   << "  status=" << msg.res().status() << std::endl
                   << "  objects=" << res.labels().size() << std::endl;

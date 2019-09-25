@@ -207,7 +207,8 @@ bool MainWindow::openTransportSession(QString uri) {
         return false;
     }
 
-    mTransport->set_timeout(1000);
+    mTransport->set_rx_timeout(1000);
+    mTransport->set_tx_timeout(1000);
     return true;
 }
 
@@ -240,15 +241,16 @@ void MainWindow::backendWork() {
             msg.mutable_req()->mutable_face()->mutable_face_detector()->mutable_detection();
         req->set_allocated_image(img);
 
-        Seraphim::Face::FaceDetector::DetectionResponse res;
-
-        sph::ipc::ITransport::IOResult result = mTransport->send(msg);
-        if (!result) {
-            std::cout << "Transport: failed to send(): " << result << std::endl;
+        try {
+            mTransport->send(msg);
+            mTransport->receive(msg);
+        } catch (std::exception &e) {
+            std::cout << "[ERROR] Transport I/O error: " << e.what() << std::endl;
+            return;
         }
-        mTransport->recv(msg);
-        res = msg.res().face().face_detector().detection();
 
+        Seraphim::Face::FaceDetector::DetectionResponse res =
+            msg.res().face().face_detector().detection();
         std::cout << "Server sent response:" << std::endl
                   << "  status=" << msg.res().status() << std::endl
                   << "  faces=" << res.faces_size() << std::endl;
@@ -270,15 +272,16 @@ void MainWindow::backendWork() {
             msg.mutable_req()->mutable_face()->mutable_facemark_detector()->mutable_detection();
         req->set_allocated_image(img);
 
-        Seraphim::Face::FacemarkDetector::DetectionResponse res;
-
-        sph::ipc::ITransport::IOResult result = mTransport->send(msg);
-        if (!result) {
-            std::cout << "Transport: failed to send(): " << result << std::endl;
+        try {
+            mTransport->send(msg);
+            mTransport->receive(msg);
+        } catch (std::exception &e) {
+            std::cout << "[ERROR] Transport I/O error: " << e.what() << std::endl;
+            return;
         }
-        mTransport->recv(msg);
-        res = msg.res().face().facemark_detector().detection();
 
+        Seraphim::Face::FacemarkDetector::DetectionResponse res =
+            msg.res().face().facemark_detector().detection();
         std::cout << "Server sent response:" << std::endl
                   << "  status=" << msg.res().status() << std::endl
                   << "  faces=" << res.faces_size() << std::endl;
@@ -309,15 +312,16 @@ void MainWindow::backendWork() {
             msg.mutable_req()->mutable_face()->mutable_face_recognizer()->mutable_recognition();
         req->set_allocated_image(img);
 
-        Seraphim::Face::FaceRecognizer::RecognitionResponse res;
-
-        sph::ipc::ITransport::IOResult result = mTransport->send(msg);
-        if (!result) {
-            std::cout << "Transport: failed to send(): " << result << std::endl;
+        try {
+            mTransport->send(msg);
+            mTransport->receive(msg);
+        } catch (std::exception &e) {
+            std::cout << "[ERROR] Transport I/O error: " << e.what() << std::endl;
+            return;
         }
-        mTransport->recv(msg);
-        res = msg.res().face().face_recognizer().recognition();
 
+        Seraphim::Face::FaceRecognizer::RecognitionResponse res =
+            msg.res().face().face_recognizer().recognition();
         std::cout << "Server sent response:" << std::endl
                   << "  status=" << msg.res().status() << std::endl
                   << "  faces=" << res.labels_size() << std::endl;
@@ -353,15 +357,16 @@ void MainWindow::backendWork() {
         req->set_allocated_image(img);
         req->set_invalidate(mFaceTraining == 10);
 
-        Seraphim::Face::FaceRecognizer::TrainingResponse res;
-
-        sph::ipc::ITransport::IOResult result = mTransport->send(msg);
-        if (!result) {
-            std::cout << "Transport: failed to send(): " << result << std::endl;
+        try {
+            mTransport->send(msg);
+            mTransport->receive(msg);
+        } catch (std::exception &e) {
+            std::cout << "[ERROR] Transport I/O error: " << e.what() << std::endl;
+            return;
         }
-        mTransport->recv(msg);
-        res = msg.res().face().face_recognizer().training();
 
+        Seraphim::Face::FaceRecognizer::TrainingResponse res =
+            msg.res().face().face_recognizer().training();
         std::cout << "Server sent response:" << std::endl
                   << "  status=" << msg.res().status() << std::endl
                   << "  label=" << res.label() << std::endl;

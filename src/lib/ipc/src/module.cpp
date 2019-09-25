@@ -19,7 +19,8 @@ extern "C" void *create(int clazz, ...) {
     case CLASS_SharedMemoryTransport:
         return new SharedMemoryTransport;
     case CLASS_TCPTransport:
-        return new TCPTransport(va_arg(args, int));
+        // TODO: do not hardcode IPv6 here
+        return new TCPTransport(net::Socket::Family::INET6);
     }
 
     return nullptr;

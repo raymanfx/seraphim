@@ -5,8 +5,11 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include <seraphim/core/except.h>
+
 #include "shm_server.h"
 
+using namespace sph::core;
 using namespace sph::backend;
 
 SharedMemoryServer::SharedMemoryServer() {
@@ -39,12 +42,16 @@ bool SharedMemoryServer::run() {
     m_running = true;
     m_thread = std::thread([&]() {
         while (m_running) {
-            if (!m_transport->recv(m_msg)) {
+            try {
+                m_transport->receive(m_msg);
+                handle_event(EVENT_MESSAGE_INCOMING, &m_msg);
+                m_transport->send(m_msg);
+            } catch (TimeoutException) {
+                // ignore
                 continue;
+            } catch (RuntimeException &e) {
+                std::cout << "[ERROR] SharedMemoryServer: " << e.what() << std::endl;
             }
-
-            handle_event(EVENT_MESSAGE_INCOMING, &m_msg);
-            m_transport->send(m_msg);
         }
     });
 
@@ -53,7 +60,8 @@ bool SharedMemoryServer::run() {
 
 void SharedMemoryServer::terminate() {
     m_running = false;
-    m_transport->set_timeout(1);
+    m_transport->set_rx_timeout(1);
+    m_transport->set_tx_timeout(1);
     if (m_thread.joinable()) {
         m_thread.join();
     }

@@ -6,10 +6,14 @@
  */
 
 #include <poll.h>
+#include <seraphim/core/except.h>
+#include <seraphim/ipc/except.h>
 #include <seraphim/ipc/tcp_transport.h>
 
 #include "tcp_server.h"
 
+using namespace sph::core;
+using namespace sph::ipc;
 using namespace sph::backend;
 
 TCPServer::TCPServer() {
@@ -41,9 +45,7 @@ bool TCPServer::run() {
         return false;
     }
 
-    if (!tcp->listen(1)) {
-        return false;
-    }
+    tcp->listen(1);
 
     m_running = true;
     m_thread = std::thread([&]() {
@@ -54,7 +56,7 @@ bool TCPServer::run() {
         while (m_running) {
             poll_fds.resize(client_fds.size() + 1);
 
-            poll_fds[0].fd = tcp->stream().socket().fd();
+            poll_fds[0].fd = tcp->socket().fd();
             poll_fds[0].events = POLLIN;
             for (size_t i = 0; i < client_fds.size(); i++) {
                 poll_fds[i + 1].fd = client_fds[i];
@@ -72,7 +74,9 @@ bool TCPServer::run() {
                 if (client == -1) {
                     continue;
                 }
+                std::cout << "[INFO] Peer connected (fd=" << client << ")" << std::endl;
                 client_fds.push_back(client);
+                continue;
             }
 
             for (size_t i = 0; i < client_fds.size(); i++) {
@@ -81,18 +85,21 @@ bool TCPServer::run() {
                 }
 
                 // get data from client
-                if (!tcp->recv(poll_fds[i + 1].fd, m_msg)) {
-                    if (tcp->client_disconnected()) {
-                        client_fds.erase(client_fds.begin() + i);
-                        continue;
-                    }
-
-                    // error ..
+                try {
+                    tcp->receive(client_fds[i], m_msg);
+                    handle_event(EVENT_MESSAGE_INCOMING, &m_msg);
+                    tcp->send(client_fds[i], m_msg);
+                } catch (TimeoutException) {
+                    // ignore
                     continue;
+                } catch (PeerDisconnectedException) {
+                    std::cout << "[INFO] Peer disconnected (fd=" << client_fds[i] << ")"
+                              << std::endl;
+                    client_fds.erase(client_fds.begin() + i);
+                    continue;
+                } catch (RuntimeException &e) {
+                    std::cout << "[ERROR] TCPServer: " << e.what() << std::endl;
                 }
-
-                handle_event(EVENT_MESSAGE_INCOMING, &m_msg);
-                tcp->send(poll_fds[i + 1].fd, m_msg);
             }
         }
     });
@@ -102,7 +109,8 @@ bool TCPServer::run() {
 
 void TCPServer::terminate() {
     m_running = false;
-    m_transport->set_timeout(1);
+    m_transport->set_rx_timeout(1);
+    m_transport->set_tx_timeout(1);
     if (m_thread.joinable()) {
         m_thread.join();
     }

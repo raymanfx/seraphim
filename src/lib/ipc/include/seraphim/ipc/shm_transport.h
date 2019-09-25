@@ -66,10 +66,11 @@ public:
      */
     bool remove();
 
-    void set_timeout(const int &ms) override { m_timeout = ms; }
+    void set_rx_timeout(const int &ms) override { m_rx_timeout = ms; }
+    void set_tx_timeout(const int &ms) override { m_tx_timeout = ms; }
 
-    IOResult recv(Seraphim::Message &msg) override;
-    IOResult send(const Seraphim::Message &msg) override;
+    void receive(Seraphim::Message &msg) override;
+    void send(const Seraphim::Message &msg) override;
 
     /**
      * @brief Actors perform read/write operations within the shared memory segment (MessageStore).
@@ -140,7 +141,8 @@ private:
     std::string m_name;
     int m_fd = -1;
     size_t m_size = 0;
-    int m_timeout = 0;
+    int m_rx_timeout = 0;
+    int m_tx_timeout = 0;
     bool m_created = false;
 
     /// Unique identifier of this instance.

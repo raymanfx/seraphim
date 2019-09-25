@@ -8,7 +8,8 @@
 #ifndef SPH_IPC_TCP_TRANSPORT_H
 #define SPH_IPC_TCP_TRANSPORT_H
 
-#include "net/tcp_stream.h"
+#include "net/socket.h"
+#include "net/tcp_socket.h"
 #include "transport.h"
 
 namespace sph {
@@ -23,40 +24,55 @@ namespace ipc {
 class TCPTransport : public ITransport {
 public:
     /**
+     * @brief Message header.
+     *
+     * Used to bring the concept of message boundaries to TCP.
+     * This way, a sender may send a message and the client may receive that message without any
+     * previous knowledge about its structure or size.
+     */
+    struct MessageHeader {
+        /// Transmission size
+        uint64_t size;
+    } __attribute__((packed));
+
+    /**
      * @brief TCP message transport.
      */
-    explicit TCPTransport(const int &domain) : m_stream(domain) {}
+    explicit TCPTransport(const net::Socket::Family &family) : m_socket(family) {}
 
     /**
      * @brief Get the stream associated with this transport.
      * @return The TCP stream instance created by this instance.
      */
-    sph::ipc::net::TCPStream &stream() { return m_stream; }
+    sph::ipc::net::TCPSocket &socket() { return m_socket; }
 
     /**
-     * @brief Bind to a port on any network interface.
-     * @param port The network port to bind on.
-     * @return true on success, false otherwise.
+     * @brief Bind to a port.
+     *        Throws sph::core::RuntimeException in case of errors.
+     * @param port The port number, must be a value between 0 and 65535.
+     * @return True on success, false otherwise.
      */
-    bool bind(const uint16_t &port) { return m_stream.socket().bind(port); }
+    bool bind(const uint16_t &port) { return m_socket.bind(port); }
 
     /**
-     * @brief Connect to a server on a given port.
-     * @param ipaddr IP address of the server.
-     * @param port Port of the server.
-     * @param timeout Optional amount of milliseconds before aborting.
-     * @return true on success, false otherwise.
+     * @brief Connect to another socket.
+     *        Whether TX operations are legal without an active connection depends on the socket
+     *        type and protocol. E.g. TCP sockets require a connection, but UDP datagram sockets do
+     *        not.
+     *        Throws sph::core::RuntimeException in case of errors.
+     * @param port The port number, must be a value between 0 and 65535.
+     * @return True on success, false otherwise.
      */
     bool connect(const std::string &ipaddr, const uint16_t &port, const int &timeout = 0) {
-        return m_stream.socket().connect(ipaddr, port, timeout);
+        return m_socket.connect(ipaddr, port, timeout);
     }
 
     /**
      * @brief Listen for incoming client connections (must be bound to a port already).
+     *        Throws sph::core::RuntimeException when the OS socket op fails.
      * @param backlog Number of clients that can simultaneously be connected.
-     * @return true on success, false otherwise.
      */
-    bool listen(const int &backlog) { return m_stream.socket().listen(backlog); }
+    void listen(const int &backlog) { m_socket.listen(backlog); }
 
     /**
      * @brief Accept a client connection.
@@ -64,48 +80,40 @@ public:
      * @param addrlen Pointer to length of the address struct.
      * @return File descriptor for the new connection on success, -1 otherwise.
      */
-    int accept(struct sockaddr *addr, socklen_t *addrlen) {
-        return m_stream.socket().accept(addr, addrlen);
-    }
+    int accept(struct sockaddr *addr, socklen_t *addrlen) { return m_socket.accept(addr, addrlen); }
 
-    /**
-     * @brief Check whether a client has disconnected.
-     * This is useful when \ref recv returns false (when running as server) to check whether there
-     * was an error or just a disconnect.
-     * @return true if a client has disconnected, false otherwise.
-     */
-    bool client_disconnected() { return m_client_disconnected; }
+    void set_rx_timeout(const int &ms) override { m_socket.set_rx_timeout(ms * 1000); }
+    void set_tx_timeout(const int &ms) override { m_socket.set_tx_timeout(ms * 1000); }
 
-    void set_timeout(const int &ms) override { m_stream.socket().set_timeout(ms * 1000); }
-
-    IOResult recv(Seraphim::Message &msg) override;
-    IOResult send(const Seraphim::Message &msg) override;
+    void receive(Seraphim::Message &msg) override;
+    void send(const Seraphim::Message &msg) override;
 
     /**
      * @brief Receive a message from a client.
+     *        Throws sph::core::RuntimeException in case of errors.
+     *        Throws sph::core::TimeoutException in case of timeouts.
      * @param fd File descriptor of the client connection.
      * @param msg The message.
-     * @return true on success, false on error or timeout.
      */
-    IOResult recv(const int &fd, Seraphim::Message &msg);
+    void receive(const int &fd, Seraphim::Message &msg);
 
     /**
      * @brief Send a message to a client.
+     *        Throws sph::core::RuntimeException in case of errors.
+     *        Throws sph::core::TimeoutException in case of timeouts.
      * @param fd File descriptor of the client connection.
      * @param msg The message.
-     * @return true on success, false on error or timeout.
      */
-    IOResult send(const int &fd, const Seraphim::Message &msg);
+    void send(const int &fd, const Seraphim::Message &msg);
 
 private:
-    /// TCP data stream
-    sph::ipc::net::TCPStream m_stream;
+    /// TCP socket OS implementation
+    sph::ipc::net::TCPSocket m_socket;
+
     /// RX buffer used for storing deserialized, inbound messages
     std::vector<uint8_t> m_rx_buffer;
     /// TX buffer used for storing serialized, outbound messages
     std::vector<uint8_t> m_tx_buffer;
-    /// Whether or not a client has just disconnected
-    bool m_client_disconnected = false;
 };
 
 } // namespace ipc

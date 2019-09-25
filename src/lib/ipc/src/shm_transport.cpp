@@ -12,8 +12,10 @@
 #include <thread>
 #include <unistd.h>
 
+#include "seraphim/core/except.h"
 #include "seraphim/ipc/shm_transport.h"
 
+using namespace sph::core;
 using namespace sph::ipc;
 
 SharedMemoryTransport::~SharedMemoryTransport() {
@@ -164,12 +166,12 @@ bool SharedMemoryTransport::unmap() {
     return ret;
 }
 
-ITransport::IOResult SharedMemoryTransport::recv(Seraphim::Message &msg) {
+void SharedMemoryTransport::receive(Seraphim::Message &msg) {
     int elapsed_ms = 0;
     unsigned char *msg_ptr;
 
     if (!m_msgstore) {
-        return ITransport::IOResult::ERROR;
+        SPH_THROW(RuntimeException, "Memory region not mapped");
     }
 
     // block until a message is available
@@ -180,29 +182,30 @@ ITransport::IOResult SharedMemoryTransport::recv(Seraphim::Message &msg) {
             elapsed_ms = 1;
         }
 
-        if (m_timeout > 0 && elapsed_ms >= m_timeout) {
-            return ITransport::IOResult::TIMEOUT;
+        if (m_rx_timeout > 0 && elapsed_ms >= m_rx_timeout) {
+            SPH_THROW(TimeoutException);
         }
     }
 
     // read the message
     msg_ptr = reinterpret_cast<unsigned char *>(m_msgstore) + sizeof(MessageStore);
     if (!msg.ParseFromArray(msg_ptr, m_msgstore->msg.size)) {
-        return ITransport::IOResult::ERROR;
+        SPH_THROW(RuntimeException, "Failed to deserialize message");
     }
-
-    return ITransport::IOResult::OK;
 }
 
-ITransport::IOResult SharedMemoryTransport::send(const Seraphim::Message &msg) {
+void SharedMemoryTransport::send(const Seraphim::Message &msg) {
     int elapsed_ms = 0;
 
     if (!m_msgstore) {
-        return ITransport::IOResult::ERROR;
+        SPH_THROW(RuntimeException, "Memory region not mapped");
     }
 
     if (msg.ByteSizeLong() > m_size - sizeof(MessageStore)) {
-        return ITransport::IOResult::ERROR;
+        SPH_THROW(RuntimeException, std::string("Memory region too small (") +
+                                        std::to_string(msg.ByteSizeLong()) + std::string(" < ") +
+                                        std::to_string(m_size - sizeof(MessageStore)) +
+                                        std::string(")"));
     }
 
     // block until a message was read and can thus be overwritten
@@ -214,13 +217,15 @@ ITransport::IOResult SharedMemoryTransport::send(const Seraphim::Message &msg) {
             elapsed_ms = 1;
         }
 
-        if (m_timeout > 0 && elapsed_ms >= m_timeout) {
-            return ITransport::IOResult::TIMEOUT;
+        if (m_tx_timeout > 0 && elapsed_ms >= m_tx_timeout) {
+            SPH_THROW(TimeoutException);
         }
     }
 
-    msg.SerializeToArray(reinterpret_cast<unsigned char *>(m_msgstore) + sizeof(MessageStore),
-                         msg.ByteSize());
+    if (!msg.SerializeToArray(reinterpret_cast<unsigned char *>(m_msgstore) + sizeof(MessageStore),
+                              msg.ByteSize())) {
+        SPH_THROW(RuntimeException, "Failed to serialize message");
+    }
 
     // prevent us from reading our own messages in recv() by keeping track of
     // who sent a message and waiting for the next one
@@ -231,5 +236,4 @@ ITransport::IOResult SharedMemoryTransport::send(const Seraphim::Message &msg) {
     m_msg_sem.post();
 
     m_last_msg_type = msg.has_req() ? MESSAGE_TYPE_REQUEST : MESSAGE_TYPE_RESPONSE;
-    return ITransport::IOResult::OK;
 }
