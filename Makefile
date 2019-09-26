@@ -37,5 +37,4 @@ tidy:
 	python3 run-clang-tidy.py -p build
 
 docs:
-	mkdir -p build/docs
-	doxygen .doxyfile
+	make -C doc
