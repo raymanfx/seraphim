@@ -142,10 +142,7 @@ int main(int argc, char **argv) {
     }
     classifier.set_target(sph::core::IComputable::Target::CPU);
 
-    sph::gui::GLWindow viewer;
-    if (!viewer.create("DNN classifier")) {
-        return 1;
-    }
+    sph::gui::GLWindow viewer("DNN classifier");
 
     // parameters from:
     // https://becominghuman.ai/face-detection-with-opencv-and-deep-learning-90b84735f421
@@ -220,8 +217,6 @@ int main(int argc, char **argv) {
             elapsed = 0;
         }
 
-        if (!viewer.show(image)) {
-            std::cout << "[ERROR] Failed to show Image" << std::endl;
-        }
+        viewer.show(image);
     }
 }

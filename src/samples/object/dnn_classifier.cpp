@@ -141,10 +141,7 @@ int main(int argc, char **argv) {
     }
     classifier.set_target(sph::core::IComputable::Target::CPU);
 
-    sph::gui::GLWindow viewer;
-    if (!viewer.create("DNN classifier")) {
-        return 1;
-    }
+    sph::gui::GLWindow viewer("DNN classifier");
 
     // set parameters for MobileNet V2 (2018_03_29)
     // see https://github.com/opencv/opencv/wiki/TensorFlow-Object-Detection-API
@@ -240,8 +237,6 @@ int main(int argc, char **argv) {
             elapsed = 0;
         }
 
-        if (!viewer.show(image)) {
-            std::cout << "[ERROR] Failed to show Image" << std::endl;
-        }
+        viewer.show(image);
     }
 }

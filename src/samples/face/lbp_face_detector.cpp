@@ -134,10 +134,7 @@ int main(int argc, char **argv) {
     }
     detector.set_target(sph::core::IComputable::Target::OPENCL);
 
-    sph::gui::GLWindow viewer;
-    if (!viewer.create("LBP Face Detector")) {
-        return 1;
-    }
+    sph::gui::GLWindow viewer("LBP Face Detector");
 
     while (main_loop) {
         t_loop_start = std::chrono::high_resolution_clock::now();
@@ -184,8 +181,6 @@ int main(int argc, char **argv) {
             elapsed = 0;
         }
 
-        if (!viewer.show(image)) {
-            std::cout << "[ERROR] Failed to show Image" << std::endl;
-        }
+        viewer.show(image);
     }
 }

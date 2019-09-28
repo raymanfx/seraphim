@@ -8,22 +8,18 @@
 #include <iostream>
 #include <thread>
 
+#include "seraphim/core/except.h"
 #include "seraphim/gui/gl_window.h"
 
+using namespace sph::core;
 using namespace sph::gui;
 
-GLWindow::~GLWindow() {
-    destroy();
-}
+GLWindow::GLWindow(const std::string &title) : m_ui_active(false) {
+    glfw_init();
 
-bool GLWindow::create(const std::string &title) {
-    if (!glfw_init()) {
-        return false;
-    }
-
-    m_window = glfw_create_window(1, 1, title.c_str(), nullptr, nullptr);
+    m_window = glfw_create_window(1, 1, title.c_str());
     if (!m_window) {
-        return false;
+        SPH_THROW(RuntimeException, "Failed to create GLFW window");
     }
     m_width = 1;
     m_height = 1;
@@ -32,16 +28,19 @@ bool GLWindow::create(const std::string &title) {
     if (!gladLoadGLES2Loader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         glfwDestroyWindow(m_window);
         m_window = nullptr;
-        return false;
+        SPH_THROW(RuntimeException, "Failed to load GLES2 api (glad)");
     }
 
     // wait one frame until swapping the buffers (vsync)
     glfwSwapInterval(1);
 
-    if (!init_gl()) {
+    try {
+        init_gl();
+    } catch (RuntimeException &e) {
         glfwDestroyWindow(m_window);
         m_window = nullptr;
-        return false;
+        // rethrow
+        SPH_THROW(RuntimeException, e.what());
     }
 
     m_ui_active = true;
@@ -52,35 +51,27 @@ bool GLWindow::create(const std::string &title) {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     });
-
-    return true;
 }
 
-void GLWindow::destroy() {
-    if (m_window) {
-        m_ui_active = false;
-        if (m_ui_thread.joinable()) {
-            m_ui_thread.join();
-        }
-        terminate_gl();
-        glfw_destroy_window(m_window);
-        m_window = nullptr;
+GLWindow::~GLWindow() {
+    m_ui_active = false;
+    if (m_ui_thread.joinable()) {
+        m_ui_thread.join();
     }
+    terminate_gl();
+    glfw_destroy_window(m_window);
+    m_window = nullptr;
 
     glfw_terminate();
 }
 
-bool GLWindow::show(const sph::core::Image &img) {
+void GLWindow::show(const sph::core::Image &img) {
     static bool setup_texture = true;
     int w = static_cast<int>(img.width());
     int h = static_cast<int>(img.height());
     GLint input_internal_format;
     GLenum input_format;
     GLenum input_type;
-
-    if (!m_window) {
-        return false;
-    }
 
     // the current window context must be made current because OpenGL is a state machine
     glfwMakeContextCurrent(m_window);
@@ -119,7 +110,7 @@ bool GLWindow::show(const sph::core::Image &img) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
         break;
     default:
-        return false;
+        SPH_THROW(InvalidArgumentException, "Unsupported image format");
     }
 
     // recreate the texture if width or height have changed
@@ -180,11 +171,9 @@ bool GLWindow::show(const sph::core::Image &img) {
     glUseProgram(m_shader_program);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     glfwSwapBuffers(m_window);
-
-    return true;
 }
 
-bool GLWindow::init_gl() {
+void GLWindow::init_gl() {
     const char *vertex_shader_source =
         "#version 300 es\n"
         // input vertex data, different for all executions of this shader
@@ -231,8 +220,8 @@ bool GLWindow::init_gl() {
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED" << infoLog << std::endl;
-        return false;
+        SPH_THROW(RuntimeException, std::string("Vertex shader compilation failed (") +
+                                        std::string(infoLog) + std::string(")"));
     }
     // fragment shader
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -242,8 +231,8 @@ bool GLWindow::init_gl() {
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED" << infoLog << std::endl;
-        return false;
+        SPH_THROW(RuntimeException, std::string("Fragment shader compilation failed (") +
+                                        std::string(infoLog) + std::string(")"));
     }
     // link shaders
     m_shader_program = glCreateProgram();
@@ -254,8 +243,8 @@ bool GLWindow::init_gl() {
     glGetProgramiv(m_shader_program, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(m_shader_program, 512, nullptr, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED" << infoLog << std::endl;
-        return false;
+        SPH_THROW(RuntimeException, std::string("Shader program linking failed (") +
+                                        std::string(infoLog) + std::string(")"));
     }
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
@@ -318,8 +307,6 @@ bool GLWindow::init_gl() {
     // set texture clamping method
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    return true;
 }
 
 void GLWindow::terminate_gl() {

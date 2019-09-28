@@ -25,12 +25,15 @@ namespace gui {
  */
 class GLWindow : public IWindow {
 public:
-    GLWindow() : m_ui_active(false) {}
+    /**
+     * @brief GL window implementation.
+     *        Throws sph::core::RuntimeException if GL initialization fails.
+     * @param title Window title (for UX).
+     */
+    explicit GLWindow(const std::string &title);
     ~GLWindow() override;
 
-    bool create(const std::string &title) override;
-    void destroy() override;
-    bool show(const sph::core::Image &img) override;
+    void show(const sph::core::Image &img) override;
 
 private:
     /// window impl
@@ -46,10 +49,10 @@ private:
     int m_height = 0;
 
     /// GL shader program
-    GLuint m_shader_program;
+    GLuint m_shader_program = 0;
 
     /// GL texture
-    GLuint m_texture;
+    GLuint m_texture = 0;
 
     /// GL image properties
     GLint m_input_internal_format = 0;
@@ -57,16 +60,17 @@ private:
     GLenum m_input_type = 0;
 
     /// Vertex Array Object (VAO)
-    GLuint m_vao;
+    GLuint m_vao = 0;
 
     /// Vertex Buffer Object (VBO)
-    GLuint m_vbo;
+    GLuint m_vbo = 0;
 
     /// Element Buffer Object (EBO)
-    GLuint m_ebo;
+    GLuint m_ebo = 0;
 
     /// initialize GL properties
-    bool init_gl();
+    /// Throws sph::core::RuntimeException in case of errors.
+    void init_gl();
     /// deinitialize GL
     void terminate_gl();
 };

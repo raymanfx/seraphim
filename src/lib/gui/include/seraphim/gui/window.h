@@ -26,22 +26,12 @@ public:
     virtual ~IWindow() = default;
 
     /**
-     * @brief Create and initialize the window.
-     * @return True on success, false otherwise.
-     */
-    virtual bool create(const std::string &title) = 0;
-
-    /**
-     * @brief Destroy the window and release any associated resources.
-     */
-    virtual void destroy() = 0;
-
-    /**
      * @brief Render an image inside the window. The data is immediately uploaded to the GPU.
+     *        Throws sph::core::InvalidArgumentException in case of unsupported format.
      * @param img Input image to be rendered.
      * @return True on success, false otherwise.
      */
-    virtual bool show(const sph::core::Image &img) = 0;
+    virtual void show(const sph::core::Image &img) = 0;
 };
 
 } // namespace gui

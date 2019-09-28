@@ -113,10 +113,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    sph::gui::GLWindow window;
-    if (!window.create("GL Window")) {
-        return 1;
-    }
+    sph::gui::GLWindow window("GL Window");
 
     while (main_loop) {
         t_loop_start = std::chrono::high_resolution_clock::now();
@@ -137,10 +134,7 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        if (!window.show(image)) {
-            std::cout << "[ERROR] Failed to show Image (unsupported format?)" << std::endl;
-        }
-
+        window.show(image);
         process_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                            std::chrono::high_resolution_clock::now() - t_frame_captured)
                            .count();

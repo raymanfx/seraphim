@@ -122,10 +122,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    sph::gui::GLWindow viewer;
-    if (!viewer.create("Linear Lane Detector")) {
-        return 1;
-    }
+    sph::gui::GLWindow viewer("Linear Lane Detector");
 
     // initialize parameters for lane detector
     sph::car::LinearLaneDetector::Parameters params = {};
@@ -205,8 +202,6 @@ int main(int argc, char **argv) {
             elapsed = 0;
         }
 
-        if (!viewer.show(image)) {
-            std::cout << "[ERROR] Failed to show Image" << std::endl;
-        }
+        viewer.show(image);
     }
 }

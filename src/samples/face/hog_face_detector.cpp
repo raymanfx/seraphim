@@ -119,10 +119,7 @@ int main(int argc, char **argv) {
 
     detector.set_target(sph::core::IComputable::Target::CPU);
 
-    sph::gui::GLWindow viewer;
-    if (!viewer.create("HoG Face Detector")) {
-        return 1;
-    }
+    sph::gui::GLWindow viewer("HoG Face Detector");
 
     while (main_loop) {
         t_loop_start = std::chrono::high_resolution_clock::now();
@@ -169,8 +166,6 @@ int main(int argc, char **argv) {
             elapsed = 0;
         }
 
-        if (!viewer.show(image)) {
-            std::cout << "[ERROR] Failed to show Image" << std::endl;
-        }
+        viewer.show(image);
     }
 }

@@ -112,15 +112,8 @@ int main(int argc, char **argv) {
         }
     }
 
-    sph::gui::GLWindow rgb;
-    if (!rgb.create("RGB")) {
-        return 1;
-    }
-
-    sph::gui::GLWindow gray;
-    if (!gray.create("Grayscale")) {
-        return 1;
-    }
+    sph::gui::GLWindow rgb("RGB");
+    sph::gui::GLWindow gray("Grayscale");
 
     while (main_loop) {
         t_loop_start = std::chrono::high_resolution_clock::now();
@@ -178,11 +171,7 @@ int main(int argc, char **argv) {
             elapsed = 0;
         }
 
-        if (!rgb.show(rgb_image)) {
-            std::cout << "[ERROR] Failed to show RGB Image" << std::endl;
-        }
-        if (!gray.show(gray_image)) {
-            std::cout << "[ERROR] Failed to show Grayscale Image" << std::endl;
-        }
+        rgb.show(rgb_image);
+        gray.show(gray_image);
     }
 }
