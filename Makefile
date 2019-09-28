@@ -10,7 +10,7 @@ all: build
 
 cmake:
 	mkdir -p build
-	cd build && cmake ..
+	cd build && cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
 
 build: cmake
 	$(MAKE) -C build -j$(shell echo $$(($(shell getconf _NPROCESSORS_ONLN) + 1)))
@@ -30,10 +30,7 @@ format:
 test: build
 	find build/tests -type f -executable | xargs -L 1 sh -c
 
-tidy:
-	mkdir -p build
-	cd build && cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
-	$(MAKE) -C build -j4
+tidy: build
 	python3 run-clang-tidy.py -p build
 
 docs:
