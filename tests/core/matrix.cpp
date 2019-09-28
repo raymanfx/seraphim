@@ -158,6 +158,30 @@ TEST_CASE( "Matrix runtime behavior", "[Matrix<T>]" ) {
         REQUIRE( m1[1][0] == 27 );
         REQUIRE( m1[1][1] == 8 );
     }
+    SECTION( "subscript operator returns correct elements" ) {
+        Matrix<int> m1({
+            { 1, 2 },
+            { 9, 8 }
+        });
+
+        REQUIRE( m1(1, 1) == 1 );
+        REQUIRE( m1(1, 2) == 2 );
+        REQUIRE( m1(2, 1) == 9 );
+        REQUIRE( m1(2, 2) == 8 );
+    }
+    SECTION( "subscript operator can alter elements" ) {
+        Matrix<int> m1({
+            { 1, 2 },
+            { 9, 8 }
+        });
+        m1(1, 2) += 1;
+        m1(2, 1) *= 3;
+
+        REQUIRE( m1(1, 1) == 1 );
+        REQUIRE( m1(1, 2) == 3 );
+        REQUIRE( m1(2, 1) == 27 );
+        REQUIRE( m1(2, 2) == 8 );
+    }
     SECTION( "subscript operator extracts valid regions" ) {
         Matrix<int> m1({
             { 1, 2 },

@@ -176,12 +176,26 @@ public:
 
     /**
      * @brief Array subscript operator, returns the memory location of a row.
+     *        Note that array indexing is used, i.e. the first row has an index of 0.
      * @param i The index of the matrix row.
      * @return Pointer to the matrix row.
      */
     T *operator[](const size_t &i) const {
         assert(i < m_rows);
         return m_elements.get() + i * (m_step / sizeof(T));
+    }
+
+    /**
+     * @brief Subscript operator retrieving a single matrix element reference.
+     *        Note that element indexing is used, i.e. the first element is at (1, 1).
+     * @param i Matrix row index.
+     * @param j Matrix column index.
+     * @return The Matrix element at the specified offsets.
+     */
+    T &operator()(const size_t &i, const size_t &j) {
+        assert(i > 0 && j > 0);
+        assert(i <= m_rows && j <= m_cols);
+        return (m_elements.get() + (i - 1) * (m_step / sizeof(T)))[j - 1];
     }
 
     /**
@@ -193,6 +207,7 @@ public:
      * @return The new matrix obtained from the extracted region.
      */
     Matrix operator()(const size_t &i, const size_t &j, const size_t &rows, const size_t &cols) {
+        assert((i + rows) <= m_rows && (j + cols) <= m_cols);
         return Matrix(*this, i, j, rows, cols);
     }
 
