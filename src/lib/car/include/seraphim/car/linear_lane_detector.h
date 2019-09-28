@@ -87,7 +87,7 @@ public:
      */
     void set_parameters(const Parameters &params) { m_params = params; }
 
-    bool set_target(const Target &target) override;
+    bool set_target(Target target) override;
 
     bool detect(const sph::core::Image &img, std::vector<sph::core::Polygon<int>> &lanes) override;
 

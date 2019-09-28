@@ -74,7 +74,7 @@ void TCPTransport::send(const Seraphim::Message &msg) {
     } while (remaining > 0);
 }
 
-void TCPTransport::receive(const int &fd, Seraphim::Message &msg) {
+void TCPTransport::receive(int fd, Seraphim::Message &msg) {
     MessageHeader msghdr = {};
     ssize_t read;
 
@@ -106,7 +106,7 @@ void TCPTransport::receive(const int &fd, Seraphim::Message &msg) {
     }
 }
 
-void TCPTransport::send(const int &fd, const Seraphim::Message &msg) {
+void TCPTransport::send(int fd, const Seraphim::Message &msg) {
     MessageHeader msghdr = {};
     ssize_t sent;
 

@@ -23,7 +23,7 @@ public:
                               std::vector<sph::core::Polygon<int>> &faces) = 0;
 
     float confidence_threshold() const { return m_confidence_threshold; }
-    void set_confidence_threshold(const float &threshold) { m_confidence_threshold = threshold; }
+    void set_confidence_threshold(float threshold) { m_confidence_threshold = threshold; }
 
 protected:
     float m_confidence_threshold;

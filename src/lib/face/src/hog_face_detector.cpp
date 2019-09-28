@@ -57,7 +57,7 @@ bool HOGFaceDetector::detect_faces(const Image &img, std::vector<Polygon<int>> &
     return true;
 }
 
-bool HOGFaceDetector::set_target(const Target &target) {
+bool HOGFaceDetector::set_target(Target target) {
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
     switch (target) {

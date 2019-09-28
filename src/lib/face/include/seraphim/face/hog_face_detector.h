@@ -26,7 +26,7 @@ public:
     bool detect_faces(const sph::core::Image &img,
                       std::vector<sph::core::Polygon<int>> &faces) override;
 
-    bool set_target(const Target &target) override;
+    bool set_target(Target target) override;
 
 private:
     dlib::frontal_face_detector m_detector;

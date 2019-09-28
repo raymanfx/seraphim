@@ -15,7 +15,7 @@ Semaphore::~Semaphore() {
     }
 }
 
-bool Semaphore::create(sem_t *sem, const unsigned int &value, const bool &inter_process) {
+bool Semaphore::create(sem_t *sem, unsigned int value, bool inter_process) {
     m_created = true;
 #ifdef __APPLE__
     /*
@@ -44,7 +44,7 @@ bool Semaphore::create(sem_t *sem, const unsigned int &value, const bool &inter_
     return true;
 }
 
-bool Semaphore::create(const std::string &name, const unsigned int &value) {
+bool Semaphore::create(const std::string &name, unsigned int value) {
     m_sem = ::sem_open(name.c_str(), O_CREAT, 0666, value);
     if (m_sem == SEM_FAILED) {
         return false;

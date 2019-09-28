@@ -75,7 +75,7 @@ bool SharedMemoryTransport::close() {
     return ::close(m_fd) == 0;
 }
 
-bool SharedMemoryTransport::create(const std::string &name, const long &size) {
+bool SharedMemoryTransport::create(const std::string &name, long size) {
     struct stat shm_stat;
 
     // shared memory segment size must at least be the size of the controlling structure
@@ -131,7 +131,7 @@ bool SharedMemoryTransport::remove() {
     return ret == 0;
 }
 
-bool SharedMemoryTransport::map(const size_t &size) {
+bool SharedMemoryTransport::map(size_t size) {
     void *addr;
 
     addr = mmap(nullptr, size, PROT_WRITE, MAP_SHARED, m_fd, 0);

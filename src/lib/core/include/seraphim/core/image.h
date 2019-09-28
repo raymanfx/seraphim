@@ -96,8 +96,8 @@ public:
 class Image : public IImage {
 public:
     Image() = default;
-    Image(unsigned char *data, const uint32_t &width, const uint32_t &height,
-          const Pixelformat::Enum &pixfmt, const size_t &stride = 0);
+    Image(unsigned char *data, uint32_t width, uint32_t height, Pixelformat::Enum pixfmt,
+          size_t stride = 0);
 
     const unsigned char *data() const override { return m_buffer.data(); }
     bool empty() const override { return m_buffer.empty(); }
@@ -117,7 +117,7 @@ public:
      * @param y Y offset.
      * @return Pixel scanline address in memory.
      */
-    unsigned char *scanline(const uint32_t &y) const {
+    unsigned char *scanline(uint32_t y) const {
         assert(y < m_height);
         return m_buffer[y];
     }
@@ -128,7 +128,7 @@ public:
      * @param y Y offset.
      * @return Pixel address in memory.
      */
-    unsigned char *pixel(const uint32_t &x, const uint32_t &y) const {
+    unsigned char *pixel(uint32_t x, uint32_t y) const {
         assert(x < m_width && y < m_height);
         if (m_pixfmt == Pixelformat::Enum::UNKNOWN) {
             return nullptr;
@@ -143,14 +143,14 @@ public:
      * @param pixfmt Pixelformat of the target buffer.
      * @return True on success, false otherwise.
      */
-    bool load(const ImageConverter::Source &src, const Pixelformat::Enum &pixfmt);
+    bool load(const ImageConverter::Source &src, Pixelformat::Enum pixfmt);
 
     /**
      * @brief Convert between internal formats.
      * @param target Target pixel format.
      * @return True on success, false otherwise.
      */
-    bool convert(const Pixelformat::Enum &target);
+    bool convert(Pixelformat::Enum target);
 
 private:
     /// matrix back buffer holding pixel data

@@ -39,7 +39,7 @@ public:
      * @param dim The dimension you want.
      * @return The coordinate in the specified dimension.
      */
-    T &operator[](const size_t &dim) {
+    T &operator[](size_t dim) {
         assert(N > dim);
         return m_coords[dim];
     }
@@ -68,7 +68,7 @@ public:
     /**
      * @brief Constructor for a 2-dimensional point.
      */
-    Point2(const T &x, const T &y) : Point<T, 2>(x, y) {}
+    Point2(T x, T y) : Point<T, 2>(x, y) {}
 
     /**
      * @brief Copy constructor, creates a new instance and initializes x and y members.
@@ -101,7 +101,7 @@ public:
     /**
      * @brief Constructor for a 3-dimensional point.
      */
-    Point3(const T &x, const T &y, const T &z) : Point<T, 3>(x, y, z) {}
+    Point3(T x, T y, T z) : Point<T, 3>(x, y, z) {}
 
     /**
      * @brief Copy constructor, creates a new instance and initializes x and y members.

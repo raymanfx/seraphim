@@ -82,7 +82,7 @@ public:
      * @param type See @ref Type.
      * @param protocol See @ref Protocol.
      */
-    Socket(const Family &family, const Type &type, const Protocol &protocol);
+    Socket(Family family, Type type, Protocol protocol);
 
     Socket(const Socket &) = delete;
     Socket(Socket &&) noexcept = default;
@@ -100,7 +100,7 @@ public:
      *        Throws sph::core::RuntimeException when the OS socket creation fails.
      * @param keep_opts Whether to keep any options set on the current socket.
      */
-    void reset(const bool &keep_opts = false);
+    void reset(bool keep_opts = false);
 
     const char *err_str() const noexcept {
         static char buffer[1024];
@@ -119,7 +119,7 @@ public:
      * @param port The port number, must be a value between 0 and 65535.
      * @return True on success, false otherwise.
      */
-    bool bind(const uint16_t &port);
+    bool bind(uint16_t port);
 
     /**
      * @brief Connect to another socket.
@@ -130,14 +130,14 @@ public:
      * @param port The port number, must be a value between 0 and 65535.
      * @return True on success, false otherwise.
      */
-    bool connect(const std::string &ipaddr, const uint16_t &port, const int &timeout = 0);
+    bool connect(const std::string &ipaddr, uint16_t port, int timeout = 0);
 
     /**
      * @brief Shutdown the socket, cancelling any ongoing read/write operations.
      *        Throws sph::core::RuntimeException when the OS socket shutdown fails.
      * @param how See @ref Shutdown.
      */
-    void shutdown(const Shutdown &how = Shutdown::BOTH);
+    void shutdown(Shutdown how = Shutdown::BOTH);
 
     /**
      * @brief Poll the socket for I/O activity such as incoming data.
@@ -145,7 +145,7 @@ public:
      * @param timeout Timeout in milliseconds.
      * @return True if there is activity on the socket, false otherwise.
      */
-    bool poll(const int &timeout) const;
+    bool poll(int timeout) const;
 
     /**
      * @brief Set a timeout for read operations on the socket.
@@ -153,7 +153,7 @@ public:
      *        @see set_opt().
      * @param us Timeout in microseconds.
      */
-    void set_rx_timeout(const long &us);
+    void set_rx_timeout(long us);
 
     /**
      * @brief Set a timeout for write operations on the socket.
@@ -161,7 +161,7 @@ public:
      *        @see set_opt().
      * @param us Timeout in microseconds.
      */
-    void set_tx_timeout(const long &us);
+    void set_tx_timeout(long us);
 
     /**
      * @brief Receive an arbitrary number of bytes.
@@ -172,7 +172,7 @@ public:
      * @param flags OS socket flags.
      * @return Number of bytes received.
      */
-    ssize_t receive(void *buf, const size_t &max_len, const int &flags = 0);
+    ssize_t receive(void *buf, size_t max_len, int flags = 0);
 
     /**
      * @brief Transmit a number of bytes.
@@ -183,7 +183,7 @@ public:
      * @param flags OS socket flags.
      * @return Number of bytes sent.
      */
-    ssize_t send(const void *buf, const size_t &len, const int &flags = 0);
+    ssize_t send(const void *buf, size_t len, int flags = 0);
 
     /**
      * @brief Gathering (vectored receival) of data.
@@ -193,7 +193,7 @@ public:
      * @param flags OS socket flags.
      * @return Number of bytes received.
      */
-    ssize_t receive_msg(struct msghdr *msg, const int &flags = 0);
+    ssize_t receive_msg(struct msghdr *msg, int flags = 0);
 
     /**
      * @brief Scattering (vectored transmission) of data.
@@ -203,7 +203,7 @@ public:
      * @param flags OS socket flags.
      * @return Number of bytes sent.
      */
-    ssize_t send_msg(struct msghdr *msg, const int &flags = 0);
+    ssize_t send_msg(struct msghdr *msg, int flags = 0);
 
 protected:
     /**
@@ -221,7 +221,7 @@ protected:
      * @param opt_val Output value buffer.
      * @param opt_len Length of the output buffer.
      */
-    void get_opt(const int &level, const int &opt_name, void *opt_val, socklen_t *opt_len) const;
+    void get_opt(int level, int opt_name, void *opt_val, socklen_t *opt_len) const;
 
     /**
      * @brief Set the value for a given socket option.
@@ -233,8 +233,7 @@ protected:
      * @param opt_val Output value buffer.
      * @param opt_len Length of the output buffer.
      */
-    void set_opt(const int &level, const int &opt_name, const void *opt_val,
-                 const socklen_t &opt_len);
+    void set_opt(int level, int opt_name, const void *opt_val, socklen_t opt_len);
 
     /// OS socket file descriptor
     int m_fd = -1;

@@ -34,7 +34,7 @@ public:
     void update(const std::vector<sph::core::Image> &imgs, const std::vector<int> &labels,
                 bool invalidate = false) override;
 
-    bool set_target(const Target &target) override;
+    bool set_target(Target target) override;
 
 private:
     cv::Ptr<cv::face::FaceRecognizer> m_impl = cv::face::LBPHFaceRecognizer::create();

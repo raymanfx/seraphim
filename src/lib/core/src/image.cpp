@@ -2,8 +2,8 @@
 
 using namespace sph::core;
 
-Image::Image(unsigned char *data, const uint32_t &width, const uint32_t &height,
-             const Pixelformat::Enum &pixfmt, const size_t &stride)
+Image::Image(unsigned char *data, uint32_t width, uint32_t height, Pixelformat::Enum pixfmt,
+             size_t stride)
     : m_width(width), m_height(height), m_pixfmt(pixfmt) {
     size_t stride_ = stride;
     if (stride_ == 0) {
@@ -38,7 +38,7 @@ void Image::clear() {
     m_buffer.clear();
 }
 
-bool Image::load(const ImageConverter::Source &src, const Pixelformat::Enum &pixfmt) {
+bool Image::load(const ImageConverter::Source &src, Pixelformat::Enum pixfmt) {
     ImageConverter::Target dst = {};
     size_t dst_padding;
     size_t dst_stride;
@@ -104,7 +104,7 @@ bool Image::load(const ImageConverter::Source &src, const Pixelformat::Enum &pix
     return true;
 }
 
-bool Image::convert(const Pixelformat::Enum &target) {
+bool Image::convert(Pixelformat::Enum target) {
     size_t dst_padding;
     size_t dst_stride;
     size_t dst_pixel_size;

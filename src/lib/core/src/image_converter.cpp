@@ -12,7 +12,7 @@
 
 using namespace sph::core;
 
-template <class T> static T clamp(const T &val, const T &min, const T &max) {
+template <class T> static T clamp(T val, T min, T max) {
     if (val < min) {
         return min;
     } else if (val > max) {

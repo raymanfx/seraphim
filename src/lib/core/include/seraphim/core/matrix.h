@@ -37,8 +37,7 @@ public:
      * @param rows Number of rows.
      * @param cols Number of columns.
      */
-    Matrix(const size_t &rows, const size_t &cols, const size_t &step = 0)
-        : m_rows(rows), m_cols(cols), m_step(step) {
+    Matrix(size_t rows, size_t cols, size_t step = 0) : m_rows(rows), m_cols(cols), m_step(step) {
         if (m_step == 0) {
             m_step = cols * sizeof(T);
         }
@@ -55,8 +54,7 @@ public:
      * @param step Number of bytes per row. If 0, this is calculated as rows * sizeof(T).
      * @param transfer Whether to transfer element ownership to the newly created instance.
      */
-    Matrix(T *elements, const size_t &rows, const size_t &cols, const size_t &step = 0,
-           const bool &transfer = false)
+    Matrix(T *elements, size_t rows, size_t cols, size_t step = 0, const bool &transfer = false)
         : m_rows(rows), m_cols(cols), m_step(step), m_elements(elements),
           m_elements_owned(transfer) {
         if (m_step == 0) {
@@ -101,8 +99,7 @@ public:
      * @param rows Number of rows to copy.
      * @param cols Number of columns to copy.
      */
-    Matrix(const Matrix m, const size_t &i, const size_t &j, const size_t &rows, const size_t &cols)
-        : Matrix(rows, cols) {
+    Matrix(const Matrix m, size_t i, size_t j, size_t rows, size_t cols) : Matrix(rows, cols) {
         assert((i + rows) <= m.rows() && (j + cols) <= m.cols());
         for (size_t i_ = 0; i_ < rows; i_++) {
             for (size_t j_ = 0; j_ < cols; j_++) {
@@ -180,7 +177,7 @@ public:
      * @param i The index of the matrix row.
      * @return Pointer to the matrix row.
      */
-    T *operator[](const size_t &i) const {
+    T *operator[](size_t i) const {
         assert(i < m_rows);
         return m_elements.get() + i * (m_step / sizeof(T));
     }
@@ -192,7 +189,7 @@ public:
      * @param j Matrix column index.
      * @return The Matrix element at the specified offsets.
      */
-    T &operator()(const size_t &i, const size_t &j) {
+    T &operator()(size_t i, size_t j) {
         assert(i > 0 && j > 0);
         assert(i <= m_rows && j <= m_cols);
         return (m_elements.get() + (i - 1) * (m_step / sizeof(T)))[j - 1];
@@ -206,7 +203,7 @@ public:
      * @param cols Number of columns to copy.
      * @return The new matrix obtained from the extracted region.
      */
-    Matrix operator()(const size_t &i, const size_t &j, const size_t &rows, const size_t &cols) {
+    Matrix operator()(size_t i, size_t j, size_t rows, size_t cols) {
         assert((i + rows) <= m_rows && (j + cols) <= m_cols);
         return Matrix(*this, i, j, rows, cols);
     }
@@ -316,7 +313,7 @@ public:
      * @param rows Number of rows.
      * @param cols Number of columns.
      */
-    void reserve(const size_t &rows, const size_t &cols) {
+    void reserve(size_t rows, size_t cols) {
         if (rows * cols <= m_elements_capacity) {
             return;
         }
@@ -334,7 +331,7 @@ public:
      * @param rows Number of rows.
      * @param cols Number of columns.
      */
-    void resize(const size_t &rows, const size_t &cols, const size_t &step = 0) {
+    void resize(size_t rows, size_t cols, size_t step = 0) {
         size_t step_ = step;
         if (step_ == 0) {
             step_ = cols * sizeof(T);
@@ -356,7 +353,7 @@ public:
      * @param rows Number of rows.
      * @param cols Number of columns.
      */
-    void reshape(const size_t &rows, const size_t &cols) {
+    void reshape(size_t rows, size_t cols) {
         assert(rows * cols <= m_rows * m_cols);
         m_rows = rows;
         m_cols = cols;

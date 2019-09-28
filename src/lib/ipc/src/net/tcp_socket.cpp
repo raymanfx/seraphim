@@ -19,14 +19,13 @@
 using namespace sph::core;
 using namespace sph::ipc::net;
 
-TCPSocket::TCPSocket(const Family &family)
-    : Socket(family, Socket::Type::STREAM, Socket::Protocol::TCP) {
+TCPSocket::TCPSocket(Family family) : Socket(family, Socket::Type::STREAM, Socket::Protocol::TCP) {
     // allow address reuse by default
     int opt_val = 1;
     set_opt(SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt_val, sizeof(opt_val));
 }
 
-void TCPSocket::listen(const int &backlog) {
+void TCPSocket::listen(int backlog) {
     if (::listen(m_fd, backlog) == -1) {
         SPH_THROW(RuntimeException, strerror(errno));
     }
@@ -43,7 +42,7 @@ int TCPSocket::accept(struct sockaddr *addr, socklen_t *addrlen) {
     return fd;
 }
 
-ssize_t TCPSocket::receive(const int &fd, void *buf, const size_t &data_len_max, const int &flags) {
+ssize_t TCPSocket::receive(int fd, void *buf, size_t data_len_max, int flags) {
     ssize_t ret;
 
     ret = recv(fd, buf, data_len_max, flags);
@@ -60,7 +59,7 @@ ssize_t TCPSocket::receive(const int &fd, void *buf, const size_t &data_len_max,
     return ret;
 }
 
-ssize_t TCPSocket::send(const int &fd, const void *buf, const size_t &data_len, const int &flags) {
+ssize_t TCPSocket::send(int fd, const void *buf, size_t data_len, int flags) {
     ssize_t ret;
 
     ret = ::send(fd, buf, data_len, flags);
@@ -75,7 +74,7 @@ ssize_t TCPSocket::send(const int &fd, const void *buf, const size_t &data_len, 
     return ret;
 }
 
-ssize_t TCPSocket::receive_msg(const int &fd, struct msghdr *msg, const int &flags) {
+ssize_t TCPSocket::receive_msg(int fd, struct msghdr *msg, int flags) {
     ssize_t ret;
 
     ret = recvmsg(fd, msg, flags);
@@ -92,7 +91,7 @@ ssize_t TCPSocket::receive_msg(const int &fd, struct msghdr *msg, const int &fla
     return ret;
 }
 
-ssize_t TCPSocket::send_msg(const int &fd, struct msghdr *msg, const int &flags) {
+ssize_t TCPSocket::send_msg(int fd, struct msghdr *msg, int flags) {
     ssize_t ret;
 
     ret = sendmsg(fd, msg, flags);

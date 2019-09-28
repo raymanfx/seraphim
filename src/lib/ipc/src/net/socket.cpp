@@ -20,7 +20,7 @@
 using namespace sph::core;
 using namespace sph::ipc::net;
 
-Socket::Socket(const Family &family, const Type &type, const Protocol &protocol) {
+Socket::Socket(Family family, Type type, Protocol protocol) {
     switch (family) {
     case Family::INET:
         m_family = AF_INET;
@@ -74,7 +74,7 @@ Socket::~Socket() {
     ::close(m_fd);
 }
 
-void Socket::reset(const bool &keep_opts) {
+void Socket::reset(bool keep_opts) {
     int new_fd;
     void *opt_val = nullptr;
     socklen_t opt_len;
@@ -111,7 +111,7 @@ void Socket::reset(const bool &keep_opts) {
     m_fd = new_fd;
 }
 
-bool Socket::bind(const uint16_t &port) {
+bool Socket::bind(uint16_t port) {
     struct addrinfo *res;
     struct addrinfo hints = {};
     int gai_rc;
@@ -142,7 +142,7 @@ bool Socket::bind(const uint16_t &port) {
     return true;
 }
 
-bool Socket::connect(const std::string &ipaddr, const uint16_t &port, const int &timeout) {
+bool Socket::connect(const std::string &ipaddr, uint16_t port, int timeout) {
     struct addrinfo *res;
     struct addrinfo hints = {};
     int rc;
@@ -225,7 +225,7 @@ bool Socket::connect(const std::string &ipaddr, const uint16_t &port, const int 
     return true;
 }
 
-void Socket::shutdown(const Shutdown &how) {
+void Socket::shutdown(Shutdown how) {
     int how_;
 
     switch (how) {
@@ -245,7 +245,7 @@ void Socket::shutdown(const Shutdown &how) {
     }
 }
 
-bool Socket::poll(const int &timeout) const {
+bool Socket::poll(int timeout) const {
     struct pollfd poll_fds[1];
     int poll_rc;
 
@@ -262,7 +262,7 @@ bool Socket::poll(const int &timeout) const {
     return poll_rc > 0;
 }
 
-void Socket::set_rx_timeout(const long &us) {
+void Socket::set_rx_timeout(long us) {
     struct timeval timeout;
     time_t secs = us / 1000000;
     suseconds_t usecs = (us * 1000000 - secs) / 1000000;
@@ -273,7 +273,7 @@ void Socket::set_rx_timeout(const long &us) {
     set_opt(SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
 }
 
-void Socket::set_tx_timeout(const long &us) {
+void Socket::set_tx_timeout(long us) {
     struct timeval timeout;
     time_t secs = us / 1000000;
     suseconds_t usecs = (us * 1000000 - secs) / 1000000;
@@ -284,7 +284,7 @@ void Socket::set_tx_timeout(const long &us) {
     set_opt(SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
 }
 
-ssize_t Socket::receive(void *buf, const size_t &max_len, const int &flags) {
+ssize_t Socket::receive(void *buf, size_t max_len, int flags) {
     ssize_t ret;
 
     ret = recv(m_fd, buf, max_len, flags);
@@ -299,7 +299,7 @@ ssize_t Socket::receive(void *buf, const size_t &max_len, const int &flags) {
     return ret;
 }
 
-ssize_t Socket::send(const void *buf, const size_t &len, const int &flags) {
+ssize_t Socket::send(const void *buf, size_t len, int flags) {
     ssize_t ret;
 
     ret = ::send(m_fd, buf, len, flags);
@@ -314,7 +314,7 @@ ssize_t Socket::send(const void *buf, const size_t &len, const int &flags) {
     return ret;
 }
 
-ssize_t Socket::receive_msg(struct msghdr *msg, const int &flags) {
+ssize_t Socket::receive_msg(struct msghdr *msg, int flags) {
     ssize_t ret;
 
     ret = recvmsg(m_fd, msg, flags);
@@ -329,7 +329,7 @@ ssize_t Socket::receive_msg(struct msghdr *msg, const int &flags) {
     return ret;
 }
 
-ssize_t Socket::send_msg(struct msghdr *msg, const int &flags) {
+ssize_t Socket::send_msg(struct msghdr *msg, int flags) {
     ssize_t ret;
 
     ret = sendmsg(m_fd, msg, flags);
@@ -344,15 +344,13 @@ ssize_t Socket::send_msg(struct msghdr *msg, const int &flags) {
     return ret;
 }
 
-void Socket::get_opt(const int &level, const int &opt_name, void *opt_val,
-                     socklen_t *opt_len) const {
+void Socket::get_opt(int level, int opt_name, void *opt_val, socklen_t *opt_len) const {
     if (getsockopt(m_fd, level, opt_name, opt_val, opt_len) == -1) {
         SPH_THROW(RuntimeException, err_str());
     }
 }
 
-void Socket::set_opt(const int &level, const int &opt_name, const void *opt_val,
-                     const socklen_t &opt_len) {
+void Socket::set_opt(int level, int opt_name, const void *opt_val, socklen_t opt_len) {
     if (setsockopt(m_fd, level, opt_name, opt_val, opt_len) == -1) {
         SPH_THROW(RuntimeException, err_str());
     }

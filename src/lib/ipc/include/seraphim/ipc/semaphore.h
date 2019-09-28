@@ -48,7 +48,7 @@ public:
      * (true).
      * @return True on success, false otherwise.
      */
-    bool create(sem_t *sem, const unsigned int &value, const bool &inter_process = true);
+    bool create(sem_t *sem, unsigned int value, bool inter_process = true);
 
     /**
      * @brief POSIX sem_open (named semaphore creation).
@@ -56,7 +56,7 @@ public:
      * @param value The initial semaphore value.
      * @return True on success, false otherwise.
      */
-    bool create(const std::string &name, const unsigned int &value);
+    bool create(const std::string &name, unsigned int value);
 
     /**
      * @brief POSIX sem_destroy/sem_unlink (unnamed/named semaphore destruction).

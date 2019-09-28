@@ -67,15 +67,15 @@ public:
      * @brief Set the preferred conputation backend.
      * @param id Backend id, e.g. DNN_BACKEND_OPENCV.
      */
-    void set_preferrable_backend(const int &id) { m_net.setPreferableBackend(id); }
+    void set_preferrable_backend(int id) { m_net.setPreferableBackend(id); }
 
     /**
      * @brief Set the preferred conputation target.
      * @param id Target id, e.g. DNN_TARGET_CPU.
      */
-    void set_preferrable_target(const int &id) { m_net.setPreferableTarget(id); }
+    void set_preferrable_target(int id) { m_net.setPreferableTarget(id); }
 
-    bool set_target(const Target &target) override;
+    bool set_target(Target target) override;
 
     bool predict(const sph::core::Image &img, std::vector<Prediction> &preds) override;
 

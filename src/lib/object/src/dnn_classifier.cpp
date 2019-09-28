@@ -40,7 +40,7 @@ std::vector<std::string> DNNClassifier::get_unconnected_out_layer_names() {
     return names;
 }
 
-bool DNNClassifier::set_target(const Target &target) {
+bool DNNClassifier::set_target(Target target) {
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
     switch (target) {

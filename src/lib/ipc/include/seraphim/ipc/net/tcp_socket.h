@@ -27,14 +27,14 @@ namespace net {
  */
 class TCPSocket : public Socket {
 public:
-    explicit TCPSocket(const Family &family);
+    explicit TCPSocket(Family family);
 
     /**
      * @brief Listen for incoming connection requests.
      *        Throws sph::core::RuntimeException when the OS socket op fails.
      * @param backlog Number of pending connections allowed.
      */
-    void listen(const int &backlog);
+    void listen(int backlog);
 
     /**
      * @brief Accept incoming connection requests.
@@ -61,7 +61,7 @@ public:
      * @param flags OS socket flags.
      * @return Number of bytes received.
      */
-    ssize_t receive(const int &fd, void *data, const size_t &data_len_max, const int &flags = 0);
+    ssize_t receive(int fd, void *data, size_t data_len_max, int flags = 0);
 
     /**
      * @brief Transmit a number of bytes.
@@ -73,7 +73,7 @@ public:
      * @param flags OS socket flags.
      * @return Number of bytes sent.
      */
-    ssize_t send(const int &fd, const void *data, const size_t &data_len, const int &flags = 0);
+    ssize_t send(int fd, const void *data, size_t data_len, int flags = 0);
 
     /**
      * @brief Gathering (vectored receival) of data.
@@ -85,7 +85,7 @@ public:
      * @param flags OS socket flags.
      * @return Number of bytes received.
      */
-    ssize_t receive_msg(const int &fd, struct msghdr *msg, const int &flags = 0);
+    ssize_t receive_msg(int fd, struct msghdr *msg, int flags = 0);
 
     /**
      * @brief Scattering (vectored transmission) of data.
@@ -96,7 +96,7 @@ public:
      * @param flags OS socket flags.
      * @return Number of bytes sent.
      */
-    ssize_t send_msg(const int &fd, struct msghdr *msg, const int &flags = 0);
+    ssize_t send_msg(int fd, struct msghdr *msg, int flags = 0);
 };
 
 } // namespace net

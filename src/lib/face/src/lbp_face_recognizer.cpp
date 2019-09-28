@@ -155,7 +155,7 @@ bool LBPFaceRecognizer::predict(const sph::core::Image &img, std::vector<Predict
     return true;
 }
 
-bool LBPFaceRecognizer::set_target(const Target &target) {
+bool LBPFaceRecognizer::set_target(Target target) {
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
     switch (target) {

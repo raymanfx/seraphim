@@ -111,7 +111,7 @@ bool LBFFacemarkDetector::detect_facemarks(const sph::core::Image &img,
     return true;
 }
 
-bool LBFFacemarkDetector::set_target(const Target &target) {
+bool LBFFacemarkDetector::set_target(Target target) {
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
     switch (target) {

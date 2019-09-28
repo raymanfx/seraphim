@@ -34,7 +34,7 @@ public:
                           const std::vector<sph::core::Polygon<int>> &faces,
                           std::vector<Facemarks> &facemarks) override;
 
-    bool set_target(const Target &target) override;
+    bool set_target(Target target) override;
 
 private:
     cv::Ptr<cv::face::FacemarkTrain> m_facemark_impl;

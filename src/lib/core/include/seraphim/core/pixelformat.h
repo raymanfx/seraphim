@@ -13,8 +13,7 @@
 namespace sph {
 namespace core {
 
-static inline constexpr uint32_t fourcc(const char &a, const char &b, const char &c,
-                                        const char &d) {
+static inline constexpr uint32_t fourcc(char a, char b, char c, char d) {
     return ((static_cast<uint32_t>(a) << 0) | (static_cast<uint32_t>(b) << 8) |
             (static_cast<uint32_t>(c) << 16) | (static_cast<uint32_t>(d) << 24));
 }
@@ -47,7 +46,7 @@ struct Pixelformat {
      * @param fourcc Fourc character code integer representationr.
      * @return The @ref Pixelformat identifier.
      */
-    static Pixelformat::Enum uid(const uint32_t fourcc) {
+    static Pixelformat::Enum uid(uint32_t fourcc) {
         switch (fourcc) {
         case sph::core::fourcc('G', 'R', 'E', 'Y'):
             return Pixelformat::Enum::GRAY8;
@@ -71,7 +70,7 @@ struct Pixelformat {
      * @param uid The @ref Pixelformat identifier.
      * @return Fourc character code integer representation.
      */
-    static uint32_t fourcc(const Pixelformat::Enum &uid) {
+    static uint32_t fourcc(Pixelformat::Enum uid) {
         switch (uid) {
         case Pixelformat::Enum::GRAY8:
             return sph::core::fourcc('G', 'R', 'E', 'Y');
@@ -95,7 +94,7 @@ struct Pixelformat {
      * @param uid The @ref Pixelformat identifier.
      * @return The amount of bits. Usually a multiple of eight.
      */
-    static uint32_t bits(const Pixelformat::Enum &uid) {
+    static uint32_t bits(Pixelformat::Enum uid) {
         switch (uid) {
         case Pixelformat::Enum::GRAY8:
             return 8;

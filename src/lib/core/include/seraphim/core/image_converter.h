@@ -94,7 +94,7 @@ public:
      *        if their priority is higher or equal.
      * @param converter The converter that performs the actual pixel conversion.
      */
-    void register_converter(const struct Converter &converter, const int &prio = 0) {
+    void register_converter(const struct Converter &converter, int prio = 0) {
         m_converters.push_back(std::make_pair(prio, converter));
     }
 

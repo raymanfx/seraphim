@@ -38,7 +38,7 @@ public:
     /**
      * @brief TCP message transport.
      */
-    explicit TCPTransport(const net::Socket::Family &family) : m_socket(family) {}
+    explicit TCPTransport(net::Socket::Family family) : m_socket(family) {}
 
     /**
      * @brief Get the stream associated with this transport.
@@ -52,7 +52,7 @@ public:
      * @param port The port number, must be a value between 0 and 65535.
      * @return True on success, false otherwise.
      */
-    bool bind(const uint16_t &port) { return m_socket.bind(port); }
+    bool bind(uint16_t port) { return m_socket.bind(port); }
 
     /**
      * @brief Connect to another socket.
@@ -63,7 +63,7 @@ public:
      * @param port The port number, must be a value between 0 and 65535.
      * @return True on success, false otherwise.
      */
-    bool connect(const std::string &ipaddr, const uint16_t &port, const int &timeout = 0) {
+    bool connect(const std::string &ipaddr, uint16_t port, int timeout = 0) {
         return m_socket.connect(ipaddr, port, timeout);
     }
 
@@ -72,7 +72,7 @@ public:
      *        Throws sph::core::RuntimeException when the OS socket op fails.
      * @param backlog Number of clients that can simultaneously be connected.
      */
-    void listen(const int &backlog) { m_socket.listen(backlog); }
+    void listen(int backlog) { m_socket.listen(backlog); }
 
     /**
      * @brief Accept a client connection.
@@ -82,8 +82,8 @@ public:
      */
     int accept(struct sockaddr *addr, socklen_t *addrlen) { return m_socket.accept(addr, addrlen); }
 
-    void set_rx_timeout(const int &ms) override { m_socket.set_rx_timeout(ms * 1000); }
-    void set_tx_timeout(const int &ms) override { m_socket.set_tx_timeout(ms * 1000); }
+    void set_rx_timeout(int ms) override { m_socket.set_rx_timeout(ms * 1000); }
+    void set_tx_timeout(int ms) override { m_socket.set_tx_timeout(ms * 1000); }
 
     void receive(Seraphim::Message &msg) override;
     void send(const Seraphim::Message &msg) override;
@@ -95,7 +95,7 @@ public:
      * @param fd File descriptor of the client connection.
      * @param msg The message.
      */
-    void receive(const int &fd, Seraphim::Message &msg);
+    void receive(int fd, Seraphim::Message &msg);
 
     /**
      * @brief Send a message to a client.
@@ -104,7 +104,7 @@ public:
      * @param fd File descriptor of the client connection.
      * @param msg The message.
      */
-    void send(const int &fd, const Seraphim::Message &msg);
+    void send(int fd, const Seraphim::Message &msg);
 
 private:
     /// TCP socket OS implementation

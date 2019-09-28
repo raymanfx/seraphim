@@ -46,7 +46,7 @@ void LinearLaneDetector::detect_lines(cv::InputArray img, cv::OutputArray &lines
                     m_params.hough_min_line_len, m_params.hough_max_line_len);
 }
 
-bool LinearLaneDetector::set_target(const Target &target) {
+bool LinearLaneDetector::set_target(Target target) {
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
     switch (target) {

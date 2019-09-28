@@ -46,7 +46,7 @@ public:
      *         Note that a return value of true does not guarantee that computation will now happen
      *         on the selected target; it is merely a hint to the implementation.
      */
-    virtual bool set_target(const Target &target) = 0;
+    virtual bool set_target(Target target) = 0;
 
 protected:
     IComputable() = default;

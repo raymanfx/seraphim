@@ -49,7 +49,7 @@ public:
      * @param line The line number where the exception was thrown.
      * @param msg The string message.
      */
-    Exception(const std::string &file, const size_t &line)
+    Exception(const std::string &file, size_t line)
         : Base(file + std::string(":") + std::to_string(line)) {}
 
     /**
@@ -58,7 +58,7 @@ public:
      * @param line The line number where the exception was thrown.
      * @param msg The string message.
      */
-    Exception(const std::string &file, const size_t &line, const std::string &msg)
+    Exception(const std::string &file, size_t line, const std::string &msg)
         : Base(file + std::string(":") + std::to_string(line) + std::string(" ") + msg) {}
 };
 

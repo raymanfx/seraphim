@@ -100,7 +100,7 @@ bool LBPFaceDetector::detect_faces(const Image &img, std::vector<Polygon<int>> &
     return true;
 }
 
-bool LBPFaceDetector::set_target(const Target &target) {
+bool LBPFaceDetector::set_target(Target target) {
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
     switch (target) {

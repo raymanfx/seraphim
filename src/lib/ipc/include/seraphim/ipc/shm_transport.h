@@ -58,7 +58,7 @@ public:
      * @param size The size of the memory region.
      * @return true on success, false otherwise.
      */
-    bool create(const std::string &name, const long &size);
+    bool create(const std::string &name, long size);
 
     /**
      * @brief Remove the shared memory region created by this instance.
@@ -66,8 +66,8 @@ public:
      */
     bool remove();
 
-    void set_rx_timeout(const int &ms) override { m_rx_timeout = ms; }
-    void set_tx_timeout(const int &ms) override { m_tx_timeout = ms; }
+    void set_rx_timeout(int ms) override { m_rx_timeout = ms; }
+    void set_tx_timeout(int ms) override { m_tx_timeout = ms; }
 
     void receive(Seraphim::Message &msg) override;
     void send(const Seraphim::Message &msg) override;
@@ -131,7 +131,7 @@ private:
      * @param size The size of the memory region.
      * @return true on success, false otherwise.
      */
-    bool map(const size_t &size);
+    bool map(size_t size);
     /**
      * @brief Unmap a shared memory region.
      * @return true on success, false otherwise.

@@ -29,14 +29,14 @@ public:
      *        Throws sph::core::RuntimeException in case of errors.
      * @param ms Timeout in milliseconds, 0 means blocking.
      */
-    virtual void set_rx_timeout(const int &ms) = 0;
+    virtual void set_rx_timeout(int ms) = 0;
 
     /**
      * @brief Set timeout for blocking TX operations.
      *        Throws sph::core::RuntimeException in case of errors.
      * @param ms Timeout in milliseconds, 0 means blocking.
      */
-    virtual void set_tx_timeout(const int &ms) = 0;
+    virtual void set_tx_timeout(int ms) = 0;
 
     /**
      * @brief Receive a message.

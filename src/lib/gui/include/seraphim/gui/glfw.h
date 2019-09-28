@@ -68,7 +68,7 @@ void glfw_terminate() {
  * @param title Window title used by the window toolkit.
  * @return The created window instance on success or nullptr on error.
  */
-GLFWwindow *glfw_create_window(const int &width, const int &height, const char *title) {
+GLFWwindow *glfw_create_window(int width, int height, const char *title) {
     GLFWwindow *window;
 
     window = glfwCreateWindow(width, height, title, nullptr, nullptr);
