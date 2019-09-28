@@ -20,17 +20,6 @@ static int xioctl(int fd, unsigned long request, void *arg) {
     return ret;
 }
 
-V4L2Device::V4L2Device() {
-    m_fd = -1;
-    m_path = "";
-    m_iomethod = -1;
-    m_initialized = false;
-    m_stream_active = false;
-
-    m_buffers = nullptr;
-    m_num_buffers = 0;
-}
-
 V4L2Device::~V4L2Device() {
     // stop active stream
     if (m_stream_active) {
@@ -43,7 +32,7 @@ V4L2Device::~V4L2Device() {
     }
     m_initialized = false;
 
-    if (m_buffers) {
+    if (!m_buffers.empty()) {
         release_buffers();
     }
 }
@@ -107,12 +96,11 @@ bool V4L2Device::init_buffers(const int &iomethod, const uint32_t &num_buffers) 
         return false;
     }
 
-    if (m_buffers) {
+    if (!m_buffers.empty()) {
         release_buffers();
     }
 
-    m_num_buffers = num_buffers;
-    m_buffers = new struct Buffer[m_num_buffers];
+    m_buffers.resize(num_buffers);
 
     switch (iomethod) {
     case IO_METHOD_READ:
@@ -131,8 +119,7 @@ bool V4L2Device::init_buffers(const int &iomethod, const uint32_t &num_buffers) 
     }
 
     if (!ret) {
-        delete m_buffers;
-        m_buffers = nullptr;
+        m_buffers.clear();
         m_iomethod = -1;
     } else {
         m_iomethod = iomethod;
@@ -144,7 +131,7 @@ bool V4L2Device::init_buffers(const int &iomethod, const uint32_t &num_buffers) 
 bool V4L2Device::init_buffers_mmap() {
     struct v4l2_requestbuffers req = {};
 
-    req.count = m_num_buffers;
+    req.count = static_cast<uint32_t>(m_buffers.size());
     req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     req.memory = V4L2_MEMORY_MMAP;
 
@@ -152,7 +139,7 @@ bool V4L2Device::init_buffers_mmap() {
         return false;
     }
 
-    for (uint32_t i = 0; i < m_num_buffers; i++) {
+    for (uint32_t i = 0; i < m_buffers.size(); i++) {
         struct v4l2_buffer buf = {};
 
         buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -196,7 +183,7 @@ bool V4L2Device::init_buffers_read() {
     }
 
     // allocate buffers
-    for (uint32_t i = 0; i < m_num_buffers; i++) {
+    for (size_t i = 0; i < m_buffers.size(); i++) {
         m_buffers[i].start = std::malloc(fmt.fmt.pix.sizeimage);
         if (!m_buffers[i].start) {
             ret = false;
@@ -207,7 +194,7 @@ bool V4L2Device::init_buffers_read() {
 
     if (!ret) {
         // release memory on error
-        for (uint32_t i = 0; i < m_num_buffers; i++) {
+        for (size_t i = 0; i < m_buffers.size(); i++) {
             if (m_buffers[i].start) {
                 std::free(m_buffers[i].start);
             }
@@ -220,7 +207,7 @@ bool V4L2Device::init_buffers_read() {
 bool V4L2Device::release_buffers() {
     bool ret;
 
-    if (!m_buffers) {
+    if (m_buffers.empty()) {
         return true;
     }
 
@@ -236,10 +223,7 @@ bool V4L2Device::release_buffers() {
         break;
     }
 
-    delete m_buffers;
-    m_buffers = nullptr;
-    m_num_buffers = 0;
-
+    m_buffers.clear();
     return ret;
 }
 
@@ -251,7 +235,7 @@ bool V4L2Device::release_buffers_mmap() {
     req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     req.memory = V4L2_MEMORY_MMAP;
 
-    for (uint32_t i = 0; i < m_num_buffers; i++) {
+    for (size_t i = 0; i < m_buffers.size(); i++) {
         if (!m_buffers[i].start) {
             continue;
         }
@@ -265,7 +249,7 @@ bool V4L2Device::release_buffers_mmap() {
 }
 
 bool V4L2Device::release_buffers_read() {
-    for (uint32_t i = 0; i < m_num_buffers; i++) {
+    for (size_t i = 0; i < m_buffers.size(); i++) {
         if (m_buffers[i].start) {
             std::free(m_buffers[i].start);
         }
@@ -317,7 +301,7 @@ bool V4L2Device::start_stream() {
     enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     uint32_t buffers = 4;
 
-    if (!m_buffers) {
+    if (m_buffers.empty()) {
         // try to initialize buffers
         for (uint32_t i = buffers; i > 0; i--) {
             if (init_buffers(IO_METHOD_MMAP, i)) {
@@ -326,7 +310,7 @@ bool V4L2Device::start_stream() {
         }
     }
 
-    if (!m_buffers) {
+    if (m_buffers.empty()) {
         // cannot recover at this point, the user should initialize the buffers manually
         return false;
     }
@@ -361,7 +345,7 @@ bool V4L2Device::grab() {
         }
     }
 
-    if (!m_buffers) {
+    if (m_buffers.empty()) {
         return false;
     }
 
@@ -383,8 +367,7 @@ bool V4L2Device::grab() {
         break;
     }
 
-    buffer_index = (buffer_index + 1) % m_num_buffers;
-
+    buffer_index = (buffer_index + 1) % m_buffers.size();
     return true;
 }
 
@@ -395,7 +378,7 @@ bool V4L2Device::retrieve(struct Buffer &buf) {
     static uint32_t buffer_index = 0;
     static uint32_t frame = 0;
 
-    if (!m_buffers) {
+    if (m_buffers.empty()) {
         return false;
     }
 
@@ -438,7 +421,7 @@ bool V4L2Device::retrieve(struct Buffer &buf) {
     }
 
     buf = m_buffers[buffer_index];
-    buffer_index = (buffer_index + 1) % m_num_buffers;
+    buffer_index = (buffer_index + 1) % m_buffers.size();
 
     return true;
 }

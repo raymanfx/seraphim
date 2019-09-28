@@ -213,7 +213,7 @@ bool MainWindow::openTransportSession(QString uri) {
 }
 
 void MainWindow::backendWork() {
-    Seraphim::Types::Image2D *img = new Seraphim::Types::Image2D;
+    Seraphim::Types::Image2D img;
     std::vector<unsigned char> framebuffer;
     QImage overlay(mFrame.size(), QImage::Format_ARGB32);
 
@@ -228,21 +228,23 @@ void MainWindow::backendWork() {
         // copy the current frame so we can send its data to the backend
         framebuffer.resize(mCaptureBuffer.size);
         std::memcpy(&framebuffer[0], mCaptureBuffer.start, mCaptureBuffer.size);
-        img->set_data(reinterpret_cast<char *>(&framebuffer[0]), framebuffer.size());
-        img->set_fourcc(mCaptureBuffer.format.fourcc);
-        img->set_width(mCaptureBuffer.format.width);
-        img->set_height(mCaptureBuffer.format.height);
-        img->set_stride(mCaptureBuffer.format.stride);
+        img.set_data(reinterpret_cast<char *>(&framebuffer[0]), framebuffer.size());
+        img.set_fourcc(mCaptureBuffer.format.fourcc);
+        img.set_width(mCaptureBuffer.format.width);
+        img.set_height(mCaptureBuffer.format.height);
+        img.set_stride(mCaptureBuffer.format.stride);
     }
 
     if (mFaceDetection) {
         Seraphim::Message msg;
         Seraphim::Face::FaceDetector::DetectionRequest *req =
             msg.mutable_req()->mutable_face()->mutable_face_detector()->mutable_detection();
-        req->set_allocated_image(img);
+        req->set_allocated_image(&img);
 
         try {
             mTransport->send(msg);
+            // we still need the image, keep protobuf from deleting it by releasing it manually
+            req->release_image();
             mTransport->receive(msg);
         } catch (std::exception &e) {
             std::cout << "[ERROR] Transport I/O error: " << e.what() << std::endl;
@@ -270,10 +272,12 @@ void MainWindow::backendWork() {
         Seraphim::Message msg;
         Seraphim::Face::FacemarkDetector::DetectionRequest *req =
             msg.mutable_req()->mutable_face()->mutable_facemark_detector()->mutable_detection();
-        req->set_allocated_image(img);
+        req->set_allocated_image(&img);
 
         try {
             mTransport->send(msg);
+            // we still need the image, keep protobuf from deleting it by releasing it manually
+            req->release_image();
             mTransport->receive(msg);
         } catch (std::exception &e) {
             std::cout << "[ERROR] Transport I/O error: " << e.what() << std::endl;
@@ -310,10 +314,12 @@ void MainWindow::backendWork() {
         Seraphim::Message msg;
         Seraphim::Face::FaceRecognizer::RecognitionRequest *req =
             msg.mutable_req()->mutable_face()->mutable_face_recognizer()->mutable_recognition();
-        req->set_allocated_image(img);
+        req->set_allocated_image(&img);
 
         try {
             mTransport->send(msg);
+            // we still need the image, keep protobuf from deleting it by releasing it manually
+            req->release_image();
             mTransport->receive(msg);
         } catch (std::exception &e) {
             std::cout << "[ERROR] Transport I/O error: " << e.what() << std::endl;
@@ -354,11 +360,13 @@ void MainWindow::backendWork() {
         Seraphim::Face::FaceRecognizer::TrainingRequest *req =
             msg.mutable_req()->mutable_face()->mutable_face_recognizer()->mutable_training();
         req->set_label(mFaceLabel);
-        req->set_allocated_image(img);
+        req->set_allocated_image(&img);
         req->set_invalidate(mFaceTraining == 10);
 
         try {
             mTransport->send(msg);
+            // we still need the image, keep protobuf from deleting it by releasing it manually
+            req->release_image();
             mTransport->receive(msg);
         } catch (std::exception &e) {
             std::cout << "[ERROR] Transport I/O error: " << e.what() << std::endl;

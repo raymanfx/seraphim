@@ -207,7 +207,7 @@ bool MainWindow::openTransportSession(QString uri) {
 }
 
 void MainWindow::backendWork() {
-    Seraphim::Types::Image2D *img = new Seraphim::Types::Image2D;
+    Seraphim::Types::Image2D img;
     std::vector<unsigned char> framebuffer;
     QImage overlay(mFrame.size(), QImage::Format_ARGB32);
 
@@ -222,18 +222,18 @@ void MainWindow::backendWork() {
         // copy the current frame so we can send its data to the backend
         framebuffer.resize(mCaptureBuffer.size);
         std::memcpy(&framebuffer[0], mCaptureBuffer.start, mCaptureBuffer.size);
-        img->set_data(reinterpret_cast<char *>(&framebuffer[0]), framebuffer.size());
-        img->set_fourcc(mCaptureBuffer.format.fourcc);
-        img->set_width(mCaptureBuffer.format.width);
-        img->set_height(mCaptureBuffer.format.height);
-        img->set_stride(mCaptureBuffer.format.stride);
+        img.set_data(reinterpret_cast<char *>(&framebuffer[0]), framebuffer.size());
+        img.set_fourcc(mCaptureBuffer.format.fourcc);
+        img.set_width(mCaptureBuffer.format.width);
+        img.set_height(mCaptureBuffer.format.height);
+        img.set_stride(mCaptureBuffer.format.stride);
     }
 
     if (mLaneDetection) {
         Seraphim::Message msg;
         Seraphim::Car::LaneDetector::DetectionRequest *req =
             msg.mutable_req()->mutable_car()->mutable_detector()->mutable_detection();
-        req->set_allocated_image(img);
+        req->set_allocated_image(&img);
 
         // tune the ROI according to your input video
         // in this case, use a 4-point polygon shape to match the "project_video.mp4"
@@ -244,7 +244,7 @@ void MainWindow::backendWork() {
         Seraphim::Types::Point2D *br = req->mutable_polyroi()->add_points();
         // bottom left
         bl->set_x(210);
-        bl->set_y(static_cast<int>(img->height()));
+        bl->set_y(static_cast<int>(img.height()));
         // top left
         tl->set_x(550);
         tl->set_y(450);
@@ -252,11 +252,13 @@ void MainWindow::backendWork() {
         tr->set_x(717);
         tr->set_y(450);
         // bottom right
-        br->set_x(static_cast<int>(img->width()) - 210);
-        br->set_y(static_cast<int>(img->height()));
+        br->set_x(static_cast<int>(img.width()) - 210);
+        br->set_y(static_cast<int>(img.height()));
 
         try {
             mTransport->send(msg);
+            // we still need the image, keep protobuf from deleting it by releasing it manually
+            req->release_image();
             mTransport->receive(msg);
         } catch (std::exception &e) {
             std::cout << "[ERROR] Transport I/O error: " << e.what() << std::endl;

@@ -7,16 +7,16 @@ V4L2CaptureStream::V4L2CaptureStream() {
 
     mCaptureActive = false;
     mFrameCallback = nullptr;
-
-    mFourcc = 0;
-    mWidth = 0;
-    mHeight = 0;
-    mStride = 0;
 }
 
 V4L2CaptureStream::~V4L2CaptureStream() {
-    if (mCaptureActive) {
-        stop();
+    mCaptureActive = false;
+    if (mCaptureThread.joinable()) {
+        mCaptureThread.join();
+    }
+
+    if (mDevice.active()) {
+        mDevice.stop_stream();
     }
 }
 

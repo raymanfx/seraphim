@@ -228,7 +228,7 @@ bool MainWindow::openTransportSession(QString uri) {
 }
 
 void MainWindow::backendWork() {
-    Seraphim::Types::Image2D *img = new Seraphim::Types::Image2D;
+    Seraphim::Types::Image2D img;
     std::vector<unsigned char> framebuffer;
     QImage overlay(mFrame.size(), QImage::Format_ARGB32);
 
@@ -243,24 +243,26 @@ void MainWindow::backendWork() {
         // copy the current frame so we can send its data to the backend
         framebuffer.resize(mCaptureBuffer.size);
         std::memcpy(&framebuffer[0], mCaptureBuffer.start, mCaptureBuffer.size);
-        img->set_data(reinterpret_cast<char *>(&framebuffer[0]), framebuffer.size());
-        img->set_fourcc(mCaptureBuffer.format.fourcc);
-        img->set_width(mCaptureBuffer.format.width);
-        img->set_height(mCaptureBuffer.format.height);
-        img->set_stride(mCaptureBuffer.format.stride);
+        img.set_data(reinterpret_cast<char *>(&framebuffer[0]), framebuffer.size());
+        img.set_fourcc(mCaptureBuffer.format.fourcc);
+        img.set_width(mCaptureBuffer.format.width);
+        img.set_height(mCaptureBuffer.format.height);
+        img.set_stride(mCaptureBuffer.format.stride);
     }
 
     if (mObjectRecognition) {
         Seraphim::Message msg;
         Seraphim::Object::Classifier::ClassificationRequest *req =
             msg.mutable_req()->mutable_object()->mutable_classifier()->mutable_classification();
-        req->set_allocated_image(img);
+        req->set_allocated_image(&img);
 
         // force at least 0.5 confidence
         req->set_confidence(0.5f);
 
         try {
             mTransport->send(msg);
+            // we still need the image, keep protobuf from deleting it by releasing it manually
+            req->release_image();
             mTransport->receive(msg);
         } catch (std::exception &e) {
             std::cout << "[ERROR] Transport I/O error: " << e.what() << std::endl;

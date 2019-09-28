@@ -23,7 +23,6 @@ template <class T> static T clamp(const T &val, const T &min, const T &max) {
 }
 
 static bool bgr_to_rgb(const ImageConverter::Source &src, ImageConverter::Target &dst) {
-    size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
     size_t dst_size;
@@ -43,8 +42,6 @@ static bool bgr_to_rgb(const ImageConverter::Source &src, ImageConverter::Target
     default:
         return false;
     }
-
-    src_size = src.height * src.stride * src_pixel_size;
 
     switch (dst.fourcc) {
     case fourcc('R', 'G', 'B', '3'):
@@ -92,7 +89,6 @@ static bool bgr_to_rgb(const ImageConverter::Source &src, ImageConverter::Target
 }
 
 static bool rgb_to_bgr(const ImageConverter::Source &src, ImageConverter::Target &dst) {
-    size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
     size_t dst_size;
@@ -112,8 +108,6 @@ static bool rgb_to_bgr(const ImageConverter::Source &src, ImageConverter::Target
     default:
         return false;
     }
-
-    src_size = src.height * src.stride * src_pixel_size;
 
     switch (dst.fourcc) {
     case fourcc('B', 'G', 'R', '3'):
@@ -161,7 +155,6 @@ static bool rgb_to_bgr(const ImageConverter::Source &src, ImageConverter::Target
 }
 
 static size_t rgb_to_y(const ImageConverter::Source &src, ImageConverter::Target &dst) {
-    size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
     size_t dst_size;
@@ -183,8 +176,6 @@ static size_t rgb_to_y(const ImageConverter::Source &src, ImageConverter::Target
     default:
         return false;
     }
-
-    src_size = src.height * src.stride * src_pixel_size;
 
     switch (dst.fourcc) {
     case fourcc('G', 'R', 'E', 'Y'):
@@ -260,7 +251,6 @@ static size_t rgb_to_y(const ImageConverter::Source &src, ImageConverter::Target
 }
 
 static bool y_to_bgr(const ImageConverter::Source &src, ImageConverter::Target &dst) {
-    size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
     size_t dst_size;
@@ -280,8 +270,6 @@ static bool y_to_bgr(const ImageConverter::Source &src, ImageConverter::Target &
     default:
         return false;
     }
-
-    src_size = src.height * src.stride * src_pixel_size;
 
     switch (dst.fourcc) {
     case fourcc('B', 'G', 'R', '3'):
@@ -336,7 +324,6 @@ static bool y_to_bgr(const ImageConverter::Source &src, ImageConverter::Target &
 }
 
 static size_t yuy2_to_bgr(const ImageConverter::Source &src, ImageConverter::Target &dst) {
-    size_t src_size;
     size_t src_offset;
     size_t src_pixel_size;
     size_t dst_size;
@@ -354,8 +341,6 @@ static size_t yuy2_to_bgr(const ImageConverter::Source &src, ImageConverter::Tar
     default:
         return false;
     }
-
-    src_size = src.height * src.stride * src_pixel_size;
 
     switch (dst.fourcc) {
     case fourcc('B', 'G', 'R', '3'):

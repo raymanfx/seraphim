@@ -76,11 +76,6 @@ public:
     bool reset();
 
     /**
-     * @brief Get the number of device buffers that can be used.
-     * @return Number of buffers.
-     */
-    uint32_t num_buffers() const { return m_num_buffers; }
-    /**
      * @brief Initialize a devices' buffers.
      * @param iomethod I/O method, one of @ref io_method.
      * @param num_buffers Number of buffers to allocate on the device.
@@ -151,19 +146,17 @@ public:
 
 private:
     // file descriptor of the device
-    int m_fd;
+    int m_fd = -1;
     // absolute path of the device in the Linux pseudo-FS (e.g. /dev or /sys).
-    std::string m_path;
+    std::string m_path = "";
     // I/O method for accessing buffers (see @ref io_method).
-    int m_iomethod;
+    int m_iomethod = -1;
 
-    // number of buffers allocated on the device
-    uint32_t m_num_buffers;
     // staging area for buffers that are returned to callers of @ref retrieve.
-    struct Buffer *m_buffers;
+    std::vector<struct Buffer> m_buffers;
 
-    bool m_initialized;
-    bool m_stream_active;
+    bool m_initialized = false;
+    bool m_stream_active = false;
 
     // buffer management
     bool init_buffers_mmap();

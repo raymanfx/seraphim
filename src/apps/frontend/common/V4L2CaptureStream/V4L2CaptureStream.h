@@ -71,10 +71,10 @@ private:
     std::function<void(const Buffer &)> mFrameCallback;
 
     /// capture format
-    uint32_t mFourcc;
-    uint32_t mWidth;
-    uint32_t mHeight;
-    uint32_t mStride;
+    uint32_t mFourcc = 0;
+    uint32_t mWidth = 0;
+    uint32_t mHeight = 0;
+    uint32_t mStride = 0;
 };
 
 #endif // V4L2_CAPTURE_STREAM_H
