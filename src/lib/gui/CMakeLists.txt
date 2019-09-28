@@ -4,7 +4,6 @@ set(MODULE_VERSION_MINOR 0)
 set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
-    src/module.cpp
     src/gl_window.cpp
     src/glad.c)
 
@@ -12,7 +11,6 @@ set(HEADERS
     include/KHR/khrplatform.h
     include/glad/glad.h
     include/seraphim/gui.h
-    include/seraphim/gui/module.h
     include/seraphim/gui/window.h
     include/seraphim/gui/glfw.h
     include/seraphim/gui/gl_window.h)

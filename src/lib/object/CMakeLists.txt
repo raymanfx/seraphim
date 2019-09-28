@@ -4,11 +4,9 @@ set(MODULE_VERSION_MINOR 0)
 set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
-    src/module.cpp
     src/dnn_classifier.cpp)
 
 set(HEADERS
-    include/seraphim/object/module.h
     include/seraphim/object.h
     include/seraphim/object/classifier.h
     include/seraphim/object/dnn_classifier.h)

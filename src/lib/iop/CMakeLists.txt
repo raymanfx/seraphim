@@ -3,14 +3,10 @@ set(MODULE_VERSION_MAJOR 0)
 set(MODULE_VERSION_MINOR 0)
 set(MODULE_VERSION_PATCH 0)
 
-set(SOURCES
-    src/module.cpp)
-
 set(HEADERS
-    include/seraphim/iop.h
-    include/seraphim/iop/module.h)
+    include/seraphim/iop.h)
 
-add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})
+add_library(${MODULE_NAME} SHARED ${HEADERS})
 add_library(seraphim::${MODULE_NAME} ALIAS ${MODULE_NAME})
 
 # set the shared lib name
