@@ -5,12 +5,11 @@ using namespace sph::core;
 Image::Image(unsigned char *data, uint32_t width, uint32_t height, Pixelformat::Enum pixfmt,
              size_t stride)
     : m_width(width), m_height(height), m_pixfmt(pixfmt) {
-    size_t stride_ = stride;
-    if (stride_ == 0) {
-        stride_ = m_width * Pixelformat::bits(m_pixfmt) / 8;
+    if (stride == 0) {
+        stride = m_width * Pixelformat::bits(m_pixfmt) / 8;
     }
     m_buffer =
-        Matrix<unsigned char>(data, m_height, m_width * Pixelformat::bits(m_pixfmt) / 8, stride_);
+        Matrix<unsigned char>(data, m_height, m_width * Pixelformat::bits(m_pixfmt) / 8, stride);
 }
 
 uint32_t Image::channels() const {
@@ -44,7 +43,7 @@ bool Image::load(const ImageConverter::Source &src, Pixelformat::Enum pixfmt) {
     size_t dst_stride;
 
     dst.buf = m_buffer.data();
-    dst.buf_len = m_buffer.size();
+    dst.buf_len = m_buffer.rows() * m_buffer.step();
     dst.fourcc = Pixelformat::fourcc(pixfmt);
     if (dst.fourcc == 0) {
         return false;
@@ -84,10 +83,10 @@ bool Image::load(const ImageConverter::Source &src, Pixelformat::Enum pixfmt) {
     }
 
     // resize target buffer if necessary
-    if (dst_size > m_buffer.size()) {
+    if (dst_size > dst.buf_len) {
         m_buffer.resize(1, dst_size);
         dst.buf = m_buffer.data();
-        dst.buf_len = m_buffer.size();
+        dst.buf_len = m_buffer.rows() * m_buffer.step();
     }
 
     // looks like we need to convert the buffer
@@ -125,7 +124,7 @@ bool Image::convert(Pixelformat::Enum target) {
     }
 
     dst.buf = m_buffer.data();
-    dst.buf_len = m_buffer.size();
+    dst.buf_len = m_buffer.rows() * m_buffer.step();
     dst.fourcc = Pixelformat::fourcc(target);
     if (dst.fourcc == 0) {
         return false;
@@ -159,7 +158,7 @@ bool Image::convert(Pixelformat::Enum target) {
     std::vector<unsigned char> buf;
 
     // try to convert in-place first
-    if (m_buffer.owns_data()) {
+    if (m_buffer.capacity() > 0) {
         converted = ImageConverter::Instance().convert(src, dst);
     }
 
@@ -170,7 +169,7 @@ bool Image::convert(Pixelformat::Enum target) {
         m_buffer.resize(src.height, src.width * dst_pixel_size, dst_stride);
         src.buf = tmp.data();
         dst.buf = m_buffer.data();
-        dst.buf_len = m_buffer.size();
+        dst.buf_len = m_buffer.rows() * m_buffer.step();
         converted = ImageConverter::Instance().convert(src, dst);
     }
 

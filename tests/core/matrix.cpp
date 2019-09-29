@@ -267,7 +267,7 @@ TEST_CASE( "Matrix runtime behavior", "[Matrix<T>]" ) {
         REQUIRE( m1.cols() == 3 );
         REQUIRE( m1.step() == 3 );
     }
-    SECTION( "size() returns size of the matrix including padding" ) {
+    SECTION( "size() returns the size of the matrix expressed in terms of elements" ) {
         // simulate padded matrix data
         unsigned char bytes[] = {
             9, 4, 5, 0, 0,
@@ -279,6 +279,24 @@ TEST_CASE( "Matrix runtime behavior", "[Matrix<T>]" ) {
         Matrix<unsigned char> m1(bytes, 5, 3, sizeof(bytes[0]) * 3);
 
         REQUIRE( m1.size() == 5 * 3 );
+    }
+    SECTION( "capacity() returns the number of elements the matrix can hold" ) {
+        unsigned char *bytes = new unsigned char[4] {
+            9, 4,
+            2, 8
+        };
+        Matrix<unsigned char> m1(bytes, 2, 2);
+        // we pass ownership of bytes to m2 here, meaning m2's dtor will clean it up once it goes
+        // out of scope
+        Matrix<unsigned char> m2(bytes, 2, 2, 0, true);
+        Matrix<unsigned char> m3(6, 7);
+        Matrix<unsigned char> m4;
+        m1.copy(m4);
+
+        REQUIRE( m1.capacity() == 0 );
+        REQUIRE( m2.capacity() > 0 );
+        REQUIRE( m3.capacity() > 0 );
+        REQUIRE( m4.capacity() > 0 );
     }
     SECTION( "bytes() returns the address of the first matrix element in memory" ) {
         unsigned char bytes[] = {
@@ -302,24 +320,6 @@ TEST_CASE( "Matrix runtime behavior", "[Matrix<T>]" ) {
         REQUIRE( reinterpret_cast<uintptr_t>(m1.data()) == reinterpret_cast<uintptr_t>(m1.bytes()) );
         REQUIRE( reinterpret_cast<uintptr_t>(m1.data() + 1) != reinterpret_cast<uintptr_t>(m1.bytes() + 1) );
     }
-    SECTION( "owns_data() returns true if the instance owns the allocated memory" ) {
-        unsigned char *bytes = new unsigned char[4] {
-            9, 4,
-            2, 8
-        };
-        Matrix<unsigned char> m1(bytes, 2, 2);
-        // we pass ownership of bytes to m2 here, meaning m2's dtor will clean it up once it goes
-        // out of scope
-        Matrix<unsigned char> m2(bytes, 2, 2, 0, true);
-        Matrix<unsigned char> m3(6, 7);
-        Matrix<unsigned char> m4;
-        m1.copy(m4);
-
-        REQUIRE( m1.owns_data() == false );
-        REQUIRE( m2.owns_data() == true );
-        REQUIRE( m3.owns_data() == true );
-        REQUIRE( m4.owns_data() == true );
-    }
     SECTION( "empty() returns true only for empty, non-allocated matrices" ) {
         Matrix<int> m1;
         Matrix<int> m2(2, 3);
@@ -334,8 +334,8 @@ TEST_CASE( "Matrix runtime behavior", "[Matrix<T>]" ) {
 
         REQUIRE( !m1.empty() );
         REQUIRE( !m2.empty() );
-        REQUIRE( m1.size() == 5 * 3 * sizeof(int) );
-        REQUIRE( m2.size() == 2 * sizeof(elems[0]) );
+        REQUIRE( m1.size() == 5 * 3 );
+        REQUIRE( m2.size() == 1 * 2 );
         REQUIRE( m1.data() != nullptr );
         REQUIRE( m2.data() != nullptr );
         REQUIRE( m2.data() == elems );
@@ -428,7 +428,7 @@ TEST_CASE( "Matrix runtime behavior", "[Matrix<T>]" ) {
 
         REQUIRE( !m1.empty() );
         REQUIRE( m2.empty() );
-        REQUIRE( m1.size() == 3 * 2 * sizeof(int) );
+        REQUIRE( m1.size() == 3 * 2 );
         REQUIRE( m2.size() == 0 );
 
         m1.copy(m2);
@@ -436,7 +436,7 @@ TEST_CASE( "Matrix runtime behavior", "[Matrix<T>]" ) {
         REQUIRE( m2.data() != m1.data() );
         REQUIRE( !m1.empty() );
         REQUIRE( !m2.empty() );
-        REQUIRE( m1.size() == 3 * 2 * sizeof(int) );
+        REQUIRE( m1.size() == 3 * 2 );
         REQUIRE( m2.size() == m1.size() );
     }
     SECTION( "move() moves matrix elements into another instance" ) {
@@ -449,7 +449,7 @@ TEST_CASE( "Matrix runtime behavior", "[Matrix<T>]" ) {
 
         REQUIRE( !m1.empty() );
         REQUIRE( m2.empty() );
-        REQUIRE( m1.size() == 3 * 2 * sizeof(int) );
+        REQUIRE( m1.size() == 3 * 2 );
         REQUIRE( m2.size() == 0 );
 
         m1.move(m2);
@@ -457,6 +457,6 @@ TEST_CASE( "Matrix runtime behavior", "[Matrix<T>]" ) {
         REQUIRE( m1.empty() );
         REQUIRE( !m2.empty() );
         REQUIRE( m1.size() == 0 );
-        REQUIRE( m2.size() == 3 * 2 * sizeof(int) );
+        REQUIRE( m2.size() == 3 * 2 );
     }
 }

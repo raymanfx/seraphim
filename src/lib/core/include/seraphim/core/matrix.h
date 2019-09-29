@@ -9,6 +9,7 @@
 #define SPH_CORE_MATRIX_H
 
 #include <cassert>
+#include <cmath>
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -41,9 +42,9 @@ public:
         if (m_step == 0) {
             m_step = cols * sizeof(T);
         }
-        m_elements.reset(new T[rows * m_step / sizeof(T)]);
-        m_elements_owned = true;
-        m_elements_capacity = rows * m_step / sizeof(T);
+
+        m_capacity = rows * (m_step / sizeof(T));
+        m_elements.reset(new T[m_capacity]);
     }
 
     /**
@@ -55,13 +56,12 @@ public:
      * @param transfer Whether to transfer element ownership to the newly created instance.
      */
     Matrix(T *elements, size_t rows, size_t cols, size_t step = 0, const bool &transfer = false)
-        : m_rows(rows), m_cols(cols), m_step(step), m_elements(elements),
-          m_elements_owned(transfer) {
+        : m_rows(rows), m_cols(cols), m_step(step), m_elements(elements) {
         if (m_step == 0) {
             m_step = cols * sizeof(T);
         }
-        if (m_elements_owned) {
-            m_elements_capacity = rows * cols;
+        if (transfer) {
+            m_capacity = rows * (m_step / sizeof(T));
         }
     }
 
@@ -115,7 +115,7 @@ public:
      * @param m Instance to move from.
      */
     Matrix(Matrix &&m) : Matrix(m.data(), m.rows(), m.cols(), m.step(), true) {
-        m.m_elements_owned = false;
+        m.m_capacity = 0;
         m.clear();
     }
 
@@ -132,10 +132,10 @@ public:
             clear();
 
             m.copy(*this);
-            m_elements_owned = true;
             m_rows = m.rows();
             m_cols = m.cols();
             m_step = m.step();
+            m_capacity = m_rows * (m_step / sizeof(T));
         }
         return *this;
     }
@@ -152,11 +152,9 @@ public:
             m_rows = m.rows();
             m_cols = m.cols();
             m_step = m.step();
-            m_elements.reset(m.data());
-            m_elements_owned = m.m_elements_owned;
-            m_elements_capacity = m.m_elements_capacity;
+            m_elements.swap(m.m_elements);
+            m_capacity = m.m_capacity;
 
-            m.m_elements_owned = false;
             m.clear();
         }
         return *this;
@@ -248,11 +246,16 @@ public:
     size_t step() const { return m_step; }
 
     /**
-     * @brief Number of bytes occupied by the matrix.
-     *        This is calculated as the number of rows times the number of bytes per row.
+     * @brief Number of elements.
      * @return Byte count.
      */
-    size_t size() const { return m_rows * m_step; }
+    size_t size() const { return m_rows * m_cols; }
+
+    /**
+     * @brief Number of elements that the matrix instance can hold in its backing buffer.
+     * @return Number of elements or 0 for shallow (wrapping) matrices.
+     */
+    size_t capacity() const { return m_capacity; }
 
     /**
      * @brief Read-only pointer to matrix memory.
@@ -268,12 +271,6 @@ public:
     T *data() const { return m_elements.get(); }
 
     /**
-     * @brief Check whether the matrix owns its element backing memory.
-     * @return True if the memory is owned by the instance, false otherwise.
-     */
-    bool owns_data() const { return m_elements_owned; }
-
-    /**
      * @brief Check whether the matrix is empty.
      *        An allocated matrix is empty by default until elements are assigned.
      * @return True if no elements are stored, false otherwise.
@@ -287,14 +284,12 @@ public:
         m_rows = 0;
         m_cols = 0;
         m_step = 0;
-        if (!m_elements_owned) {
+        if (m_capacity == 0) {
             // this does not actually free any resources, it just removes the responsibility from
             // the unique_ptr instance (which is what we want in this case)
             m_elements.release();
         }
         m_elements = nullptr;
-        m_elements_owned = false;
-        m_elements_capacity = 0;
     }
 
     /**
@@ -303,17 +298,21 @@ public:
      *        the current one.
      * @param rows Number of rows.
      * @param cols Number of columns.
+     * @param step Number of bytes per row. If 0, this is calculated as cols * sizeof(T).
      */
-    void reserve(size_t rows, size_t cols) {
-        if (rows * cols <= m_elements_capacity) {
+    void reserve(size_t rows, size_t cols, size_t step = 0) {
+        if (step == 0) {
+            step = cols * sizeof(T);
+        }
+
+        if (m_capacity > 0 && (rows * step <= m_rows * m_step)) {
             return;
         }
 
         clear();
-        m_step = cols * sizeof(T);
-        m_elements.reset(new T[rows * cols]);
-        m_elements_owned = true;
-        m_elements_capacity = rows * cols;
+        m_step = step;
+        m_capacity = rows * (step / sizeof(T));
+        m_elements.reset(new T[m_capacity]);
     }
 
     /**
@@ -321,22 +320,22 @@ public:
      *        Causes a reallocation if the current size does not match the requested one.
      * @param rows Number of rows.
      * @param cols Number of columns.
+     * @param step Number of bytes per row. If 0, this is calculated as cols * sizeof(T).
      */
     void resize(size_t rows, size_t cols, size_t step = 0) {
-        size_t step_ = step;
-        if (step_ == 0) {
-            step_ = cols * sizeof(T);
+        if (step == 0) {
+            step = cols * sizeof(T);
         }
 
-        if (rows * cols == m_rows * m_cols && step == step_) {
+        if (m_capacity > 0 && (rows * cols == m_rows * m_cols && step == m_step)) {
             return;
         }
 
         clear();
-        reserve(rows, cols);
+        reserve(rows, cols, step);
         m_rows = rows;
         m_cols = cols;
-        m_step = step_;
+        m_step = step;
     }
 
     /**
@@ -381,8 +380,8 @@ public:
      * @param target Target instance which assumes element ownership.
      */
     void move(Matrix &target) {
-        target = Matrix(m_elements.get(), m_rows, m_cols, m_step, m_elements_owned);
-        m_elements_owned = false;
+        target = Matrix(m_elements.get(), m_rows, m_cols, m_step, m_capacity > 0);
+        m_capacity = 0;
         clear();
     }
 
@@ -395,10 +394,8 @@ private:
     size_t m_step = 0;
     /// Matrix element pointer (can be arbitrary source or internal buffer).
     std::unique_ptr<T[]> m_elements = nullptr;
-    /// Whether we own the element data.
-    bool m_elements_owned = false;
-    /// Number of matrix elements the backing buffer can hold.
-    size_t m_elements_capacity = 0;
+    /// Number of elements the backing buffer can hold.
+    size_t m_capacity = 0;
 };
 
 } // namespace core
