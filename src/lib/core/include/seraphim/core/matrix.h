@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -31,7 +32,10 @@ public:
      * @brief Default constructor for an empty matrix.
      * Use this to create instances to assign them later.
      */
-    Matrix() = default;
+    Matrix() {
+        m_elements.get_deleter() =
+            std::bind(&Matrix::elements_deleter, this, std::placeholders::_1);
+    }
 
     /**
      * @brief Allocate a new matrix.
@@ -45,6 +49,8 @@ public:
 
         m_capacity = rows * (m_step / sizeof(T));
         m_elements.reset(new T[m_capacity]);
+        m_elements.get_deleter() =
+            std::bind(&Matrix::elements_deleter, this, std::placeholders::_1);
     }
 
     /**
@@ -56,13 +62,18 @@ public:
      * @param transfer Whether to transfer element ownership to the newly created instance.
      */
     Matrix(T *elements, size_t rows, size_t cols, size_t step = 0, const bool &transfer = false)
-        : m_rows(rows), m_cols(cols), m_step(step), m_elements(elements) {
+        : m_rows(rows), m_cols(cols), m_step(step) {
         if (m_step == 0) {
             m_step = cols * sizeof(T);
         }
+
         if (transfer) {
             m_capacity = rows * (m_step / sizeof(T));
         }
+
+        m_elements.reset(elements);
+        m_elements.get_deleter() =
+            std::bind(&Matrix::elements_deleter, this, std::placeholders::_1);
     }
 
     template <size_t rows, size_t cols>
@@ -114,10 +125,7 @@ public:
      * @brief Move constructor, moves another matrices elements.
      * @param m Instance to move from.
      */
-    Matrix(Matrix &&m) : Matrix(m.data(), m.rows(), m.cols(), m.step(), true) {
-        m.m_capacity = 0;
-        m.clear();
-    }
+    Matrix(Matrix &&m) : Matrix() { m.move(*this); }
 
     ~Matrix() { clear(); }
 
@@ -130,12 +138,7 @@ public:
     Matrix &operator=(const Matrix &m) {
         if (this != &m) {
             clear();
-
             m.copy(*this);
-            m_rows = m.rows();
-            m_cols = m.cols();
-            m_step = m.step();
-            m_capacity = m_rows * (m_step / sizeof(T));
         }
         return *this;
     }
@@ -148,14 +151,7 @@ public:
     Matrix &operator=(Matrix &&m) {
         if (this != &m) {
             clear();
-
-            m_rows = m.rows();
-            m_cols = m.cols();
-            m_step = m.step();
-            m_elements.swap(m.m_elements);
-            m_capacity = m.m_capacity;
-
-            m.clear();
+            m.move(*this);
         }
         return *this;
     }
@@ -284,12 +280,8 @@ public:
         m_rows = 0;
         m_cols = 0;
         m_step = 0;
-        if (m_capacity == 0) {
-            // this does not actually free any resources, it just removes the responsibility from
-            // the unique_ptr instance (which is what we want in this case)
-            m_elements.release();
-        }
-        m_elements = nullptr;
+        m_elements.reset(nullptr);
+        m_capacity = 0;
     }
 
     /**
@@ -380,12 +372,24 @@ public:
      * @param target Target instance which assumes element ownership.
      */
     void move(Matrix &target) {
-        target = Matrix(m_elements.get(), m_rows, m_cols, m_step, m_capacity > 0);
+        target.m_rows = m_rows;
+        target.m_cols = m_cols;
+        target.m_step = m_step;
+        target.m_capacity = m_capacity;
+        target.m_elements.reset(m_elements.get());
+
         m_capacity = 0;
         clear();
     }
 
 private:
+    // internal smart pointer deleter
+    void elements_deleter(T *ptr) {
+        if (m_capacity > 0) {
+            delete[] ptr;
+        }
+    }
+
     /// Matrix rows.
     size_t m_rows = 0;
     /// Matrix columns.
@@ -393,7 +397,9 @@ private:
     /// Matrix step (to account for padding), eqivalent to image stride.
     size_t m_step = 0;
     /// Matrix element pointer (can be arbitrary source or internal buffer).
-    std::unique_ptr<T[]> m_elements = nullptr;
+    /// The deleter must be passed to the unique ptr at instance construction time or passed later
+    /// via get_deleter() which returns a non-const reference to the functional.
+    std::unique_ptr<T[], std::function<void(T *)>> m_elements = nullptr;
     /// Number of elements the backing buffer can hold.
     size_t m_capacity = 0;
 };
