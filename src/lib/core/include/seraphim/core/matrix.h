@@ -357,11 +357,11 @@ public:
             return;
         }
 
-        // otherwise, we have to fallback to (slow) per element copying
+        // otherwise, we have to fallback to row copying (which works because padding is only ever
+        // present at the end of a row, so we can just copy the data and leave out the padding)
         for (size_t i = 0; i < m_rows; i++) {
-            for (size_t j = 0; j < m_cols; j++) {
-                target[i][j] = (*this)[i][j];
-            }
+            std::copy(m_elements.get(), m_elements.get() + i * m_cols,
+                      target.m_elements.get() + i * target.cols());
         }
     }
 
