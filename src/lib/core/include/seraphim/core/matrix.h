@@ -70,11 +70,7 @@ public:
      * @brief Copy matrix elements from a two dimensional array living on the stack.
      */
     Matrix(T (&elements)[rows][cols]) : Matrix(rows, cols) {
-        for (size_t i = 0; i < rows; i++) {
-            for (size_t j = 0; j < cols; j++) {
-                m_elements.get()[i * cols + j] = elements[i][j];
-            }
-        }
+        Matrix(&elements[0][0], m_rows, m_cols).copy(*this);
     }
 
     /**
@@ -84,10 +80,10 @@ public:
      */
     Matrix(const std::vector<std::vector<T>> &elements)
         : Matrix(elements.size(), elements[0].size()) {
+        // a vector is not guaranteed (unlikely even) to store its data in one contiguous block,
+        // so we have to resort to per-row copying
         for (size_t i = 0; i < m_rows; i++) {
-            for (size_t j = 0; j < m_cols; j++) {
-                m_elements.get()[i * m_cols + j] = elements[i][j];
-            }
+            std::copy(elements[i].begin(), elements[i].end(), m_elements.get() + i * m_cols);
         }
     }
 
@@ -112,13 +108,7 @@ public:
      * @brief Copy constructor, performs a deep copy of elements.
      * @param m Instance to copy.
      */
-    Matrix(const Matrix &m) : Matrix(m.rows(), m.cols()) {
-        for (size_t i = 0; i < m.rows(); i++) {
-            for (size_t j = 0; j < m.cols(); j++) {
-                m_elements.get()[i * m_cols + j] = m[i][j];
-            }
-        }
-    }
+    Matrix(const Matrix &m) : Matrix(m.rows(), m.cols()) { m.copy(*this); }
 
     /**
      * @brief Move constructor, moves another matrices elements.
@@ -368,6 +358,15 @@ public:
      */
     void copy(Matrix &target) const {
         target.resize(m_rows, m_cols);
+
+        // if the source data is continuous, we can perform an optimized copy
+        if (m_step == m_cols * sizeof(T)) {
+            std::copy(m_elements.get(), m_elements.get() + m_rows * m_cols,
+                      target.m_elements.get());
+            return;
+        }
+
+        // otherwise, we have to fallback to (slow) per element copying
         for (size_t i = 0; i < m_rows; i++) {
             for (size_t j = 0; j < m_cols; j++) {
                 target[i][j] = (*this)[i][j];
