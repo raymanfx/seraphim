@@ -38,6 +38,19 @@ COMMON_TASKS=(
     ["test"]="make test"
 )
 
+# setup ccache if available
+if [ -f `command -v ccache` ]; then
+    # extend build command
+    COMMON_TASKS["build"]="\
+CC=\"ccache clang\" CXX=\"ccache clang++\" make build || exit 1; \
+echo; \
+echo \"####################\"; \
+echo \"### ccache stats ###\"; \
+echo \"####################\"; \
+ccache -s; \
+"
+fi
+
 ACTUAL_TASK=""
 for i in "${!COMMON_TASKS[@]}"; do
     if [ "$i" == "$TASK" ]; then
