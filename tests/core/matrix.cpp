@@ -98,7 +98,7 @@ TEST_CASE( "Matrix constructor", "[Matrix<T>]" ) {
 }
 
 TEST_CASE( "Matrix runtime behavior", "[Matrix<T>]" ) {
-    SECTION( "copy assignment operator performs a shallow copy" ) {
+    SECTION( "copy assignment operator performs a deep copy" ) {
         Matrix<int> m1({
             { 1, 2 },
             { 9, 8 },
@@ -107,7 +107,7 @@ TEST_CASE( "Matrix runtime behavior", "[Matrix<T>]" ) {
         Matrix<int> m2;
         m2 = m1;
 
-        REQUIRE( m2.data() == m1.data() );
+        REQUIRE( m2.data() != m1.data() );
         REQUIRE( m2.rows() == m1.rows() );
         REQUIRE( m2.cols() == m1.cols() );
         REQUIRE( m2[0][0] == m1[0][0] );

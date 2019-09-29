@@ -132,7 +132,8 @@ public:
     ~Matrix() { clear(); }
 
     /**
-     * @brief Copy assignment operator, performs a shallow copy of elements.
+     * @brief Copy assignment operator, performs a deep copy of elements.
+     *        The step is normalized during the copy operation, i.e. step = cols * sizeof(T).
      * @param m Instance to copy from.
      * @return Current instance.
      */
@@ -140,8 +141,8 @@ public:
         if (this != &m) {
             clear();
 
-            m_elements.reset(m.data());
-            m_elements_owned = false;
+            m.copy(*this);
+            m_elements_owned = true;
             m_rows = m.rows();
             m_cols = m.cols();
             m_step = m.step();
@@ -365,7 +366,7 @@ public:
      *        Each element of the current instance is copied into the new instance.
      * @param target Target instance which assumes element ownership.
      */
-    void copy(Matrix &target) {
+    void copy(Matrix &target) const {
         target.resize(m_rows, m_cols);
         for (size_t i = 0; i < m_rows; i++) {
             for (size_t j = 0; j < m_cols; j++) {
