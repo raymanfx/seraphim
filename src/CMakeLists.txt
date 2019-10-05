@@ -14,7 +14,6 @@ endif ()
 # we need to include those first to notify others about their build state
 add_subdirectory(lib)
 add_subdirectory(apps)
-add_subdirectory(samples)
 
 message(STATUS " ")
 message(STATUS ">> Seraphim build configuration <<")

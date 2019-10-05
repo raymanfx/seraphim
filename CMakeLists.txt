@@ -11,6 +11,7 @@ string(CONCAT CMAKE_CXX_FLAGS
 
 add_subdirectory(src)
 add_subdirectory(tests)
+add_subdirectory(samples)
 add_subdirectory(deploy)
 
 # Generate package config
