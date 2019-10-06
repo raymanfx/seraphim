@@ -8,7 +8,6 @@ services:
   - docker
 
 cache:
-  bundler: true
   directories:
     - $HOME/docker
     - $HOME/ccache
