@@ -83,8 +83,8 @@ int main(int argc, char **argv) {
     int camera_index = 0;
     std::string cascade_path;
     ::LBPFaceDetector detector;
-    std::vector<sph::core::Polygon<int>> faces;
-    sph::core::Image image;
+    std::vector<sph::Polygon<int>> faces;
+    sph::Image image;
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;
     std::chrono::high_resolution_clock::time_point t_frame_captured;
@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
         std::cout << "[ERROR Failed to read cascade" << std::endl;
         return 1;
     }
-    detector.set_target(sph::core::IComputable::Target::OPENCL);
+    detector.set_target(sph::IComputable::Target::OPENCL);
 
     sph::gui::GLWindow viewer("LBP Face Detector");
 

@@ -167,16 +167,16 @@ void MainWindow::updateBuffer(const ICaptureStream::Buffer &buf) {
     mCaptureBuffer = buf;
 
     // get the QImage wrapper representation
-    sph::core::Image img;
-    sph::core::Pixelformat::Enum pixfmt;
+    sph::Image img;
+    sph::Pixelformat::Enum pixfmt;
 
-    pixfmt = sph::core::Pixelformat::uid(buf.format.fourcc);
-    if (pixfmt == sph::core::Pixelformat::Enum::UNKNOWN) {
+    pixfmt = sph::Pixelformat::uid(buf.format.fourcc);
+    if (pixfmt == sph::Pixelformat::Enum::UNKNOWN) {
         return;
     }
 
-    img = sph::core::Image(static_cast<unsigned char *>(buf.start), buf.format.width,
-                           buf.format.height, pixfmt, buf.format.stride);
+    img = sph::Image(static_cast<unsigned char *>(buf.start), buf.format.width, buf.format.height,
+                     pixfmt, buf.format.stride);
     if (!img) {
         return;
     }

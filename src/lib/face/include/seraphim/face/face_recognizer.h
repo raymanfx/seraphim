@@ -21,14 +21,13 @@ public:
 
     struct Prediction {
         int label;
-        sph::core::Polygon<int> poly;
+        sph::Polygon<int> poly;
         double confidence;
     };
 
-    virtual void train(const std::vector<sph::core::Image> &imgs,
-                       const std::vector<int> &labels) = 0;
-    virtual bool predict(const sph::core::Image &img, std::vector<Prediction> &preds) = 0;
-    virtual void update(const std::vector<sph::core::Image> &imgs, const std::vector<int> &labels,
+    virtual void train(const std::vector<sph::Image> &imgs, const std::vector<int> &labels) = 0;
+    virtual bool predict(const sph::Image &img, std::vector<Prediction> &preds) = 0;
+    virtual void update(const std::vector<sph::Image> &imgs, const std::vector<int> &labels,
                         bool invalidate = false) = 0;
 };
 

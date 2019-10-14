@@ -15,7 +15,6 @@
 #include <vector>
 
 namespace sph {
-namespace core {
 
 /**
  * @brief Matrix class representing arbitrary data.
@@ -393,7 +392,6 @@ private:
     size_t m_capacity = 0;
 };
 
-} // namespace core
 } // namespace sph
 
 #endif // SPH_CORE_MATRIX_H

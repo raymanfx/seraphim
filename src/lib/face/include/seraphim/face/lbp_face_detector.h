@@ -19,7 +19,7 @@
 namespace sph {
 namespace face {
 
-class LBPFaceDetector : public IFaceDetector, sph::core::IComputable {
+class LBPFaceDetector : public IFaceDetector, sph::IComputable {
 public:
     LBPFaceDetector() = default;
 
@@ -38,8 +38,7 @@ public:
 
     bool load_face_cascade(const std::string &path);
 
-    bool detect_faces(const sph::core::Image &img,
-                      std::vector<sph::core::Polygon<int>> &faces) override;
+    bool detect_faces(const sph::Image &img, std::vector<sph::Polygon<int>> &faces) override;
 
     /**
      * @brief Set parameters for various algorithms that are used by this class.

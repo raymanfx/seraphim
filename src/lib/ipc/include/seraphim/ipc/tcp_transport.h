@@ -48,7 +48,7 @@ public:
 
     /**
      * @brief Bind to a port.
-     *        Throws sph::core::RuntimeException in case of errors.
+     *        Throws sph::RuntimeException in case of errors.
      * @param port The port number, must be a value between 0 and 65535.
      * @return True on success, false otherwise.
      */
@@ -59,7 +59,7 @@ public:
      *        Whether TX operations are legal without an active connection depends on the socket
      *        type and protocol. E.g. TCP sockets require a connection, but UDP datagram sockets do
      *        not.
-     *        Throws sph::core::RuntimeException in case of errors.
+     *        Throws sph::RuntimeException in case of errors.
      * @param port The port number, must be a value between 0 and 65535.
      * @return True on success, false otherwise.
      */
@@ -69,7 +69,7 @@ public:
 
     /**
      * @brief Listen for incoming client connections (must be bound to a port already).
-     *        Throws sph::core::RuntimeException when the OS socket op fails.
+     *        Throws sph::RuntimeException when the OS socket op fails.
      * @param backlog Number of clients that can simultaneously be connected.
      */
     void listen(int backlog) { m_socket.listen(backlog); }
@@ -90,8 +90,8 @@ public:
 
     /**
      * @brief Receive a message from a client.
-     *        Throws sph::core::RuntimeException in case of errors.
-     *        Throws sph::core::TimeoutException in case of timeouts.
+     *        Throws sph::RuntimeException in case of errors.
+     *        Throws sph::TimeoutException in case of timeouts.
      * @param fd File descriptor of the client connection.
      * @param msg The message.
      */
@@ -99,8 +99,8 @@ public:
 
     /**
      * @brief Send a message to a client.
-     *        Throws sph::core::RuntimeException in case of errors.
-     *        Throws sph::core::TimeoutException in case of timeouts.
+     *        Throws sph::RuntimeException in case of errors.
+     *        Throws sph::TimeoutException in case of timeouts.
      * @param fd File descriptor of the client connection.
      * @param msg The message.
      */

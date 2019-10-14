@@ -19,12 +19,11 @@
 namespace sph {
 namespace face {
 
-class HOGFaceDetector : public IFaceDetector, sph::core::IComputable {
+class HOGFaceDetector : public IFaceDetector, sph::IComputable {
 public:
     HOGFaceDetector();
 
-    bool detect_faces(const sph::core::Image &img,
-                      std::vector<sph::core::Polygon<int>> &faces) override;
+    bool detect_faces(const sph::Image &img, std::vector<sph::Polygon<int>> &faces) override;
 
     bool set_target(Target target) override;
 

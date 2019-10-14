@@ -2,7 +2,7 @@
 
 #include <seraphim/core/image.h>
 
-using namespace sph::core;
+using namespace sph;
 
 TEST_CASE( "Image constructor", "[Image]" ) {
     SECTION( "default constructor creates empty instances" ) {

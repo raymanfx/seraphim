@@ -27,11 +27,11 @@ public:
 
     /**
      * @brief Render an image inside the window. The data is immediately uploaded to the GPU.
-     *        Throws sph::core::InvalidArgumentException in case of unsupported format.
+     *        Throws sph::InvalidArgumentException in case of unsupported format.
      * @param img Input image to be rendered.
      * @return True on success, false otherwise.
      */
-    virtual void show(const sph::core::Image &img) = 0;
+    virtual void show(const sph::Image &img) = 0;
 };
 
 } // namespace gui

@@ -14,7 +14,7 @@
 namespace sph {
 namespace frontend {
 
-static bool Image2QImage(const sph::core::Image &src, QImage &dst) {
+static bool Image2QImage(const sph::Image &src, QImage &dst) {
     const uchar *bytes = src.data();
     uint32_t row_alignment;
 
@@ -31,14 +31,14 @@ static bool Image2QImage(const sph::core::Image &src, QImage &dst) {
 
     // https://doc.qt.io/qt-5/qvideoframe.html#PixelFormat-enum
     switch (src.pixfmt()) {
-    case sph::core::Pixelformat::Enum::BGR24:
-    case sph::core::Pixelformat::Enum::BGR32:
+    case sph::Pixelformat::Enum::BGR24:
+    case sph::Pixelformat::Enum::BGR32:
         dst = QImage(bytes, static_cast<int>(src.width()), static_cast<int>(src.height()),
                      QImage::Format_RGB888)
                   .rgbSwapped();
         break;
-    case sph::core::Pixelformat::Enum::RGB24:
-    case sph::core::Pixelformat::Enum::RGB32:
+    case sph::Pixelformat::Enum::RGB24:
+    case sph::Pixelformat::Enum::RGB32:
         dst = QImage(bytes, static_cast<int>(src.width()), static_cast<int>(src.height()),
                      QImage::Format_RGB888);
         break;
@@ -49,7 +49,7 @@ static bool Image2QImage(const sph::core::Image &src, QImage &dst) {
     return true;
 }
 
-static bool QImage2Image(QImage &src, sph::core::Image &dst) {
+static bool QImage2Image(QImage &src, sph::Image &dst) {
     // TODO: implement
     (void)src;
     (void)dst;

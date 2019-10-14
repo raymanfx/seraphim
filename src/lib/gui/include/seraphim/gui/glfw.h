@@ -33,14 +33,14 @@ static void glfw_error_callback(int, const char *msg) {
  * This only ever runs once during the lifetime of the process.
  *
  * An error callback is registered to print failures.
- * Throws sph::core::RuntimeException in case of errors.
+ * Throws sph::RuntimeException in case of errors.
  */
 void glfw_init() {
     if (!glfw_initialized) {
         glfwSetErrorCallback(glfw_error_callback);
         glfw_initialized = glfwInit() == GLFW_TRUE;
         if (!glfw_initialized) {
-            SPH_THROW(sph::core::RuntimeException, "Failed to initialize GLFW");
+            SPH_THROW(sph::RuntimeException, "Failed to initialize GLFW");
         }
     }
 }
@@ -51,7 +51,7 @@ void glfw_init() {
  * This only ever runs once during the lifetime of the process.
  * After this has been called, all GLFW ops will fail until glfw_init() is called again.
  *
- * Throws sph::core::RuntimeException in case of errors.
+ * Throws sph::RuntimeException in case of errors.
  */
 void glfw_terminate() {
     if (glfw_initialized && glfw_windows == 0) {

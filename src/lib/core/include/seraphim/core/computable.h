@@ -9,7 +9,6 @@
 #define SPH_CORE_COMPUTABLE_H
 
 namespace sph {
-namespace core {
 
 /**
  * @brief Computable interface.
@@ -52,7 +51,6 @@ protected:
     IComputable() = default;
 };
 
-} // namespace core
 } // namespace sph
 
 #endif // SPH_CORE_COMPUTABLE_H

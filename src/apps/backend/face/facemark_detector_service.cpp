@@ -10,7 +10,7 @@
 
 #include "facemark_detector_service.h"
 
-using namespace sph::core;
+using namespace sph;
 using namespace sph::face;
 
 FacemarkDetectorService::FacemarkDetectorService(

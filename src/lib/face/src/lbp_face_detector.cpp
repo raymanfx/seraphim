@@ -9,7 +9,7 @@
 
 #include "seraphim/face/lbp_face_detector.h"
 
-using namespace sph::core;
+using namespace sph;
 using namespace sph::face;
 
 bool LBPFaceDetector::face_cascade_impl(cv::InputArray img, cv::OutputArray ROIs) {

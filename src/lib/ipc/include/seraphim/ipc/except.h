@@ -18,7 +18,7 @@ namespace ipc {
  *
  * Throw this exception whenever a previously connected peer disconnects (e.g. recv returns 0).
  */
-class PeerDisconnectedException : public sph::core::RuntimeException {
+class PeerDisconnectedException : public sph::RuntimeException {
     using RuntimeException::RuntimeException;
 };
 

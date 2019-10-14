@@ -2,7 +2,7 @@
 
 #include <seraphim/core/polygon.h>
 
-using namespace sph::core;
+using namespace sph;
 
 TEST_CASE( "Polygon constructor", "[Polygon<T,N>]" ) {
     SECTION( "number of parameters is respected" ) {

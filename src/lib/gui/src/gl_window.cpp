@@ -11,7 +11,7 @@
 #include "seraphim/core/except.h"
 #include "seraphim/gui/gl_window.h"
 
-using namespace sph::core;
+using namespace sph;
 using namespace sph::gui;
 
 GLWindow::GLWindow(const std::string &title) : m_ui_active(false) {
@@ -65,7 +65,7 @@ GLWindow::~GLWindow() {
     glfw_terminate();
 }
 
-void GLWindow::show(const sph::core::Image &img) {
+void GLWindow::show(const sph::Image &img) {
     static bool setup_texture = true;
     int w = static_cast<int>(img.width());
     int h = static_cast<int>(img.height());
@@ -85,23 +85,23 @@ void GLWindow::show(const sph::core::Image &img) {
     glPixelStorei(GL_UNPACK_ROW_LENGTH, static_cast<GLint>(img.width()));
 
     switch (img.pixfmt()) {
-    case sph::core::Pixelformat::Enum::RGB24:
-    case sph::core::Pixelformat::Enum::RGB32:
+    case sph::Pixelformat::Enum::RGB24:
+    case sph::Pixelformat::Enum::RGB32:
         input_internal_format = GL_RGB;
         input_format = GL_RGB;
         input_type = GL_UNSIGNED_BYTE;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_RED);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_BLUE);
         break;
-    case sph::core::Pixelformat::Enum::BGR24:
-    case sph::core::Pixelformat::Enum::BGR32:
+    case sph::Pixelformat::Enum::BGR24:
+    case sph::Pixelformat::Enum::BGR32:
         input_internal_format = GL_RGB;
         input_format = GL_RGB;
         input_type = GL_UNSIGNED_BYTE;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_BLUE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
         break;
-    case sph::core::Pixelformat::Enum::GRAY8:
+    case sph::Pixelformat::Enum::GRAY8:
         input_internal_format = GL_R8;
         input_format = GL_RED;
         input_type = GL_UNSIGNED_BYTE;

@@ -227,13 +227,13 @@ int main(int argc, char **argv) {
 
     val = ConfigStore::Instance().get_value("compute_target");
     if (!val.empty()) {
-        sph::core::IComputable::Target target = sph::core::IComputable::Target::CPU;
+        sph::IComputable::Target target = sph::IComputable::Target::CPU;
         if (val == "CPU") {
-            target = sph::core::IComputable::Target::CPU;
+            target = sph::IComputable::Target::CPU;
         } else if (val == "OPENCL") {
-            target = sph::core::IComputable::Target::OPENCL;
+            target = sph::IComputable::Target::OPENCL;
         } else if (val == "OPENCLFP16") {
-            target = sph::core::IComputable::Target::OPENCL_FP16;
+            target = sph::IComputable::Target::OPENCL_FP16;
         } else {
             std::cout << "[WARN] Invalid compute target, fallback to CPU" << std::endl;
         }

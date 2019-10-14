@@ -10,7 +10,7 @@
 
 #include "seraphim/face/kazemi_facemark_detector.h"
 
-using namespace sph::core;
+using namespace sph;
 using namespace sph::face;
 
 static constexpr std::pair<IFacemarkDetector::FacemarkType, std::pair<size_t, size_t>>
@@ -32,8 +32,8 @@ bool KazemiFacemarkDetector::load_facemark_model(const std::string &path) {
     return true;
 }
 
-bool KazemiFacemarkDetector::detect_facemarks(const sph::core::Image &img,
-                                              const std::vector<sph::core::Polygon<int>> &faces,
+bool KazemiFacemarkDetector::detect_facemarks(const sph::Image &img,
+                                              const std::vector<sph::Polygon<int>> &faces,
                                               std::vector<Facemarks> &facemarks) {
     // http://dlib.net/face_landmark_detection_ex.cpp.html
     dlib::array2d<unsigned char> dlib_gray_image;

@@ -17,7 +17,6 @@
 #include "pixelformat.h"
 
 namespace sph {
-namespace core {
 
 /**
  * @brief Image interface.
@@ -164,7 +163,6 @@ private:
     Pixelformat::Enum m_pixfmt = Pixelformat::Enum::UNKNOWN;
 };
 
-} // namespace core
 } // namespace sph
 
 #endif // SPH_CORE_IMAGE_H

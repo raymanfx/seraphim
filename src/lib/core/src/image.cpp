@@ -1,6 +1,6 @@
 #include <seraphim/core/image.h>
 
-using namespace sph::core;
+using namespace sph;
 
 Image::Image(unsigned char *data, uint32_t width, uint32_t height, Pixelformat::Enum pixfmt,
              size_t stride)

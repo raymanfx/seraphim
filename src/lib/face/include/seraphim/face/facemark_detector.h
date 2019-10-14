@@ -29,11 +29,11 @@ public:
      */
     struct Facemarks {
         /// all the point positions for each facemark of a face
-        std::vector<std::pair<FacemarkType, std::vector<sph::core::Point2i>>> landmarks;
+        std::vector<std::pair<FacemarkType, std::vector<sph::Point2i>>> landmarks;
     };
 
-    virtual bool detect_facemarks(const sph::core::Image &img,
-                                  const std::vector<sph::core::Polygon<int>> &faces,
+    virtual bool detect_facemarks(const sph::Image &img,
+                                  const std::vector<sph::Polygon<int>> &faces,
                                   std::vector<Facemarks> &facemarks) = 0;
 };
 

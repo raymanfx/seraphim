@@ -16,7 +16,7 @@
 #include "seraphim/ipc/except.h"
 #include "seraphim/ipc/net/tcp_socket.h"
 
-using namespace sph::core;
+using namespace sph;
 using namespace sph::ipc::net;
 
 TCPSocket::TCPSocket(Family family) : Socket(family, Socket::Type::STREAM, Socket::Protocol::TCP) {

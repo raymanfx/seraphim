@@ -80,8 +80,8 @@ void signal_handler(int signal) {
 int main(int argc, char **argv) {
     int camera_index = 0;
     HOGFaceDetector detector;
-    sph::core::Image image;
-    std::vector<sph::core::Polygon<int>> faces;
+    sph::Image image;
+    std::vector<sph::Polygon<int>> faces;
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;
     std::chrono::high_resolution_clock::time_point t_frame_captured;
@@ -117,7 +117,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    detector.set_target(sph::core::IComputable::Target::CPU);
+    detector.set_target(sph::IComputable::Target::CPU);
 
     sph::gui::GLWindow viewer("HoG Face Detector");
 

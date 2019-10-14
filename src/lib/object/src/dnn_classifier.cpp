@@ -9,7 +9,7 @@
 
 #include "seraphim/object/dnn_classifier.h"
 
-using namespace sph::core;
+using namespace sph;
 using namespace sph::object;
 
 bool DNNClassifier::read_net(const std::string &model, const std::string &config,

@@ -30,7 +30,7 @@ namespace car {
  *   4) hough line transformation
  *   5) linear regression for left and right segments
  */
-class LinearLaneDetector : public ILaneDetector, public sph::core::IComputable {
+class LinearLaneDetector : public ILaneDetector, public sph::IComputable {
 public:
     LinearLaneDetector() = default;
 
@@ -89,9 +89,9 @@ public:
 
     bool set_target(Target target) override;
 
-    bool detect(const sph::core::Image &img, std::vector<sph::core::Polygon<int>> &lanes) override;
+    bool detect(const sph::Image &img, std::vector<sph::Polygon<int>> &lanes) override;
 
-    bool set_roi(const sph::core::Polygon<int> &poly) override {
+    bool set_roi(const sph::Polygon<int> &poly) override {
         m_roi = poly;
         return true;
     }
@@ -101,7 +101,7 @@ private:
     Parameters m_params = {};
 
     // region of interest masking
-    sph::core::Polygon<int> m_roi;
+    sph::Polygon<int> m_roi;
 
     cv::Mat m_mat_buf;
     cv::UMat m_umat_buf;

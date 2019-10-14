@@ -9,7 +9,7 @@
 
 #include "seraphim/face/lbf_facemark_detector.h"
 
-using namespace sph::core;
+using namespace sph;
 using namespace sph::face;
 
 static constexpr std::pair<IFacemarkDetector::FacemarkType, std::pair<size_t, size_t>>
@@ -38,8 +38,8 @@ bool LBFFacemarkDetector::load_facemark_model(const std::string &path) {
     return true;
 }
 
-bool LBFFacemarkDetector::detect_facemarks(const sph::core::Image &img,
-                                           const std::vector<sph::core::Polygon<int>> &faces,
+bool LBFFacemarkDetector::detect_facemarks(const sph::Image &img,
+                                           const std::vector<sph::Polygon<int>> &faces,
                                            std::vector<Facemarks> &facemarks) {
     std::vector<cv::Rect> faces_;
     std::vector<std::vector<cv::Point2f>> landmarks;
@@ -97,7 +97,7 @@ bool LBFFacemarkDetector::detect_facemarks(const sph::core::Image &img,
         Facemarks marks;
 
         for (const auto &elem : Facemark_LUT) {
-            std::vector<sph::core::Point2i> points;
+            std::vector<sph::Point2i> points;
 
             for (size_t i = elem.second.first; i <= elem.second.second; i++) {
                 points.emplace_back(static_cast<int>(facepoints[i].x),

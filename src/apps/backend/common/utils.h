@@ -21,7 +21,7 @@ namespace backend {
  * @param dst Output image type that wraps the image data. No copying is performed.
  * @return True on success, false otherwise.
  */
-bool Image2DtoImage(const Seraphim::Types::Image2D &src, sph::core::Image &dst);
+bool Image2DtoImage(const Seraphim::Types::Image2D &src, sph::Image &dst);
 
 /**
  * @brief Image2DtoMat Convert arbitrary image data to matrix type.

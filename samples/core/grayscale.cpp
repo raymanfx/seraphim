@@ -76,7 +76,7 @@ void signal_handler(int signal) {
 
 int main(int argc, char **argv) {
     int camera_index = 0;
-    sph::core::Image rgb_image, gray_image;
+    sph::Image rgb_image, gray_image;
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;
     std::chrono::high_resolution_clock::time_point t_frame_captured;
@@ -141,13 +141,13 @@ int main(int argc, char **argv) {
         }
 
         // convert to grayscale
-        if (!gray_image.convert(sph::core::Pixelformat::Enum::GRAY16)) {
+        if (!gray_image.convert(sph::Pixelformat::Enum::GRAY16)) {
             std::cout << "[ERROR] Failed to convert Image buffer to Y16" << std::endl;
             continue;
         }
 
         // back to RGB because our GL viewer does not support Y16 right now
-        if (!gray_image.convert(sph::core::Pixelformat::Enum::BGR24)) {
+        if (!gray_image.convert(sph::Pixelformat::Enum::BGR24)) {
             std::cout << "[ERROR] Failed to convert Image buffer to BGR24" << std::endl;
             continue;
         }

@@ -25,7 +25,7 @@ namespace object {
  * models from Caffe, TensorFlow and many more frameworks.
  * The computation target can be set to CPU, OPENCL, VPU and more.
  */
-class DNNClassifier : public Classifier, public sph::core::IComputable {
+class DNNClassifier : public Classifier, public sph::IComputable {
 public:
     DNNClassifier() = default;
 
@@ -77,7 +77,7 @@ public:
 
     bool set_target(Target target) override;
 
-    bool predict(const sph::core::Image &img, std::vector<Prediction> &preds) override;
+    bool predict(const sph::Image &img, std::vector<Prediction> &preds) override;
 
 private:
     /// Deep neural network

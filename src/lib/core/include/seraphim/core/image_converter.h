@@ -14,7 +14,6 @@
 #include "pixelformat.h"
 
 namespace sph {
-namespace core {
 
 /**
  * @brief Image converter singleton facility.
@@ -121,7 +120,6 @@ private:
     std::vector<std::pair<int, Converter>> m_converters;
 };
 
-} // namespace core
 } // namespace sph
 
 #endif // SPH_CORE_IMAGE_CONVERTER_H

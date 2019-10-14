@@ -21,7 +21,7 @@
 namespace sph {
 namespace face {
 
-class LBFFacemarkDetector : public IFacemarkDetector, sph::core::IComputable {
+class LBFFacemarkDetector : public IFacemarkDetector, sph::IComputable {
 public:
     LBFFacemarkDetector();
 
@@ -30,8 +30,7 @@ public:
 
     bool load_facemark_model(const std::string &path);
 
-    bool detect_facemarks(const sph::core::Image &img,
-                          const std::vector<sph::core::Polygon<int>> &faces,
+    bool detect_facemarks(const sph::Image &img, const std::vector<sph::Polygon<int>> &faces,
                           std::vector<Facemarks> &facemarks) override;
 
     bool set_target(Target target) override;

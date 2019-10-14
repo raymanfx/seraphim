@@ -27,13 +27,13 @@ class GLWindow : public IWindow {
 public:
     /**
      * @brief GL window implementation.
-     *        Throws sph::core::RuntimeException if GL initialization fails.
+     *        Throws sph::RuntimeException if GL initialization fails.
      * @param title Window title (for UX).
      */
     explicit GLWindow(const std::string &title);
     ~GLWindow() override;
 
-    void show(const sph::core::Image &img) override;
+    void show(const sph::Image &img) override;
 
 private:
     /// window impl
@@ -69,7 +69,7 @@ private:
     GLuint m_ebo = 0;
 
     /// initialize GL properties
-    /// Throws sph::core::RuntimeException in case of errors.
+    /// Throws sph::RuntimeException in case of errors.
     void init_gl();
     /// deinitialize GL
     void terminate_gl();

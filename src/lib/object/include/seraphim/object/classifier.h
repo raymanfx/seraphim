@@ -33,7 +33,7 @@ public:
         /// class id (taken from the dataset that was used in @ref predict)
         int class_id;
         /// bounding polygon, relative to the input image
-        sph::core::Polygon<int> poly;
+        sph::Polygon<int> poly;
         /// confidence (value between 0 and 1)
         float confidence;
     };
@@ -44,7 +44,7 @@ public:
      * @param preds Output vector containing @ref Prediction instances.
      * @return Whether prediction was successful.
      */
-    virtual bool predict(const sph::core::Image &img, std::vector<Prediction> &preds) = 0;
+    virtual bool predict(const sph::Image &img, std::vector<Prediction> &preds) = 0;
 
 protected:
     Classifier() = default;

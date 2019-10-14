@@ -14,7 +14,7 @@
 #include "seraphim/core/except.h"
 #include "seraphim/ipc/tcp_transport.h"
 
-using namespace sph::core;
+using namespace sph;
 using namespace sph::ipc;
 
 void TCPTransport::receive(Seraphim::Message &msg) {

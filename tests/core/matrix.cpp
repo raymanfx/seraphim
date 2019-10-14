@@ -3,7 +3,7 @@
 
 #include <seraphim/core/matrix.h>
 
-using namespace sph::core;
+using namespace sph;
 
 TEST_CASE( "Matrix constructor", "[Matrix<T>]" ) {
     SECTION( "default constructor creates empty instances" ) {

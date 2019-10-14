@@ -10,7 +10,7 @@
 
 #include "seraphim/core/image_converter.h"
 
-using namespace sph::core;
+using namespace sph;
 
 template <class T> static T clamp(T val, T min, T max) {
     if (val < min) {

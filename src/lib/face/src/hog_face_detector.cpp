@@ -12,7 +12,7 @@
 
 #include "seraphim/face/hog_face_detector.h"
 
-using namespace sph::core;
+using namespace sph;
 using namespace sph::face;
 
 HOGFaceDetector::HOGFaceDetector() {

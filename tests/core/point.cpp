@@ -2,7 +2,7 @@
 
 #include <seraphim/core/point.h>
 
-using namespace sph::core;
+using namespace sph;
 
 TEST_CASE( "Point constructor", "[Point<T,N>]" ) {
     SECTION( "number of parameters is respected" ) {

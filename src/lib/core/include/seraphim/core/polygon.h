@@ -17,7 +17,6 @@
 #include "point.h"
 
 namespace sph {
-namespace core {
 
 /**
  * @brief Polygon object in 2D (euclidian) space.
@@ -195,7 +194,6 @@ private:
     std::vector<Point2<T>> m_points;
 };
 
-} // namespace core
 } // namespace sph
 
 #endif // SPH_CORE_POLYGON_H

@@ -9,7 +9,7 @@
 
 #include "shm_server.h"
 
-using namespace sph::core;
+using namespace sph;
 using namespace sph::backend;
 
 SharedMemoryServer::SharedMemoryServer() {

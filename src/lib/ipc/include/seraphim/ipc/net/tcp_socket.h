@@ -31,14 +31,14 @@ public:
 
     /**
      * @brief Listen for incoming connection requests.
-     *        Throws sph::core::RuntimeException when the OS socket op fails.
+     *        Throws sph::RuntimeException when the OS socket op fails.
      * @param backlog Number of pending connections allowed.
      */
     void listen(int backlog);
 
     /**
      * @brief Accept incoming connection requests.
-     *        Throws sph::core::RuntimeException when the OS socket op fails.
+     *        Throws sph::RuntimeException when the OS socket op fails.
      * @param addr OS socket address.
      * @param addrlen OS socket address length (differs between IPv4 and IPv6).
      * @return File descriptor of the connected peer.
@@ -52,8 +52,8 @@ public:
 
     /**
      * @brief Receive an arbitrary number of bytes.
-     *        Throws sph::core::RuntimeException when the OS socket connection fails.
-     *        Throws sph::core::TimeoutException when the OS socket connection times out.
+     *        Throws sph::RuntimeException when the OS socket connection fails.
+     *        Throws sph::TimeoutException when the OS socket connection times out.
      *        Throws sph::ipc::PeerDisconnectedException when a peer disconnects.
      * @param fd Peer file descriptor.
      * @param buf Output buffer.
@@ -65,8 +65,8 @@ public:
 
     /**
      * @brief Transmit a number of bytes.
-     *        Throws sph::core::RuntimeException when the OS socket connection fails.
-     *        Throws sph::core::TimeoutException when the OS socket connection times out.
+     *        Throws sph::RuntimeException when the OS socket connection fails.
+     *        Throws sph::TimeoutException when the OS socket connection times out.
      * @param fd Peer file descriptor.
      * @param buf Input buffer.
      * @param len Number of bytes to send. Must not be larger than the input buffer length.
@@ -77,8 +77,8 @@ public:
 
     /**
      * @brief Gathering (vectored receival) of data.
-     *        Throws sph::core::RuntimeException when the OS socket connection fails.
-     *        Throws sph::core::TimeoutException when the OS socket connection times out.
+     *        Throws sph::RuntimeException when the OS socket connection fails.
+     *        Throws sph::TimeoutException when the OS socket connection times out.
      *        Throws sph::ipc::PeerDisconnectedException when a peer disconnects.
      * @param fd Peer file descriptor.
      * @param msg Message structure.
@@ -89,8 +89,8 @@ public:
 
     /**
      * @brief Scattering (vectored transmission) of data.
-     *        Throws sph::core::RuntimeException when the OS socket connection fails.
-     *        Throws sph::core::TimeoutException when the OS socket connection times out.
+     *        Throws sph::RuntimeException when the OS socket connection fails.
+     *        Throws sph::TimeoutException when the OS socket connection times out.
      * @param fd Peer file descriptor.
      * @param msg Message structure.
      * @param flags OS socket flags.

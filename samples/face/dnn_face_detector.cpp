@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
     std::string model_config_path;
     sph::object::DNNClassifier classifier;
     std::vector<sph::object::Classifier::Prediction> predictions;
-    sph::core::Image image;
+    sph::Image image;
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;
     std::chrono::high_resolution_clock::time_point t_frame_captured;
@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
         std::cout << "[ERROR Failed to read net" << std::endl;
         return 1;
     }
-    classifier.set_target(sph::core::IComputable::Target::CPU);
+    classifier.set_target(sph::IComputable::Target::CPU);
 
     sph::gui::GLWindow viewer("DNN classifier");
 

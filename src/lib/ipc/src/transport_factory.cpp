@@ -10,7 +10,7 @@
 #include "seraphim/ipc/shm_transport.h"
 #include "seraphim/ipc/tcp_transport.h"
 
-using namespace sph::core;
+using namespace sph;
 using namespace sph::ipc;
 
 std::unique_ptr<ITransport> TransportFactory::create(const std::string &uri) {

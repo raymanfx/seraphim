@@ -13,7 +13,6 @@
 #include <vector>
 
 namespace sph {
-namespace core {
 
 /**
  * @brief Point in n-dimensional space.
@@ -133,7 +132,6 @@ using Point3i = Point3<int>;
 using Point3f = Point3<float>;
 using Point3d = Point3<double>;
 
-} // namespace core
 } // namespace sph
 
 #endif // SPH_CORE_POINT_H

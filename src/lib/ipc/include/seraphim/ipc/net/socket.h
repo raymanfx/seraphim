@@ -76,7 +76,7 @@ public:
 
     /**
      * @brief OS specifc socket implementation.
-     *        Throws sph::core::InvalidArgumentException in case of unsupported family, type or
+     *        Throws sph::InvalidArgumentException in case of unsupported family, type or
      *        protocol arguments.
      * @param family See @ref Family.
      * @param type See @ref Type.
@@ -97,7 +97,7 @@ public:
 
     /**
      * @brief Reset the socket, effectively creating a new underlying OS socket instance.
-     *        Throws sph::core::RuntimeException when the OS socket creation fails.
+     *        Throws sph::RuntimeException when the OS socket creation fails.
      * @param keep_opts Whether to keep any options set on the current socket.
      */
     void reset(bool keep_opts = false);
@@ -115,7 +115,7 @@ public:
 
     /**
      * @brief Bind to a port.
-     *        Throws sph::core::RuntimeException in case of errors.
+     *        Throws sph::RuntimeException in case of errors.
      * @param port The port number, must be a value between 0 and 65535.
      * @return True on success, false otherwise.
      */
@@ -126,7 +126,7 @@ public:
      *        Whether TX operations are legal without an active connection depends on the socket
      *        type and protocol. E.g. TCP sockets require a connection, but UDP datagram sockets do
      *        not.
-     *        Throws sph::core::RuntimeException in case of errors.
+     *        Throws sph::RuntimeException in case of errors.
      * @param port The port number, must be a value between 0 and 65535.
      * @return True on success, false otherwise.
      */
@@ -134,14 +134,14 @@ public:
 
     /**
      * @brief Shutdown the socket, cancelling any ongoing read/write operations.
-     *        Throws sph::core::RuntimeException when the OS socket shutdown fails.
+     *        Throws sph::RuntimeException when the OS socket shutdown fails.
      * @param how See @ref Shutdown.
      */
     void shutdown(Shutdown how = Shutdown::BOTH);
 
     /**
      * @brief Poll the socket for I/O activity such as incoming data.
-     *        Throws sph::core::RuntimeException when the OS socket poll fails.
+     *        Throws sph::RuntimeException when the OS socket poll fails.
      * @param timeout Timeout in milliseconds.
      * @return True if there is activity on the socket, false otherwise.
      */
@@ -149,7 +149,7 @@ public:
 
     /**
      * @brief Set a timeout for read operations on the socket.
-     *        Throws sph::core::RuntimeException when the OS socket op fails.
+     *        Throws sph::RuntimeException when the OS socket op fails.
      *        @see set_opt().
      * @param us Timeout in microseconds.
      */
@@ -157,7 +157,7 @@ public:
 
     /**
      * @brief Set a timeout for write operations on the socket.
-     *        Throws sph::core::RuntimeException when the OS socket op fails.
+     *        Throws sph::RuntimeException when the OS socket op fails.
      *        @see set_opt().
      * @param us Timeout in microseconds.
      */
@@ -165,8 +165,8 @@ public:
 
     /**
      * @brief Receive an arbitrary number of bytes.
-     *        Throws sph::core::RuntimeException when the OS socket connection fails.
-     *        Throws sph::core::TimeoutException when the OS socket connection times out.
+     *        Throws sph::RuntimeException when the OS socket connection fails.
+     *        Throws sph::TimeoutException when the OS socket connection times out.
      * @param buf Output buffer.
      * @param max_len Maximum number of bytes to receive.
      * @param flags OS socket flags.
@@ -176,8 +176,8 @@ public:
 
     /**
      * @brief Transmit a number of bytes.
-     *        Throws sph::core::RuntimeException when the OS socket connection fails.
-     *        Throws sph::core::TimeoutException when the OS socket connection times out.
+     *        Throws sph::RuntimeException when the OS socket connection fails.
+     *        Throws sph::TimeoutException when the OS socket connection times out.
      * @param buf Input buffer.
      * @param len Number of bytes to send. Must not be larger than the input buffer length.
      * @param flags OS socket flags.
@@ -187,8 +187,8 @@ public:
 
     /**
      * @brief Gathering (vectored receival) of data.
-     *        Throws sph::core::RuntimeException when the OS socket connection fails.
-     *        Throws sph::core::TimeoutException when the OS socket connection times out.
+     *        Throws sph::RuntimeException when the OS socket connection fails.
+     *        Throws sph::TimeoutException when the OS socket connection times out.
      * @param msg Message structure.
      * @param flags OS socket flags.
      * @return Number of bytes received.
@@ -197,8 +197,8 @@ public:
 
     /**
      * @brief Scattering (vectored transmission) of data.
-     *        Throws sph::core::RuntimeException when the OS socket connection fails.
-     *        Throws sph::core::TimeoutException when the OS socket connection times out.
+     *        Throws sph::RuntimeException when the OS socket connection fails.
+     *        Throws sph::TimeoutException when the OS socket connection times out.
      * @param msg Message structure.
      * @param flags OS socket flags.
      * @return Number of bytes sent.
@@ -215,7 +215,7 @@ protected:
     /**
      * @brief Retrieve the value for a given socket option.
      *        Should only be used to implement higher abstraction levels.
-     *        Throws sph::core::RuntimeException when the OS socket op fails.
+     *        Throws sph::RuntimeException when the OS socket op fails.
      * @param level OS specific level, such as SOL_SOCKET or TCP.
      * @param opt_name Name of the option, represented as number.
      * @param opt_val Output value buffer.
@@ -227,7 +227,7 @@ protected:
      * @brief Set the value for a given socket option.
      *        Should only be used to implement higher abstraction levels such as @ref
      *        set_tx_timeout().
-     *        Throws sph::core::RuntimeException when the OS socket op fails.
+     *        Throws sph::RuntimeException when the OS socket op fails.
      * @param level OS specific level, such as SOL_SOCKET or TCP.
      * @param opt_name Name of the option, represented as number.
      * @param opt_val Output value buffer.

@@ -11,7 +11,6 @@
 #include <cstdint>
 
 namespace sph {
-namespace core {
 
 static inline constexpr uint32_t fourcc(char a, char b, char c, char d) {
     return ((static_cast<uint32_t>(a) << 0) | (static_cast<uint32_t>(b) << 8) |
@@ -48,17 +47,17 @@ struct Pixelformat {
      */
     static Pixelformat::Enum uid(uint32_t fourcc) {
         switch (fourcc) {
-        case sph::core::fourcc('G', 'R', 'E', 'Y'):
+        case sph::fourcc('G', 'R', 'E', 'Y'):
             return Pixelformat::Enum::GRAY8;
-        case sph::core::fourcc('Y', '1', '6', ' '):
+        case sph::fourcc('Y', '1', '6', ' '):
             return Pixelformat::Enum::GRAY16;
-        case sph::core::fourcc('B', 'G', 'R', '3'):
+        case sph::fourcc('B', 'G', 'R', '3'):
             return Pixelformat::Enum::BGR24;
-        case sph::core::fourcc('B', 'G', 'R', '4'):
+        case sph::fourcc('B', 'G', 'R', '4'):
             return Pixelformat::Enum::BGR32;
-        case sph::core::fourcc('R', 'G', 'B', '3'):
+        case sph::fourcc('R', 'G', 'B', '3'):
             return Pixelformat::Enum::RGB24;
-        case sph::core::fourcc('R', 'G', 'B', '4'):
+        case sph::fourcc('R', 'G', 'B', '4'):
             return Pixelformat::Enum::RGB32;
         default:
             return Pixelformat::Enum::UNKNOWN;
@@ -73,17 +72,17 @@ struct Pixelformat {
     static uint32_t fourcc(Pixelformat::Enum uid) {
         switch (uid) {
         case Pixelformat::Enum::GRAY8:
-            return sph::core::fourcc('G', 'R', 'E', 'Y');
+            return sph::fourcc('G', 'R', 'E', 'Y');
         case Pixelformat::Enum::GRAY16:
-            return sph::core::fourcc('Y', '1', '6', ' ');
+            return sph::fourcc('Y', '1', '6', ' ');
         case Pixelformat::Enum::BGR24:
-            return sph::core::fourcc('B', 'G', 'R', '3');
+            return sph::fourcc('B', 'G', 'R', '3');
         case Pixelformat::Enum::BGR32:
-            return sph::core::fourcc('B', 'G', 'R', '4');
+            return sph::fourcc('B', 'G', 'R', '4');
         case Pixelformat::Enum::RGB24:
-            return sph::core::fourcc('R', 'G', 'B', '3');
+            return sph::fourcc('R', 'G', 'B', '3');
         case Pixelformat::Enum::RGB32:
-            return sph::core::fourcc('R', 'G', 'B', '4');
+            return sph::fourcc('R', 'G', 'B', '4');
         default:
             return 0;
         }
@@ -114,7 +113,6 @@ struct Pixelformat {
     }
 };
 
-} // namespace core
 } // namespace sph
 
 #endif // SPH_CORE_PIXELFORMAT_H

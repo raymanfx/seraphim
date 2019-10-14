@@ -18,7 +18,6 @@
     SPH_THROW_X(, ##__VA_ARGS__, SPH_THROW_1(__VA_ARGS__), SPH_THROW_0(__VA_ARGS__))
 
 namespace sph {
-namespace core {
 
 /**
  * @brief Top level exception.
@@ -106,7 +105,6 @@ class TimeoutException : public RuntimeException {
     using RuntimeException::RuntimeException;
 };
 
-} // namespace core
 } // namespace sph
 
 #endif // SPH_CORE_EXCEPT_H

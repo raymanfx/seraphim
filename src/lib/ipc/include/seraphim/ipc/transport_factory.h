@@ -40,8 +40,8 @@ public:
 
     /**
      * @brief Create a new transport.
-     *        Throws sph::core::InvalidArgumentException in case of malformed URI.
-     *        Throws sph::core::RuntimeException in case of errors.
+     *        Throws sph::InvalidArgumentException in case of malformed URI.
+     *        Throws sph::RuntimeException in case of errors.
      * @param uri Unified resource identifier of the transport.
      * @return A smart pointer to the newly created transport instance.
      *         Ownership is tracked in the factory; if you want to manually free the resource,
@@ -51,8 +51,8 @@ public:
 
     /**
      * @brief Open an existing transport connection.
-     *        Throws sph::core::InvalidArgumentException in case of malformed URI.
-     *        Throws sph::core::RuntimeException in case of errors.
+     *        Throws sph::InvalidArgumentException in case of malformed URI.
+     *        Throws sph::RuntimeException in case of errors.
      * @param uri Unified resource identifier of the transport.
      * @return A pointer to the newly created transport instance.
      *         Ownership is tracked in the factory; if you want to manually free the resource,

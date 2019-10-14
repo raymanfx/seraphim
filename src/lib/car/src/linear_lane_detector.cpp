@@ -9,7 +9,7 @@
 
 #include "seraphim/car/linear_lane_detector.h"
 
-using namespace sph::core;
+using namespace sph;
 using namespace sph::car;
 
 void LinearLaneDetector::preprocess(cv::InputArray img, cv::OutputArray out) {

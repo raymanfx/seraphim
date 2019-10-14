@@ -17,7 +17,7 @@
 #include "seraphim/core/except.h"
 #include "seraphim/ipc/net/socket.h"
 
-using namespace sph::core;
+using namespace sph;
 using namespace sph::ipc::net;
 
 Socket::Socket(Family family, Type type, Protocol protocol) {

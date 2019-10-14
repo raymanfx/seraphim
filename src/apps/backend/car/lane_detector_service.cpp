@@ -11,7 +11,7 @@
 
 #include "lane_detector_service.h"
 
-using namespace sph::core;
+using namespace sph;
 using namespace sph::car;
 
 LaneDetectorService::LaneDetectorService(std::shared_ptr<sph::car::ILaneDetector> detector) {

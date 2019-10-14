@@ -11,7 +11,7 @@
 
 #include "face_detector_service.h"
 
-using namespace sph::core;
+using namespace sph;
 using namespace sph::face;
 
 FaceDetectorService::FaceDetectorService(std::shared_ptr<sph::face::IFaceDetector> detector) {

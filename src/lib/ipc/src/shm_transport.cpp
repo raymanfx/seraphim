@@ -15,7 +15,7 @@
 #include "seraphim/core/except.h"
 #include "seraphim/ipc/shm_transport.h"
 
-using namespace sph::core;
+using namespace sph;
 using namespace sph::ipc;
 
 SharedMemoryTransport::~SharedMemoryTransport() {
