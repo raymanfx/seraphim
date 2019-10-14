@@ -419,44 +419,93 @@ TEST_CASE( "Matrix runtime behavior", "[Matrix<T>]" ) {
         REQUIRE( m1[2][3] == 1 );
     }
     SECTION( "copy() copies matrix elements into another instance" ) {
-        Matrix<int> m1({
-            { 3, 4 },
-            { 1, 9 },
-            { 4, 5 }
-        });
-        Matrix<int> m2;
+        int data[] = {
+            3, 4, 0 ,
+            1, 9, 0,
+            4, 5, 0
+        };
+        Matrix<int> m1(data, 3, 3);
+        Matrix<int> m2(data, 3, 2);
+        Matrix<int> m3;
 
         REQUIRE( !m1.empty() );
-        REQUIRE( m2.empty() );
-        REQUIRE( m1.size() == 3 * 2 );
-        REQUIRE( m2.size() == 0 );
+        REQUIRE( m3.empty() );
+        REQUIRE( m1.size() == 3 * 3 );
+        REQUIRE( m3.size() == 0 );
 
-        m1.copy(m2);
+        m1.copy(m3);
 
-        REQUIRE( m2.data() != m1.data() );
+        REQUIRE( m3.data() != m1.data() );
         REQUIRE( !m1.empty() );
+        REQUIRE( !m3.empty() );
+        REQUIRE( m3.size() == 3 * 3 );
+        REQUIRE( m3.size() == m1.size() );
+        REQUIRE( m3[0][0] == m1[0][0] );
+        REQUIRE( m3[0][1] == m1[0][1] );
+        REQUIRE( m3[0][2] == m1[0][2] );
+        REQUIRE( m3[1][0] == m1[1][0] );
+        REQUIRE( m3[1][1] == m1[1][1] );
+        REQUIRE( m3[1][2] == m1[1][2] );
+        REQUIRE( m3[2][0] == m1[2][0] );
+        REQUIRE( m3[2][1] == m1[2][1] );
+        REQUIRE( m3[2][2] == m1[2][2] );
+
+        m2.copy(m3);
+
+        REQUIRE( m3.data() != m2.data() );
         REQUIRE( !m2.empty() );
-        REQUIRE( m1.size() == 3 * 2 );
-        REQUIRE( m2.size() == m1.size() );
+        REQUIRE( !m3.empty() );
+        REQUIRE( m3.size() == 3 * 2 );
+        REQUIRE( m3.size() == m2.size() );
+        REQUIRE( m3[0][0] == m2[0][0] );
+        REQUIRE( m3[0][1] == m2[0][1] );
+        REQUIRE( m3[1][0] == m2[1][0] );
+        REQUIRE( m3[1][1] == m2[1][1] );
+        REQUIRE( m3[2][0] == m2[2][0] );
+        REQUIRE( m3[2][1] == m2[2][1] );
     }
     SECTION( "move() moves matrix elements into another instance" ) {
-        Matrix<int> m1({
-            { 3, 4 },
-            { 1, 9 },
-            { 4, 5 }
-        });
-        Matrix<int> m2;
+        int data[] = {
+            3, 4, 0 ,
+            1, 9, 0,
+            4, 5, 0
+        };
+        Matrix<int> m1(data, 3, 3);
+        Matrix<int> m2(data, 3, 2);
+        Matrix<int> m3;
 
         REQUIRE( !m1.empty() );
-        REQUIRE( m2.empty() );
-        REQUIRE( m1.size() == 3 * 2 );
-        REQUIRE( m2.size() == 0 );
+        REQUIRE( m3.empty() );
+        REQUIRE( m1.size() == 3 * 3 );
+        REQUIRE( m3.size() == 0 );
 
-        m1.move(m2);
+        m1.move(m3);
 
         REQUIRE( m1.empty() );
-        REQUIRE( !m2.empty() );
+        REQUIRE( !m3.empty() );
         REQUIRE( m1.size() == 0 );
-        REQUIRE( m2.size() == 3 * 2 );
+        REQUIRE( m3.size() == 3 * 3 );
+        REQUIRE( m3[0][0] == data[0] );
+        REQUIRE( m3[0][1] == data[1] );
+        REQUIRE( m3[0][2] == data[2] );
+        REQUIRE( m3[1][0] == data[3] );
+        REQUIRE( m3[1][1] == data[4] );
+        REQUIRE( m3[1][2] == data[5] );
+        REQUIRE( m3[2][0] == data[6] );
+        REQUIRE( m3[2][1] == data[7] );
+        REQUIRE( m3[2][2] == data[8] );
+
+        m2.move(m3);
+
+        REQUIRE( m2.empty() );
+        REQUIRE( !m3.empty() );
+        REQUIRE( m2.size() == 0 );
+        REQUIRE( m3.size() == 3 * 2 );
+        REQUIRE( m3[0][0] == data[0] );
+        REQUIRE( m3[0][1] == data[1] );
+        REQUIRE( m3[1][0] == data[2] );
+        REQUIRE( m3[1][1] == data[3] );
+        REQUIRE( m3[2][0] == data[4] );
+        REQUIRE( m3[2][1] == data[5] );
     }
 }

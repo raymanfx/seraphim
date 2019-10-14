@@ -10,7 +10,6 @@
 
 #include <cassert>
 #include <cmath>
-#include <functional>
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -32,10 +31,7 @@ public:
      * @brief Default constructor for an empty matrix.
      * Use this to create instances to assign them later.
      */
-    Matrix() {
-        m_elements.get_deleter() =
-            std::bind(&Matrix::elements_deleter, this, std::placeholders::_1);
-    }
+    Matrix() {}
 
     /**
      * @brief Allocate a new matrix.
@@ -48,9 +44,8 @@ public:
         }
 
         m_capacity = rows * (m_step / sizeof(T));
-        m_elements.reset(new T[m_capacity]);
-        m_elements.get_deleter() =
-            std::bind(&Matrix::elements_deleter, this, std::placeholders::_1);
+        m_buffer.reset(new T[m_capacity]);
+        m_data = m_buffer.get();
     }
 
     /**
@@ -71,9 +66,7 @@ public:
             m_capacity = rows * (m_step / sizeof(T));
         }
 
-        m_elements.reset(elements);
-        m_elements.get_deleter() =
-            std::bind(&Matrix::elements_deleter, this, std::placeholders::_1);
+        m_data = elements;
     }
 
     template <size_t rows, size_t cols>
@@ -94,7 +87,7 @@ public:
         // a vector is not guaranteed (unlikely even) to store its data in one contiguous block,
         // so we have to resort to per-row copying
         for (size_t i = 0; i < m_rows; i++) {
-            std::copy(elements[i].begin(), elements[i].end(), m_elements.get() + i * m_cols);
+            std::copy(elements[i].begin(), elements[i].end(), m_data + i * m_cols);
         }
     }
 
@@ -110,7 +103,7 @@ public:
         assert((i + rows) <= m.rows() && (j + cols) <= m.cols());
         for (size_t i_ = 0; i_ < rows; i_++) {
             for (size_t j_ = 0; j_ < cols; j_++) {
-                m_elements.get()[i_ * m_cols + j_] = m[i_ + i][j_ + j];
+                m_data[i_ * m_cols + j_] = m[i_ + i][j_ + j];
             }
         }
     }
@@ -164,7 +157,7 @@ public:
      */
     T *operator[](size_t i) const {
         assert(i < m_rows);
-        return m_elements.get() + i * (m_step / sizeof(T));
+        return m_data + i * (m_step / sizeof(T));
     }
 
     /**
@@ -177,7 +170,7 @@ public:
     T &operator()(size_t i, size_t j) {
         assert(i > 0 && j > 0);
         assert(i <= m_rows && j <= m_cols);
-        return (m_elements.get() + (i - 1) * (m_step / sizeof(T)))[j - 1];
+        return (m_data + (i - 1) * (m_step / sizeof(T)))[j - 1];
     }
 
     /**
@@ -257,21 +250,21 @@ public:
      * @brief Read-only pointer to matrix memory.
      * @return Memory location of the first element.
      */
-    unsigned char *bytes() const { return reinterpret_cast<unsigned char *>(m_elements.get()); }
+    unsigned char *bytes() const { return reinterpret_cast<unsigned char *>(m_data); }
 
     /**
      * @brief Read-only pointer to matrix elements.
      * @return Memory location of the first element.
      *         The memory space is continuous, but padding may lead to empty or invalid elements.
      */
-    T *data() const { return m_elements.get(); }
+    T *data() const { return m_data; }
 
     /**
      * @brief Check whether the matrix is empty.
      *        An allocated matrix is empty by default until elements are assigned.
      * @return True if no elements are stored, false otherwise.
      */
-    bool empty() const { return !m_elements; }
+    bool empty() const { return m_data == nullptr; }
 
     /**
      * @brief Clear the matrix, removing all its elementes and freeing memory.
@@ -280,7 +273,8 @@ public:
         m_rows = 0;
         m_cols = 0;
         m_step = 0;
-        m_elements.reset(nullptr);
+        m_data = nullptr;
+        m_buffer.reset(nullptr);
         m_capacity = 0;
     }
 
@@ -304,7 +298,8 @@ public:
         clear();
         m_step = step;
         m_capacity = rows * (step / sizeof(T));
-        m_elements.reset(new T[m_capacity]);
+        m_buffer.reset(new T[m_capacity]);
+        m_data = m_buffer.get();
     }
 
     /**
@@ -352,16 +347,15 @@ public:
 
         // if the source data is continuous, we can perform an optimized copy
         if (m_step == m_cols * sizeof(T)) {
-            std::copy(m_elements.get(), m_elements.get() + m_rows * m_cols,
-                      target.m_elements.get());
+            std::copy(m_data, m_data + m_rows * m_cols, target.m_data);
             return;
         }
 
         // otherwise, we have to fallback to row copying (which works because padding is only ever
         // present at the end of a row, so we can just copy the data and leave out the padding)
         for (size_t i = 0; i < m_rows; i++) {
-            std::copy(m_elements.get(), m_elements.get() + i * m_cols,
-                      target.m_elements.get() + i * target.cols());
+            std::copy(m_data + i * m_cols, m_data + (i + 1) * m_cols,
+                      target.m_data + i * target.cols());
         }
     }
 
@@ -376,20 +370,14 @@ public:
         target.m_cols = m_cols;
         target.m_step = m_step;
         target.m_capacity = m_capacity;
-        target.m_elements.reset(m_elements.get());
+        target.m_data = m_data;
+        m_buffer.swap(target.m_buffer);
 
         m_capacity = 0;
         clear();
     }
 
 private:
-    // internal smart pointer deleter
-    void elements_deleter(T *ptr) {
-        if (m_capacity > 0) {
-            delete[] ptr;
-        }
-    }
-
     /// Matrix rows.
     size_t m_rows = 0;
     /// Matrix columns.
@@ -397,9 +385,10 @@ private:
     /// Matrix step (to account for padding), eqivalent to image stride.
     size_t m_step = 0;
     /// Matrix element pointer (can be arbitrary source or internal buffer).
-    /// The deleter must be passed to the unique ptr at instance construction time or passed later
-    /// via get_deleter() which returns a non-const reference to the functional.
-    std::unique_ptr<T[], std::function<void(T *)>> m_elements = nullptr;
+    T *m_data = nullptr;
+    /// Back buffer, only valid if the instance has allocated memory.
+    /// In case of wrapped data, this is null.
+    std::unique_ptr<T[]> m_buffer = nullptr;
     /// Number of elements the backing buffer can hold.
     size_t m_capacity = 0;
 };
