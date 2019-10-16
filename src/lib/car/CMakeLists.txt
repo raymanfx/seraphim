@@ -1,4 +1,7 @@
 set(MODULE_NAME car)
+# protobuf messages
+add_subdirectory(data)
+
 set(MODULE_VERSION_MAJOR 0)
 set(MODULE_VERSION_MINOR 0)
 set(MODULE_VERSION_PATCH 0)

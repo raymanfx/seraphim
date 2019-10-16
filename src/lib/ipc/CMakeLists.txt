@@ -42,25 +42,21 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   target_link_libraries(${MODULE_NAME} PRIVATE rt)
 endif ()
 
-# protobuf generated classes
-find_package(Protobuf REQUIRED)
-target_link_libraries(${MODULE_NAME} PUBLIC ${PROTOBUF_LIBRARY})
-target_link_libraries(${MODULE_NAME} PRIVATE seraphim_messages)
-
 target_link_libraries(${MODULE_NAME} PUBLIC seraphim::core)
+target_link_libraries(${MODULE_NAME} PUBLIC seraphim::ipc_messages)
 
 # Make sure the compiler can find include files for our library
 # when other libraries or executables link to it
 target_include_directories(${MODULE_NAME} PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-                           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/data>
-                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/seraphim/ipc/data>)
+                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 # install shared lib and headers
-install(FILES ${PROTO_HDRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/seraphim/ipc/data)
 install(DIRECTORY include/seraphim DESTINATION include)
 install(TARGETS ${MODULE_NAME} EXPORT ${MODULE_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+# see https://gitlab.kitware.com/cmake/cmake/issues/17357
+install(TARGETS ipc_messages EXPORT ${MODULE_NAME})
 
 # add cmake install target
 install(EXPORT ${MODULE_NAME} NAMESPACE seraphim:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/seraphim)

@@ -12,7 +12,7 @@ add_library(${MODULE_NAME} STATIC ${SOURCES} ${HEADERS})
 # when other libraries or executables link to it
 target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(${MODULE_NAME} PUBLIC seraphim::iop seraphim::ipc)
+target_link_libraries(${MODULE_NAME} PUBLIC seraphim::iop seraphim::ipc seraphim::ipc_messages)
 
 # OpenCV dep
 find_package(OpenCV COMPONENTS opencv_core opencv_imgproc opencv_imgcodecs REQUIRED)

@@ -4,13 +4,6 @@ package Seraphim;
 
 import "google/protobuf/any.proto";
 
-// TODO: why do we need to include all inner message classes here?
-import "LaneDetector.proto";
-import "FaceDetector.proto";
-import "FaceRecognizer.proto";
-import "FacemarkDetector.proto";
-import "ObjectClassifier.proto";
-
 message Request {
   // the "real" request
   google.protobuf.Any inner = 1;
