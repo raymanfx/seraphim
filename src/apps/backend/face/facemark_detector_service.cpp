@@ -64,8 +64,8 @@ bool FacemarkDetectorService::handle_detection_request(
         return false;
     }
 
-    m_face_detector->detect_faces(image, faces);
-    m_facemark_detector->detect_facemarks(image, faces, facemarks);
+    m_face_detector->detect(image, faces);
+    m_facemark_detector->detect(image, faces, facemarks);
     for (const auto &poly : faces) {
         Seraphim::Types::Region2D *face = res.add_faces();
         face->set_x(poly.bl().x);

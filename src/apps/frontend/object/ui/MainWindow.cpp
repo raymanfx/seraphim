@@ -25,7 +25,7 @@ static std::string label_coco(const int &classid) {
 }
 
 static void draw_predictions(QImage &overlay,
-                             const Seraphim::Object::Classifier::ClassificationResponse &res) {
+                             const Seraphim::Object::Classifier::PredictionResponse &res) {
     QPainter painter(&overlay);
     QColor color;
     std::string label;
@@ -254,7 +254,7 @@ void MainWindow::backendWork() {
 
     if (mObjectRecognition) {
         Seraphim::Message msg;
-        Seraphim::Object::Classifier::ClassificationRequest req;
+        Seraphim::Object::Classifier::PredictionRequest req;
         req.set_allocated_image(&img);
 
         // force at least 0.5 confidence
@@ -271,7 +271,7 @@ void MainWindow::backendWork() {
             return;
         }
 
-        Seraphim::Object::Classifier::ClassificationResponse res;
+        Seraphim::Object::Classifier::PredictionResponse res;
         if (!msg.res().inner().UnpackTo(&res)) {
             std::cout << "[ERROR] Failed to deserialize" << std::endl;
             return;

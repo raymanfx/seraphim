@@ -26,8 +26,8 @@ public:
 
     bool load_facemark_model(const std::string &path);
 
-    bool detect_facemarks(const sph::Image &img, const std::vector<sph::Polygon<int>> &faces,
-                          std::vector<Facemarks> &facemarks) override;
+    bool detect(const sph::Image &img, const std::vector<sph::Polygon<int>> &faces,
+                std::vector<Facemarks> &facemarks) override;
 
     bool set_target(Target target) override;
 

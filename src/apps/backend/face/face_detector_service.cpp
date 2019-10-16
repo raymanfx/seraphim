@@ -60,7 +60,7 @@ bool FaceDetectorService::handle_detection_request(
         return false;
     }
 
-    m_detector->detect_faces(image, faces);
+    m_detector->detect(image, faces);
 
     for (const auto &poly : faces) {
         Seraphim::Types::Region2D *face = res.add_faces();

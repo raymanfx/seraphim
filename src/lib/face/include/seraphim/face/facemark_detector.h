@@ -32,9 +32,8 @@ public:
         std::vector<std::pair<FacemarkType, std::vector<sph::Point2i>>> landmarks;
     };
 
-    virtual bool detect_facemarks(const sph::Image &img,
-                                  const std::vector<sph::Polygon<int>> &faces,
-                                  std::vector<Facemarks> &facemarks) = 0;
+    virtual bool detect(const sph::Image &img, const std::vector<sph::Polygon<int>> &faces,
+                        std::vector<Facemarks> &facemarks) = 0;
 };
 
 } // namespace face

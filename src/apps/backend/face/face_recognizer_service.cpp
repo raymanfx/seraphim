@@ -37,9 +37,9 @@ bool FaceRecognizerService::handle_request(const Seraphim::Request &req, Seraphi
             res.mutable_inner()->PackFrom(inner_res);
             return true;
         }
-    } else if (req.inner().Is<Seraphim::Face::FaceRecognizer::RecognitionRequest>()) {
-        Seraphim::Face::FaceRecognizer::RecognitionRequest inner_req;
-        Seraphim::Face::FaceRecognizer::RecognitionResponse inner_res;
+    } else if (req.inner().Is<Seraphim::Face::FaceRecognizer::PredictionRequest>()) {
+        Seraphim::Face::FaceRecognizer::PredictionRequest inner_req;
+        Seraphim::Face::FaceRecognizer::PredictionResponse inner_res;
 
         req.inner().UnpackTo(&inner_req);
         if (handle_recognition_request(inner_req, inner_res)) {
@@ -80,7 +80,7 @@ bool FaceRecognizerService::handle_training_request(
     // compute centers of the eyes
     std::vector<FacemarkDetector::Facemarks> facemarks;
     std::vector<cv::Point2f> eyes;
-    m_face_detector->detect_faces(image, faces);
+    m_face_detector->detect(image, faces);
 
     if (faces.size() != 1) {
         res.set_label(-1);
@@ -93,7 +93,7 @@ bool FaceRecognizerService::handle_training_request(
         face->set_h(faces.at(0).height());
 
         // search in the region of the previously detected face
-        m_facemark_detector->detect_facemarks(image, faces, facemarks);
+        m_facemark_detector->detect(image, faces, facemarks);
         if (faces.size() == 0 || facemarks.size() == 0) {
             return false;
         }
@@ -152,8 +152,8 @@ bool FaceRecognizerService::handle_training_request(
 }
 
 bool FaceRecognizerService::handle_recognition_request(
-    const Seraphim::Face::FaceRecognizer::RecognitionRequest &req,
-    Seraphim::Face::FaceRecognizer::RecognitionResponse &res) {
+    const Seraphim::Face::FaceRecognizer::PredictionRequest &req,
+    Seraphim::Face::FaceRecognizer::PredictionResponse &res) {
     Image image;
     std::vector<Polygon<int>> faces;
     cv::Mat mat;
@@ -179,7 +179,7 @@ bool FaceRecognizerService::handle_recognition_request(
         return false;
     }
 
-    m_face_detector->detect_faces(image, faces);
+    m_face_detector->detect(image, faces);
     for (size_t i = 0; i < faces.size(); i++) {
         cv::Rect face_region(faces[i].bl().x, faces[i].bl().y, faces[i].width(), faces[i].height());
         image = sph::iop::cv::MatFacility::to_image(mat(face_region));

@@ -71,7 +71,7 @@ bool LBPFaceDetector::load_face_cascade(const std::string &path) {
     return m_face_cascade.load(path);
 }
 
-bool LBPFaceDetector::detect_faces(const Image &img, std::vector<Polygon<int>> &faces) {
+bool LBPFaceDetector::detect(const Image &img, std::vector<Polygon<int>> &faces) {
     cv::Mat mat;
     std::vector<cv::Rect> faces_;
 

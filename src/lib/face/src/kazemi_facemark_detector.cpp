@@ -32,9 +32,9 @@ bool KazemiFacemarkDetector::load_facemark_model(const std::string &path) {
     return true;
 }
 
-bool KazemiFacemarkDetector::detect_facemarks(const sph::Image &img,
-                                              const std::vector<sph::Polygon<int>> &faces,
-                                              std::vector<Facemarks> &facemarks) {
+bool KazemiFacemarkDetector::detect(const sph::Image &img,
+                                    const std::vector<sph::Polygon<int>> &faces,
+                                    std::vector<Facemarks> &facemarks) {
     // http://dlib.net/face_landmark_detection_ex.cpp.html
     dlib::array2d<unsigned char> dlib_gray_image;
     std::vector<dlib::rectangle> faces_;

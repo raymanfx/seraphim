@@ -38,9 +38,8 @@ bool LBFFacemarkDetector::load_facemark_model(const std::string &path) {
     return true;
 }
 
-bool LBFFacemarkDetector::detect_facemarks(const sph::Image &img,
-                                           const std::vector<sph::Polygon<int>> &faces,
-                                           std::vector<Facemarks> &facemarks) {
+bool LBFFacemarkDetector::detect(const sph::Image &img, const std::vector<sph::Polygon<int>> &faces,
+                                 std::vector<Facemarks> &facemarks) {
     std::vector<cv::Rect> faces_;
     std::vector<std::vector<cv::Point2f>> landmarks;
     cv::Mat mat;

@@ -23,7 +23,7 @@ class HOGFaceDetector : public FaceDetector, sph::Computable {
 public:
     HOGFaceDetector();
 
-    bool detect_faces(const sph::Image &img, std::vector<sph::Polygon<int>> &faces) override;
+    bool detect(const sph::Image &img, std::vector<sph::Polygon<int>> &faces) override;
 
     bool set_target(Target target) override;
 

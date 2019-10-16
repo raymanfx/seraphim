@@ -320,7 +320,7 @@ void MainWindow::backendWork() {
         double confidence;
 
         Seraphim::Message msg;
-        Seraphim::Face::FaceRecognizer::RecognitionRequest req;
+        Seraphim::Face::FaceRecognizer::PredictionRequest req;
         req.set_allocated_image(&img);
 
         msg.mutable_req()->mutable_inner()->PackFrom(req);
@@ -334,7 +334,7 @@ void MainWindow::backendWork() {
             return;
         }
 
-        Seraphim::Face::FaceRecognizer::RecognitionResponse res;
+        Seraphim::Face::FaceRecognizer::PredictionResponse res;
         if (!msg.res().inner().UnpackTo(&res)) {
             std::cout << "[ERROR] Failed to deserialize" << std::endl;
             return;

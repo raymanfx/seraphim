@@ -141,7 +141,7 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        detector.detect_faces(image, faces);
+        detector.detect(image, faces);
         process_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                            std::chrono::high_resolution_clock::now() - t_frame_captured)
                            .count();

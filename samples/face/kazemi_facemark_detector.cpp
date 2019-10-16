@@ -164,9 +164,9 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        face_detector->detect_faces(image, faces);
+        face_detector->detect(image, faces);
         if (faces.size() > 0) {
-            facemark_detector.detect_facemarks(image, faces, facemarks);
+            facemark_detector.detect(image, faces, facemarks);
         }
         process_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                            std::chrono::high_resolution_clock::now() - t_frame_captured)

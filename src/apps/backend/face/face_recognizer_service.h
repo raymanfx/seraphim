@@ -28,8 +28,8 @@ public:
     bool handle_request(const Seraphim::Request &req, Seraphim::Response &res) override;
     bool handle_training_request(const Seraphim::Face::FaceRecognizer::TrainingRequest &req,
                                  Seraphim::Face::FaceRecognizer::TrainingResponse &res);
-    bool handle_recognition_request(const Seraphim::Face::FaceRecognizer::RecognitionRequest &req,
-                                    Seraphim::Face::FaceRecognizer::RecognitionResponse &res);
+    bool handle_recognition_request(const Seraphim::Face::FaceRecognizer::PredictionRequest &req,
+                                    Seraphim::Face::FaceRecognizer::PredictionResponse &res);
 
 private:
     std::shared_ptr<sph::face::FaceDetector> m_face_detector;

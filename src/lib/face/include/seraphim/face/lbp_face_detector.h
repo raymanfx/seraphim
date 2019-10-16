@@ -38,7 +38,7 @@ public:
 
     bool load_face_cascade(const std::string &path);
 
-    bool detect_faces(const sph::Image &img, std::vector<sph::Polygon<int>> &faces) override;
+    bool detect(const sph::Image &img, std::vector<sph::Polygon<int>> &faces) override;
 
     /**
      * @brief Set parameters for various algorithms that are used by this class.

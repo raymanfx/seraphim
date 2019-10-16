@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SPH_ISERVER_H
-#define SPH_ISERVER_H
+#ifndef SPH_SERVER_H
+#define SPH_SERVER_H
 
 #include <Seraphim.pb.h>
 #include <functional>
@@ -51,4 +51,4 @@ protected:
 } // namespace backend
 } // namespace sph
 
-#endif // SPH_ISERVER_H
+#endif // SPH_SERVER_H

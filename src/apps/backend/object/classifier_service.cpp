@@ -17,9 +17,9 @@ ClassifierService::ClassifierService(std::shared_ptr<sph::object::Classifier> re
 }
 
 bool ClassifierService::handle_request(const Seraphim::Request &req, Seraphim::Response &res) {
-    if (req.inner().Is<Seraphim::Object::Classifier::ClassificationRequest>()) {
-        Seraphim::Object::Classifier::ClassificationRequest inner_req;
-        Seraphim::Object::Classifier::ClassificationResponse inner_res;
+    if (req.inner().Is<Seraphim::Object::Classifier::PredictionRequest>()) {
+        Seraphim::Object::Classifier::PredictionRequest inner_req;
+        Seraphim::Object::Classifier::PredictionResponse inner_res;
 
         req.inner().UnpackTo(&inner_req);
         if (handle_classification_request(inner_req, inner_res)) {
@@ -32,8 +32,8 @@ bool ClassifierService::handle_request(const Seraphim::Request &req, Seraphim::R
 }
 
 bool ClassifierService::handle_classification_request(
-    const Seraphim::Object::Classifier::ClassificationRequest &req,
-    Seraphim::Object::Classifier::ClassificationResponse &res) {
+    const Seraphim::Object::Classifier::PredictionRequest &req,
+    Seraphim::Object::Classifier::PredictionResponse &res) {
     sph::Image image;
     cv::Mat mat;
     cv::Rect2i roi;

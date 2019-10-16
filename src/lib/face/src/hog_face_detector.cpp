@@ -19,7 +19,7 @@ HOGFaceDetector::HOGFaceDetector() {
     m_detector = dlib::get_frontal_face_detector();
 }
 
-bool HOGFaceDetector::detect_faces(const Image &img, std::vector<Polygon<int>> &faces) {
+bool HOGFaceDetector::detect(const Image &img, std::vector<Polygon<int>> &faces) {
     // http://dlib.net/face_detection_ex.cpp.html
     dlib::array2d<unsigned char> dlib_gray_image;
     std::vector<dlib::rectangle> dets;

@@ -16,7 +16,7 @@ message TrainingRequest {
   bool invalidate = 3;
 }
 
-message RecognitionRequest {
+message PredictionRequest {
   Types.Image2D image = 1;
   double confidence = 2;
   Types.Region2D roi = 3;
@@ -33,7 +33,7 @@ message TrainingResponse {
   Types.Region2D face = 2;
 }
 
-message RecognitionResponse {
+message PredictionResponse {
   repeated int32 labels = 1;
   repeated double distances = 2;
   repeated Types.Region2D rois = 3;

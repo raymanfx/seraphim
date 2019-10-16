@@ -21,9 +21,8 @@ public:
     explicit ClassifierService(std::shared_ptr<sph::object::Classifier> recognizer);
 
     bool handle_request(const Seraphim::Request &req, Seraphim::Response &res) override;
-    bool
-    handle_classification_request(const Seraphim::Object::Classifier::ClassificationRequest &req,
-                                  Seraphim::Object::Classifier::ClassificationResponse &res);
+    bool handle_classification_request(const Seraphim::Object::Classifier::PredictionRequest &req,
+                                       Seraphim::Object::Classifier::PredictionResponse &res);
 
 private:
     std::shared_ptr<sph::object::Classifier> m_recognizer;

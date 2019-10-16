@@ -10,7 +10,7 @@ import "Types.proto";
  * Client --> Server
  */
 
-message ClassificationRequest {
+message PredictionRequest {
   Types.Image2D image = 1;
   Types.Region2D roi = 2;
   float confidence = 3;
@@ -22,7 +22,7 @@ message ClassificationRequest {
  * Server --> Client
  */
 
-message ClassificationResponse {
+message PredictionResponse {
   repeated int32 labels = 1;
   repeated float confidences = 2;
   repeated Types.Region2D rois = 3;
