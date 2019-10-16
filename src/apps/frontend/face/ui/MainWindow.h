@@ -92,7 +92,7 @@ private:
     QImage mOverlay;
     std::mutex mOverlayLock;
 
-    std::unique_ptr<sph::ipc::ITransport> mTransport;
+    std::unique_ptr<sph::ipc::Transport> mTransport;
 };
 
 #endif // MAINWINDOW_H

@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
         std::cout << "[ERROR Failed to read cascade" << std::endl;
         return 1;
     }
-    detector.set_target(sph::IComputable::Target::OPENCL);
+    detector.set_target(sph::Computable::Target::OPENCL);
 
     sph::gui::GLWindow viewer("LBP Face Detector");
 

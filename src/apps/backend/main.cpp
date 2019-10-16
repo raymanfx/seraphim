@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
     std::string config_path = "seraphim.conf";
-    std::vector<std::unique_ptr<IServer>> servers;
+    std::vector<std::unique_ptr<Server>> servers;
     std::string val;
     std::string val2;
 
@@ -215,13 +215,13 @@ int main(int argc, char **argv) {
 
     val = ConfigStore::Instance().get_value("compute_target");
     if (!val.empty()) {
-        sph::IComputable::Target target = sph::IComputable::Target::CPU;
+        sph::Computable::Target target = sph::Computable::Target::CPU;
         if (val == "CPU") {
-            target = sph::IComputable::Target::CPU;
+            target = sph::Computable::Target::CPU;
         } else if (val == "OPENCL") {
-            target = sph::IComputable::Target::OPENCL;
+            target = sph::Computable::Target::OPENCL;
         } else if (val == "OPENCLFP16") {
-            target = sph::IComputable::Target::OPENCL_FP16;
+            target = sph::Computable::Target::OPENCL_FP16;
         } else {
             std::cout << "[WARN] Invalid compute target, fallback to CPU" << std::endl;
         }
@@ -264,13 +264,13 @@ int main(int argc, char **argv) {
             std::cout << "Failed to create SHM segment: " << strerror(errno) << std::endl;
             delete server;
         } else {
-            server->register_event_handler(IServer::EVENT_MESSAGE_INCOMING, message_incoming);
+            server->register_event_handler(Server::EVENT_MESSAGE_INCOMING, message_incoming);
             std::cout << "Starting SHM server" << std::endl;
             if (!server->run()) {
                 std::cout << "Failed to run SHM server: " << strerror(errno) << std::endl;
                 delete server;
             } else {
-                servers.push_back(std::unique_ptr<IServer>(server));
+                servers.push_back(std::unique_ptr<Server>(server));
             }
         }
     }
@@ -283,13 +283,13 @@ int main(int argc, char **argv) {
             std::cout << "Failed to create TCP server: " << strerror(errno) << std::endl;
             delete server;
         } else {
-            server->register_event_handler(IServer::EVENT_MESSAGE_INCOMING, message_incoming);
+            server->register_event_handler(Server::EVENT_MESSAGE_INCOMING, message_incoming);
             std::cout << "Starting TCP server" << std::endl;
             if (!server->run()) {
                 std::cout << "Failed to run TCP server: " << strerror(errno) << std::endl;
                 delete server;
             } else {
-                servers.push_back(std::unique_ptr<IServer>(server));
+                servers.push_back(std::unique_ptr<Server>(server));
             }
         }
     }

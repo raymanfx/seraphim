@@ -20,9 +20,9 @@ namespace ipc {
  * The interface provides basic send and receive methods that must be implemented and operate on
  * Seraphim messages (which are protobuf messages).
  */
-class ITransport {
+class Transport {
 public:
-    virtual ~ITransport() = default;
+    virtual ~Transport() = default;
 
     /**
      * @brief Set timeout for blocking RX operations.
@@ -53,9 +53,6 @@ public:
      * @param msg The message.
      */
     virtual void send(const Seraphim::Message &msg) = 0;
-
-protected:
-    ITransport() = default;
 };
 
 } // namespace ipc

@@ -19,7 +19,7 @@
 namespace sph {
 namespace face {
 
-class LBPFaceDetector : public IFaceDetector, sph::IComputable {
+class LBPFaceDetector : public FaceDetector, sph::Computable {
 public:
     LBPFaceDetector() = default;
 

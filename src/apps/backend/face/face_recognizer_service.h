@@ -18,11 +18,11 @@
 namespace sph {
 namespace face {
 
-class FaceRecognizerService : public sph::backend::IService {
+class FaceRecognizerService : public sph::backend::Service {
 public:
-    explicit FaceRecognizerService(std::shared_ptr<sph::face::IFaceDetector> face_detector,
-                                   std::shared_ptr<sph::face::IFacemarkDetector> facemark_detector,
-                                   std::shared_ptr<sph::face::IFaceRecognizer> face_recognizer);
+    explicit FaceRecognizerService(std::shared_ptr<sph::face::FaceDetector> face_detector,
+                                   std::shared_ptr<sph::face::FacemarkDetector> facemark_detector,
+                                   std::shared_ptr<sph::face::FaceRecognizer> face_recognizer);
     ~FaceRecognizerService() override;
 
     bool handle_request(const Seraphim::Request &req, Seraphim::Response &res) override;
@@ -32,9 +32,9 @@ public:
                                     Seraphim::Face::FaceRecognizer::RecognitionResponse &res);
 
 private:
-    std::shared_ptr<sph::face::IFaceDetector> m_face_detector;
-    std::shared_ptr<sph::face::IFaceRecognizer> m_face_recognizer;
-    std::shared_ptr<sph::face::IFacemarkDetector> m_facemark_detector;
+    std::shared_ptr<sph::face::FaceDetector> m_face_detector;
+    std::shared_ptr<sph::face::FaceRecognizer> m_face_recognizer;
+    std::shared_ptr<sph::face::FacemarkDetector> m_facemark_detector;
 };
 
 } // namespace face

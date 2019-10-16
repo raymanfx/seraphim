@@ -14,7 +14,7 @@
 using namespace sph;
 using namespace sph::face;
 
-FaceDetectorService::FaceDetectorService(std::shared_ptr<sph::face::IFaceDetector> detector) {
+FaceDetectorService::FaceDetectorService(std::shared_ptr<sph::face::FaceDetector> detector) {
     m_detector = detector;
 }
 

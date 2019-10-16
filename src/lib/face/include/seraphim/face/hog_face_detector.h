@@ -19,7 +19,7 @@
 namespace sph {
 namespace face {
 
-class HOGFaceDetector : public IFaceDetector, sph::IComputable {
+class HOGFaceDetector : public FaceDetector, sph::Computable {
 public:
     HOGFaceDetector();
 

@@ -21,7 +21,7 @@
 namespace sph {
 namespace face {
 
-class LBFFacemarkDetector : public IFacemarkDetector, sph::IComputable {
+class LBFFacemarkDetector : public FacemarkDetector, sph::Computable {
 public:
     LBFFacemarkDetector();
 

@@ -22,9 +22,9 @@ namespace car {
  * The interface provides a basic lane data type and requires you to
  * implement the abstract @ref detect method.
  */
-class ILaneDetector {
+class LaneDetector {
 public:
-    virtual ~ILaneDetector() = default;
+    virtual ~LaneDetector() = default;
 
     /**
      * @brief Detect lanes in an image.
@@ -42,9 +42,6 @@ public:
      * @return True on success, false otherwise.
      */
     virtual bool set_roi(const sph::Polygon<int> &poly) = 0;
-
-protected:
-    ILaneDetector() = default;
 };
 
 } // namespace car

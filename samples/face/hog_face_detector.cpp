@@ -117,7 +117,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    detector.set_target(sph::IComputable::Target::CPU);
+    detector.set_target(sph::Computable::Target::CPU);
 
     sph::gui::GLWindow viewer("HoG Face Detector");
 

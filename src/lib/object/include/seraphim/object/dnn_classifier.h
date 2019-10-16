@@ -25,7 +25,7 @@ namespace object {
  * models from Caffe, TensorFlow and many more frameworks.
  * The computation target can be set to CPU, OPENCL, VPU and more.
  */
-class DNNClassifier : public Classifier, public sph::IComputable {
+class DNNClassifier : public Classifier, public sph::Computable {
 public:
     DNNClassifier() = default;
 

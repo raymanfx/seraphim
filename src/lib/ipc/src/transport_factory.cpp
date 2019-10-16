@@ -13,7 +13,7 @@
 using namespace sph;
 using namespace sph::ipc;
 
-std::unique_ptr<ITransport> TransportFactory::create(const std::string &uri) {
+std::unique_ptr<Transport> TransportFactory::create(const std::string &uri) {
     // delegate the real instance creation to helper functions
     if (uri.rfind("shm", 0) == 0) {
         return create_shm(uri);
@@ -24,7 +24,7 @@ std::unique_ptr<ITransport> TransportFactory::create(const std::string &uri) {
     SPH_THROW(InvalidArgumentException, std::string("Cannot handle URI: ") + uri);
 }
 
-std::unique_ptr<ITransport> TransportFactory::open(const std::string &uri) {
+std::unique_ptr<Transport> TransportFactory::open(const std::string &uri) {
     // delegate the real instance creation to helper functions
     if (uri.rfind("shm", 0) == 0) {
         return open_shm(uri);
@@ -35,7 +35,7 @@ std::unique_ptr<ITransport> TransportFactory::open(const std::string &uri) {
     SPH_THROW(InvalidArgumentException, std::string("Cannot handle URI: ") + uri);
 }
 
-std::unique_ptr<ITransport> TransportFactory::create_shm(const std::string &uri) {
+std::unique_ptr<Transport> TransportFactory::create_shm(const std::string &uri) {
     std::unique_ptr<SharedMemoryTransport> instance;
     std::string name;
     long size;
@@ -69,10 +69,10 @@ std::unique_ptr<ITransport> TransportFactory::create_shm(const std::string &uri)
         SPH_THROW(RuntimeException, "Failed to create memory region");
     }
 
-    return std::unique_ptr<ITransport>(std::move(instance));
+    return std::unique_ptr<Transport>(std::move(instance));
 }
 
-std::unique_ptr<ITransport> TransportFactory::create_tcp(const std::string &uri) {
+std::unique_ptr<Transport> TransportFactory::create_tcp(const std::string &uri) {
     std::unique_ptr<TCPTransport> instance;
     std::string address;
     int port;
@@ -120,10 +120,10 @@ std::unique_ptr<ITransport> TransportFactory::create_tcp(const std::string &uri)
         return nullptr;
     }
 
-    return std::unique_ptr<ITransport>(std::move(instance));
+    return std::unique_ptr<Transport>(std::move(instance));
 }
 
-std::unique_ptr<ITransport> TransportFactory::open_shm(const std::string &uri) {
+std::unique_ptr<Transport> TransportFactory::open_shm(const std::string &uri) {
     std::unique_ptr<SharedMemoryTransport> instance;
     std::string name;
 
@@ -144,10 +144,10 @@ std::unique_ptr<ITransport> TransportFactory::open_shm(const std::string &uri) {
         SPH_THROW(RuntimeException, "Failed to open memory region");
     }
 
-    return std::unique_ptr<ITransport>(std::move(instance));
+    return std::unique_ptr<Transport>(std::move(instance));
 }
 
-std::unique_ptr<ITransport> TransportFactory::open_tcp(const std::string &uri) {
+std::unique_ptr<Transport> TransportFactory::open_tcp(const std::string &uri) {
     std::unique_ptr<TCPTransport> instance;
     std::string address;
     int port;
@@ -196,5 +196,5 @@ std::unique_ptr<ITransport> TransportFactory::open_tcp(const std::string &uri) {
         return nullptr;
     }
 
-    return std::unique_ptr<ITransport>(std::move(instance));
+    return std::unique_ptr<Transport>(std::move(instance));
 }

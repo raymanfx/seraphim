@@ -18,16 +18,16 @@
 namespace sph {
 namespace car {
 
-class LaneDetectorService : public sph::backend::IService {
+class LaneDetectorService : public sph::backend::Service {
 public:
-    explicit LaneDetectorService(std::shared_ptr<sph::car::ILaneDetector> detector);
+    explicit LaneDetectorService(std::shared_ptr<sph::car::LaneDetector> detector);
 
     bool handle_request(const Seraphim::Request &req, Seraphim::Response &res) override;
     bool handle_detection_request(const Seraphim::Car::LaneDetector::DetectionRequest &req,
                                   Seraphim::Car::LaneDetector::DetectionResponse &res);
 
 private:
-    std::shared_ptr<sph::car::ILaneDetector> m_detector;
+    std::shared_ptr<sph::car::LaneDetector> m_detector;
 };
 
 } // namespace car

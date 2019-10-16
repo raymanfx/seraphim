@@ -23,7 +23,7 @@ namespace gui {
  *
  * Frames are rendered using GLES.
  */
-class GLWindow : public IWindow {
+class GLWindow : public Window {
 public:
     /**
      * @brief GL window implementation.

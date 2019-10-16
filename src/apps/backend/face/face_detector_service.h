@@ -16,16 +16,16 @@
 namespace sph {
 namespace face {
 
-class FaceDetectorService : public sph::backend::IService {
+class FaceDetectorService : public sph::backend::Service {
 public:
-    explicit FaceDetectorService(std::shared_ptr<sph::face::IFaceDetector> detector);
+    explicit FaceDetectorService(std::shared_ptr<sph::face::FaceDetector> detector);
 
     bool handle_request(const Seraphim::Request &req, Seraphim::Response &res) override;
     bool handle_detection_request(const Seraphim::Face::FaceDetector::DetectionRequest &req,
                                   Seraphim::Face::FaceDetector::DetectionResponse &res);
 
 private:
-    std::shared_ptr<sph::face::IFaceDetector> m_detector;
+    std::shared_ptr<sph::face::FaceDetector> m_detector;
 };
 
 } // namespace face

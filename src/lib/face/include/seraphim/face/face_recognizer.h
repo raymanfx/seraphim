@@ -15,9 +15,9 @@
 namespace sph {
 namespace face {
 
-class IFaceRecognizer {
+class FaceRecognizer {
 public:
-    virtual ~IFaceRecognizer() = default;
+    virtual ~FaceRecognizer() = default;
 
     struct Prediction {
         int label;

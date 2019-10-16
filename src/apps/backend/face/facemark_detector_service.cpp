@@ -14,8 +14,8 @@ using namespace sph;
 using namespace sph::face;
 
 FacemarkDetectorService::FacemarkDetectorService(
-    std::shared_ptr<sph::face::IFaceDetector> face_detector,
-    std::shared_ptr<sph::face::IFacemarkDetector> facemark_detector) {
+    std::shared_ptr<sph::face::FaceDetector> face_detector,
+    std::shared_ptr<sph::face::FacemarkDetector> facemark_detector) {
     m_face_detector = face_detector;
     m_facemark_detector = facemark_detector;
 }
@@ -42,7 +42,7 @@ bool FacemarkDetectorService::handle_detection_request(
     Image image;
     std::vector<Polygon<int>> faces;
     cv::Mat mat;
-    std::vector<sph::face::IFacemarkDetector::Facemarks> facemarks;
+    std::vector<sph::face::FacemarkDetector::Facemarks> facemarks;
     cv::Rect2i roi;
 
     if (!sph::backend::Image2DtoMat(req.image(), mat)) {
@@ -78,25 +78,25 @@ bool FacemarkDetectorService::handle_detection_request(
         for (const auto &landmark : face.landmarks) {
             Seraphim::Face::FacemarkDetector::Facemarks::Landmark type;
             switch (landmark.first) {
-            case IFacemarkDetector::FacemarkType::JAW:
+            case FacemarkDetector::FacemarkType::JAW:
                 type = Seraphim::Face::FacemarkDetector::Facemarks::JAW;
                 break;
-            case IFacemarkDetector::FacemarkType::RIGHT_EYEBROW:
+            case FacemarkDetector::FacemarkType::RIGHT_EYEBROW:
                 type = Seraphim::Face::FacemarkDetector::Facemarks::RIGHT_EYEBROW;
                 break;
-            case IFacemarkDetector::FacemarkType::LEFT_EYEBROW:
+            case FacemarkDetector::FacemarkType::LEFT_EYEBROW:
                 type = Seraphim::Face::FacemarkDetector::Facemarks::LEFT_EYEBROW;
                 break;
-            case IFacemarkDetector::FacemarkType::NOSE:
+            case FacemarkDetector::FacemarkType::NOSE:
                 type = Seraphim::Face::FacemarkDetector::Facemarks::NOSE;
                 break;
-            case IFacemarkDetector::FacemarkType::RIGHT_EYE:
+            case FacemarkDetector::FacemarkType::RIGHT_EYE:
                 type = Seraphim::Face::FacemarkDetector::Facemarks::RIGHT_EYE;
                 break;
-            case IFacemarkDetector::FacemarkType::LEFT_EYE:
+            case FacemarkDetector::FacemarkType::LEFT_EYE:
                 type = Seraphim::Face::FacemarkDetector::Facemarks::LEFT_EYE;
                 break;
-            case IFacemarkDetector::FacemarkType::MOUTH:
+            case FacemarkDetector::FacemarkType::MOUTH:
                 type = Seraphim::Face::FacemarkDetector::Facemarks::MOUTH;
                 break;
             default:

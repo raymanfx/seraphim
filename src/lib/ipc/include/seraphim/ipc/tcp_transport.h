@@ -21,7 +21,7 @@ namespace ipc {
  * This class uses TCP to exchange messages between a server and a client. A single server can
  * handle multiple clients, but their requests will be processed serially.
  */
-class TCPTransport : public ITransport {
+class TCPTransport : public Transport {
 public:
     /**
      * @brief Message header.

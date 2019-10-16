@@ -21,9 +21,9 @@ namespace gui {
  * Depending on the underlying implementation and the image buffer format, the buffer may be
  * converted before the actual rendering happens.
  */
-class IWindow {
+class Window {
 public:
-    virtual ~IWindow() = default;
+    virtual ~Window() = default;
 
     /**
      * @brief Render an image inside the window. The data is immediately uploaded to the GPU.

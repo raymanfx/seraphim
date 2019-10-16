@@ -15,9 +15,9 @@ using namespace sph;
 using namespace sph::face;
 
 FaceRecognizerService::FaceRecognizerService(
-    std::shared_ptr<sph::face::IFaceDetector> face_detector,
-    std::shared_ptr<sph::face::IFacemarkDetector> facemark_detector,
-    std::shared_ptr<sph::face::IFaceRecognizer> face_recognizer) {
+    std::shared_ptr<sph::face::FaceDetector> face_detector,
+    std::shared_ptr<sph::face::FacemarkDetector> facemark_detector,
+    std::shared_ptr<sph::face::FaceRecognizer> face_recognizer) {
     m_face_detector = face_detector;
     m_face_recognizer = face_recognizer;
     m_facemark_detector = facemark_detector;
@@ -78,7 +78,7 @@ bool FaceRecognizerService::handle_training_request(
     mat.copyTo(alignedFace);
 
     // compute centers of the eyes
-    std::vector<IFacemarkDetector::Facemarks> facemarks;
+    std::vector<FacemarkDetector::Facemarks> facemarks;
     std::vector<cv::Point2f> eyes;
     m_face_detector->detect_faces(image, faces);
 
@@ -100,8 +100,8 @@ bool FaceRecognizerService::handle_training_request(
 
         // collect the eye point positions from the face
         for (const auto &landmark_set : facemarks[0].landmarks) {
-            if (landmark_set.first == IFacemarkDetector::FacemarkType::LEFT_EYE ||
-                landmark_set.first == IFacemarkDetector::FacemarkType::RIGHT_EYE) {
+            if (landmark_set.first == FacemarkDetector::FacemarkType::LEFT_EYE ||
+                landmark_set.first == FacemarkDetector::FacemarkType::RIGHT_EYE) {
                 cv::Point2f p;
                 for (const auto &point : landmark_set.second) {
                     p.x += point.x;
@@ -158,7 +158,7 @@ bool FaceRecognizerService::handle_recognition_request(
     std::vector<Polygon<int>> faces;
     cv::Mat mat;
     cv::Rect2i roi;
-    std::vector<sph::face::IFaceRecognizer::Prediction> preds;
+    std::vector<sph::face::FaceRecognizer::Prediction> preds;
 
     if (!sph::backend::Image2DtoMat(req.image(), mat)) {
         return false;

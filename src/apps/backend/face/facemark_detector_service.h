@@ -17,18 +17,18 @@
 namespace sph {
 namespace face {
 
-class FacemarkDetectorService : public sph::backend::IService {
+class FacemarkDetectorService : public sph::backend::Service {
 public:
-    FacemarkDetectorService(std::shared_ptr<sph::face::IFaceDetector> face_detector,
-                            std::shared_ptr<sph::face::IFacemarkDetector> facemark_detector);
+    FacemarkDetectorService(std::shared_ptr<sph::face::FaceDetector> face_detector,
+                            std::shared_ptr<sph::face::FacemarkDetector> facemark_detector);
 
     bool handle_request(const Seraphim::Request &req, Seraphim::Response &res) override;
     bool handle_detection_request(const Seraphim::Face::FacemarkDetector::DetectionRequest &req,
                                   Seraphim::Face::FacemarkDetector::DetectionResponse &res);
 
 private:
-    std::shared_ptr<sph::face::IFaceDetector> m_face_detector;
-    std::shared_ptr<sph::face::IFacemarkDetector> m_facemark_detector;
+    std::shared_ptr<sph::face::FaceDetector> m_face_detector;
+    std::shared_ptr<sph::face::FacemarkDetector> m_facemark_detector;
 };
 
 } // namespace face

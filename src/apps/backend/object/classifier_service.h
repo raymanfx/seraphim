@@ -16,7 +16,7 @@
 namespace sph {
 namespace object {
 
-class ClassifierService : public sph::backend::IService {
+class ClassifierService : public sph::backend::Service {
 public:
     explicit ClassifierService(std::shared_ptr<sph::object::Classifier> recognizer);
 

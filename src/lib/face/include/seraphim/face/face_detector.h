@@ -15,9 +15,9 @@
 namespace sph {
 namespace face {
 
-class IFaceDetector {
+class FaceDetector {
 public:
-    virtual ~IFaceDetector() = default;
+    virtual ~FaceDetector() = default;
 
     virtual bool detect_faces(const sph::Image &img, std::vector<sph::Polygon<int>> &faces) = 0;
 

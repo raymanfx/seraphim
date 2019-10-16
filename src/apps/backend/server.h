@@ -14,9 +14,9 @@
 namespace sph {
 namespace backend {
 
-class IServer {
+class Server {
 public:
-    virtual ~IServer() = default;
+    virtual ~Server() = default;
 
     virtual bool init(const std::string &uri) = 0;
     virtual bool run() = 0;
@@ -39,9 +39,13 @@ public:
     virtual void register_event_handler(const event_t &mask, const event_handler_t handler) = 0;
 
 protected:
-    // disallow default construction, copy construction
-    IServer() = default;
-    IServer(const IServer &) = default;
+    Server() = default;
+    // disallow copy and move construction
+    Server(const Server &) = delete;
+    Server(Server &&) = delete;
+    // disallow copy and move assignment
+    Server &operator=(const Server &) = delete;
+    Server &operator=(Server &&) = delete;
 };
 
 } // namespace backend

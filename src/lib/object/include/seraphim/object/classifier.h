@@ -45,9 +45,6 @@ public:
      * @return Whether prediction was successful.
      */
     virtual bool predict(const sph::Image &img, std::vector<Prediction> &preds) = 0;
-
-protected:
-    Classifier() = default;
 };
 
 } // namespace object

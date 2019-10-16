@@ -139,7 +139,7 @@ int main(int argc, char **argv) {
         std::cout << "[ERROR Failed to read net" << std::endl;
         return 1;
     }
-    classifier.set_target(sph::IComputable::Target::CPU);
+    classifier.set_target(sph::Computable::Target::CPU);
 
     sph::gui::GLWindow viewer("DNN classifier");
 

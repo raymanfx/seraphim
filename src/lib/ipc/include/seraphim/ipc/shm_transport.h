@@ -25,7 +25,7 @@ namespace ipc {
  * This class uses POSIX shared memory to exchange messages between two or more readers and
  * writers. At the moment, it behaves like a very simple bidirectional pipe.
  */
-class SharedMemoryTransport : public ITransport {
+class SharedMemoryTransport : public Transport {
 public:
     /**
      * @brief Shared memory message transport.

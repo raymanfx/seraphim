@@ -47,7 +47,7 @@ public:
      *         Ownership is tracked in the factory; if you want to manually free the resource,
      *         set its value to nullptr so the factory knows about it.
      */
-    std::unique_ptr<ITransport> create(const std::string &uri);
+    std::unique_ptr<Transport> create(const std::string &uri);
 
     /**
      * @brief Open an existing transport connection.
@@ -58,18 +58,18 @@ public:
      *         Ownership is tracked in the factory; if you want to manually free the resource,
      *         set its value to nullptr so the factory knows about it.
      */
-    std::unique_ptr<ITransport> open(const std::string &uri);
+    std::unique_ptr<Transport> open(const std::string &uri);
 
 private:
     TransportFactory() = default;
 
-    std::unique_ptr<ITransport> create_shm(const std::string &uri);
-    std::unique_ptr<ITransport> create_tcp(const std::string &uri);
-    std::unique_ptr<ITransport> open_shm(const std::string &uri);
-    std::unique_ptr<ITransport> open_tcp(const std::string &uri);
+    std::unique_ptr<Transport> create_shm(const std::string &uri);
+    std::unique_ptr<Transport> create_tcp(const std::string &uri);
+    std::unique_ptr<Transport> open_shm(const std::string &uri);
+    std::unique_ptr<Transport> open_tcp(const std::string &uri);
 
     /// internal bookkeeping to cleanup transport instances
-    std::vector<ITransport *> m_instances;
+    std::vector<Transport *> m_instances;
 };
 
 } // namespace ipc

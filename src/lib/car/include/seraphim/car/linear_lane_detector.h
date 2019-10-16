@@ -30,7 +30,7 @@ namespace car {
  *   4) hough line transformation
  *   5) linear regression for left and right segments
  */
-class LinearLaneDetector : public ILaneDetector, public sph::IComputable {
+class LinearLaneDetector : public LaneDetector, public sph::Computable {
 public:
     LinearLaneDetector() = default;
 

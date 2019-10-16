@@ -17,9 +17,9 @@ namespace sph {
  * The interface supports computation target switching via \ref set_target.
  * Supported targets are defined in \ref target_t.
  */
-class IComputable {
+class Computable {
 public:
-    virtual ~IComputable() = default;
+    virtual ~Computable() = default;
 
     /**
      * @brief Computation target.
@@ -46,9 +46,6 @@ public:
      *         on the selected target; it is merely a hint to the implementation.
      */
     virtual bool set_target(Target target) = 0;
-
-protected:
-    IComputable() = default;
 };
 
 } // namespace sph

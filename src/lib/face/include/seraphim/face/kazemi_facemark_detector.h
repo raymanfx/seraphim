@@ -20,7 +20,7 @@
 namespace sph {
 namespace face {
 
-class KazemiFacemarkDetector : public IFacemarkDetector, sph::IComputable {
+class KazemiFacemarkDetector : public FacemarkDetector, sph::Computable {
 public:
     KazemiFacemarkDetector() = default;
 

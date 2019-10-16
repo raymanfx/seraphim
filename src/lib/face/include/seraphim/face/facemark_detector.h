@@ -15,9 +15,9 @@
 namespace sph {
 namespace face {
 
-class IFacemarkDetector {
+class FacemarkDetector {
 public:
-    virtual ~IFacemarkDetector() = default;
+    virtual ~FacemarkDetector() = default;
 
     /**
      * @brief Facemark type.

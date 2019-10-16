@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
         std::shared_ptr<LBPFaceDetector>(new LBPFaceDetector());
     LBFFacemarkDetector facemark_detector;
     std::vector<sph::Polygon<int>> faces;
-    std::vector<IFacemarkDetector::Facemarks> facemarks;
+    std::vector<FacemarkDetector::Facemarks> facemarks;
     sph::Image image;
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;
@@ -141,13 +141,13 @@ int main(int argc, char **argv) {
         std::cout << "[ERROR Failed to read cascade" << std::endl;
         return 1;
     }
-    face_detector->set_target(sph::IComputable::Target::CPU);
+    face_detector->set_target(sph::Computable::Target::CPU);
 
     if (!facemark_detector.load_facemark_model(model_path)) {
         std::cout << "[ERROR Failed to read model" << std::endl;
         return 1;
     }
-    facemark_detector.set_target(sph::IComputable::Target::CPU);
+    facemark_detector.set_target(sph::Computable::Target::CPU);
 
     sph::gui::GLWindow viewer("LBF Facemark Detector");
 

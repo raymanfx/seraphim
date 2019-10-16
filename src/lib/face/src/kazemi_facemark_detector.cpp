@@ -13,14 +13,14 @@
 using namespace sph;
 using namespace sph::face;
 
-static constexpr std::pair<IFacemarkDetector::FacemarkType, std::pair<size_t, size_t>>
-    Facemark_LUT[] = { { IFacemarkDetector::FacemarkType::JAW, { 0, 16 } },
-                       { IFacemarkDetector::FacemarkType::RIGHT_EYEBROW, { 17, 21 } },
-                       { IFacemarkDetector::FacemarkType::LEFT_EYEBROW, { 22, 26 } },
-                       { IFacemarkDetector::FacemarkType::NOSE, { 27, 35 } },
-                       { IFacemarkDetector::FacemarkType::RIGHT_EYE, { 36, 41 } },
-                       { IFacemarkDetector::FacemarkType::LEFT_EYE, { 42, 47 } },
-                       { IFacemarkDetector::FacemarkType::MOUTH, { 48, 67 } } };
+static constexpr std::pair<FacemarkDetector::FacemarkType, std::pair<size_t, size_t>>
+    Facemark_LUT[] = { { FacemarkDetector::FacemarkType::JAW, { 0, 16 } },
+                       { FacemarkDetector::FacemarkType::RIGHT_EYEBROW, { 17, 21 } },
+                       { FacemarkDetector::FacemarkType::LEFT_EYEBROW, { 22, 26 } },
+                       { FacemarkDetector::FacemarkType::NOSE, { 27, 35 } },
+                       { FacemarkDetector::FacemarkType::RIGHT_EYE, { 36, 41 } },
+                       { FacemarkDetector::FacemarkType::LEFT_EYE, { 42, 47 } },
+                       { FacemarkDetector::FacemarkType::MOUTH, { 48, 67 } } };
 
 bool KazemiFacemarkDetector::load_facemark_model(const std::string &path) {
     try {

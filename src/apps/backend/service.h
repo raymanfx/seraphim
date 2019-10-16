@@ -13,16 +13,20 @@
 namespace sph {
 namespace backend {
 
-class IService {
+class Service {
 public:
-    virtual ~IService() = default;
+    virtual ~Service() = default;
 
     virtual bool handle_request(const Seraphim::Request &req, Seraphim::Response &res) = 0;
 
 protected:
-    // disallow default construction, copy construction
-    IService() = default;
-    IService(const IService &) = default;
+    Service() = default;
+    // disallow copy and move construction
+    Service(const Service &) = delete;
+    Service(Service &&) = delete;
+    // disallow copy and move assignment
+    Service &operator=(const Service &) = delete;
+    Service &operator=(Service &&) = delete;
 };
 
 } // namespace backend
