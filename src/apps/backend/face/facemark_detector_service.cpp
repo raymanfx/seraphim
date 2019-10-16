@@ -22,14 +22,15 @@ FacemarkDetectorService::FacemarkDetectorService(
 
 bool FacemarkDetectorService::handle_request(const Seraphim::Request &req,
                                              Seraphim::Response &res) {
-    if (!req.has_face() || !req.face().has_facemark_detector()) {
-        return false;
-    }
+    if (req.inner().Is<Seraphim::Face::FacemarkDetector::DetectionRequest>()) {
+        Seraphim::Face::FacemarkDetector::DetectionRequest inner_req;
+        Seraphim::Face::FacemarkDetector::DetectionResponse inner_res;
 
-    if (req.face().facemark_detector().has_detection()) {
-        return handle_detection_request(
-            req.face().facemark_detector().detection(),
-            *res.mutable_face()->mutable_facemark_detector()->mutable_detection());
+        req.inner().UnpackTo(&inner_req);
+        if (handle_detection_request(inner_req, inner_res)) {
+            res.mutable_inner()->PackFrom(inner_res);
+            return true;
+        }
     }
 
     return false;

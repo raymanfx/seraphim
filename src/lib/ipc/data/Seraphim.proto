@@ -2,83 +2,33 @@ syntax = "proto3";
 
 package Seraphim;
 
+import "google/protobuf/any.proto";
+
+// TODO: why do we need to include all inner message classes here?
 import "LaneDetector.proto";
 import "FaceDetector.proto";
 import "FaceRecognizer.proto";
 import "FacemarkDetector.proto";
 import "ObjectClassifier.proto";
 
-/*
- * Master message structure
- *
- * All module messages must be included here.
- */
-
-message CarRequest {
-  oneof req {
-    Car.LaneDetector.Request detector = 1;
-  }
-}
-
-message CarResponse {
-  oneof req {
-    Car.LaneDetector.Response detector = 1;
-  }
-}
-
-message FaceRequest {
-  oneof req {
-    Face.FaceDetector.Request face_detector = 1;
-    Face.FaceRecognizer.Request face_recognizer = 2;
-    Face.FacemarkDetector.Request facemark_detector = 3;
-  }
-}
-
-message FaceResponse {
-  oneof req {
-    Face.FaceDetector.Response face_detector = 1;
-    Face.FaceRecognizer.Response face_recognizer = 2;
-    Face.FacemarkDetector.Response facemark_detector = 3;
-  }
-}
-
-message ObjectRequest {
-  oneof req {
-    Object.Classifier.Request classifier = 1;
-  }
-}
-
-message ObjectResponse {
-  oneof req {
-    Object.Classifier.Response classifier = 1;
-  }
-}
-
 message Request {
-  oneof req {
-    CarRequest car = 1;
-    FaceRequest face = 2;
-    ObjectRequest object = 3;
-  }
+  // the "real" request
+  google.protobuf.Any inner = 1;
 }
 
 message Response {
-  enum ResponseStatus {
-    OK = 0;
-    ERROR = 1;
-    SEINVAL = 2;
-  }
-  ResponseStatus status = 1;
-  oneof res {
-    CarResponse car = 2;
-    FaceResponse face = 3;
-    ObjectResponse object = 4;
-  }
+  // 0 in case of success, implementation defined otherwise
+  int32 status = 1;
+  // the "real" response
+  google.protobuf.Any inner = 2;
 }
 
 message Message {
+  // unique message id
+  uint32 id = 1;
+  // all message types must be listed here
   oneof msg {
-    Request req = 1;
-    Response res = 2;
+    Request req = 2;
+    Response res = 3;
   }
 }

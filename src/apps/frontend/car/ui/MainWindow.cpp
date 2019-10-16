@@ -4,9 +4,11 @@
 
 #include <ImageUtilsQt.h>
 #include <QVideoCaptureStream/QVideoCaptureStream.h>
-#include <Seraphim.pb.h>
 #include <seraphim/core/image.h>
 #include <seraphim/ipc/transport_factory.h>
+
+#include <LaneDetector.pb.h>
+#include <Seraphim.pb.h>
 
 #include "MainWindow.h"
 
@@ -231,17 +233,16 @@ void MainWindow::backendWork() {
 
     if (mLaneDetection) {
         Seraphim::Message msg;
-        Seraphim::Car::LaneDetector::DetectionRequest *req =
-            msg.mutable_req()->mutable_car()->mutable_detector()->mutable_detection();
-        req->set_allocated_image(&img);
+        Seraphim::Car::LaneDetector::DetectionRequest req;
+        req.set_allocated_image(&img);
 
         // tune the ROI according to your input video
         // in this case, use a 4-point polygon shape to match the "project_video.mp4"
         // clip of the udacity course at https://github.com/udacity/CarND-Vehicle-Detection
-        Seraphim::Types::Point2D *bl = req->mutable_polyroi()->add_points();
-        Seraphim::Types::Point2D *tl = req->mutable_polyroi()->add_points();
-        Seraphim::Types::Point2D *tr = req->mutable_polyroi()->add_points();
-        Seraphim::Types::Point2D *br = req->mutable_polyroi()->add_points();
+        Seraphim::Types::Point2D *bl = req.mutable_polyroi()->add_points();
+        Seraphim::Types::Point2D *tl = req.mutable_polyroi()->add_points();
+        Seraphim::Types::Point2D *tr = req.mutable_polyroi()->add_points();
+        Seraphim::Types::Point2D *br = req.mutable_polyroi()->add_points();
         // bottom left
         bl->set_x(210);
         bl->set_y(static_cast<int>(img.height()));
@@ -255,17 +256,22 @@ void MainWindow::backendWork() {
         br->set_x(static_cast<int>(img.width()) - 210);
         br->set_y(static_cast<int>(img.height()));
 
+        msg.mutable_req()->mutable_inner()->PackFrom(req);
         try {
             mTransport->send(msg);
             // we still need the image, keep protobuf from deleting it by releasing it manually
-            req->release_image();
+            req.release_image();
             mTransport->receive(msg);
         } catch (std::exception &e) {
             std::cout << "[ERROR] Transport I/O error: " << e.what() << std::endl;
             return;
         }
 
-        Seraphim::Car::LaneDetector::DetectionResponse res = msg.res().car().detector().detection();
+        Seraphim::Car::LaneDetector::DetectionResponse res;
+        if (!msg.res().inner().UnpackTo(&res)) {
+            std::cout << "[ERROR] Failed to deserialize" << std::endl;
+            return;
+        }
         std::cout << "Server sent response:" << std::endl
                   << "  status=" << msg.res().status() << std::endl
                   << "  lanes=" << res.lanes().size() << std::endl;

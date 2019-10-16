@@ -28,18 +28,24 @@ FaceRecognizerService::~FaceRecognizerService() {
 }
 
 bool FaceRecognizerService::handle_request(const Seraphim::Request &req, Seraphim::Response &res) {
-    if (!req.has_face() || !req.face().has_face_recognizer()) {
-        return false;
-    }
+    if (req.inner().Is<Seraphim::Face::FaceRecognizer::TrainingRequest>()) {
+        Seraphim::Face::FaceRecognizer::TrainingRequest inner_req;
+        Seraphim::Face::FaceRecognizer::TrainingResponse inner_res;
 
-    if (req.face().face_recognizer().has_training()) {
-        return handle_training_request(
-            req.face().face_recognizer().training(),
-            *res.mutable_face()->mutable_face_recognizer()->mutable_training());
-    } else if (req.face().face_recognizer().has_recognition()) {
-        return handle_recognition_request(
-            req.face().face_recognizer().recognition(),
-            *res.mutable_face()->mutable_face_recognizer()->mutable_recognition());
+        req.inner().UnpackTo(&inner_req);
+        if (handle_training_request(inner_req, inner_res)) {
+            res.mutable_inner()->PackFrom(inner_res);
+            return true;
+        }
+    } else if (req.inner().Is<Seraphim::Face::FaceRecognizer::RecognitionRequest>()) {
+        Seraphim::Face::FaceRecognizer::RecognitionRequest inner_req;
+        Seraphim::Face::FaceRecognizer::RecognitionResponse inner_res;
+
+        req.inner().UnpackTo(&inner_req);
+        if (handle_recognition_request(inner_req, inner_res)) {
+            res.mutable_inner()->PackFrom(inner_res);
+            return true;
+        }
     }
 
     return false;

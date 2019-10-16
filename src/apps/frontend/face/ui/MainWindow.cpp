@@ -2,14 +2,16 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include <FaceDetector.pb.h>
-#include <FaceRecognizer.pb.h>
 #include <ImageUtilsQt.h>
 #include <QCameraCaptureStream/QCameraCaptureStream.h>
 #include <QPainter>
-#include <Seraphim.pb.h>
 #include <seraphim/core/image.h>
 #include <seraphim/ipc/transport_factory.h>
+
+#include <FaceDetector.pb.h>
+#include <FaceRecognizer.pb.h>
+#include <FacemarkDetector.pb.h>
+#include <Seraphim.pb.h>
 
 #include "MainWindow.h"
 
@@ -237,22 +239,25 @@ void MainWindow::backendWork() {
 
     if (mFaceDetection) {
         Seraphim::Message msg;
-        Seraphim::Face::FaceDetector::DetectionRequest *req =
-            msg.mutable_req()->mutable_face()->mutable_face_detector()->mutable_detection();
-        req->set_allocated_image(&img);
+        Seraphim::Face::FaceDetector::DetectionRequest req;
+        req.set_allocated_image(&img);
 
+        msg.mutable_req()->mutable_inner()->PackFrom(req);
         try {
             mTransport->send(msg);
             // we still need the image, keep protobuf from deleting it by releasing it manually
-            req->release_image();
+            req.release_image();
             mTransport->receive(msg);
         } catch (std::exception &e) {
             std::cout << "[ERROR] Transport I/O error: " << e.what() << std::endl;
             return;
         }
 
-        Seraphim::Face::FaceDetector::DetectionResponse res =
-            msg.res().face().face_detector().detection();
+        Seraphim::Face::FaceDetector::DetectionResponse res;
+        if (!msg.res().inner().UnpackTo(&res)) {
+            std::cout << "[ERROR] Failed to deserialize" << std::endl;
+            return;
+        }
         std::cout << "Server sent response:" << std::endl
                   << "  status=" << msg.res().status() << std::endl
                   << "  faces=" << res.faces_size() << std::endl;
@@ -270,22 +275,25 @@ void MainWindow::backendWork() {
 
     if (mFacemarkDetection) {
         Seraphim::Message msg;
-        Seraphim::Face::FacemarkDetector::DetectionRequest *req =
-            msg.mutable_req()->mutable_face()->mutable_facemark_detector()->mutable_detection();
-        req->set_allocated_image(&img);
+        Seraphim::Face::FacemarkDetector::DetectionRequest req;
+        req.set_allocated_image(&img);
 
+        msg.mutable_req()->mutable_inner()->PackFrom(req);
         try {
             mTransport->send(msg);
             // we still need the image, keep protobuf from deleting it by releasing it manually
-            req->release_image();
+            req.release_image();
             mTransport->receive(msg);
         } catch (std::exception &e) {
             std::cout << "[ERROR] Transport I/O error: " << e.what() << std::endl;
             return;
         }
 
-        Seraphim::Face::FacemarkDetector::DetectionResponse res =
-            msg.res().face().facemark_detector().detection();
+        Seraphim::Face::FacemarkDetector::DetectionResponse res;
+        if (!msg.res().inner().UnpackTo(&res)) {
+            std::cout << "[ERROR] Failed to deserialize" << std::endl;
+            return;
+        }
         std::cout << "Server sent response:" << std::endl
                   << "  status=" << msg.res().status() << std::endl
                   << "  faces=" << res.faces_size() << std::endl;
@@ -312,22 +320,25 @@ void MainWindow::backendWork() {
         double confidence;
 
         Seraphim::Message msg;
-        Seraphim::Face::FaceRecognizer::RecognitionRequest *req =
-            msg.mutable_req()->mutable_face()->mutable_face_recognizer()->mutable_recognition();
-        req->set_allocated_image(&img);
+        Seraphim::Face::FaceRecognizer::RecognitionRequest req;
+        req.set_allocated_image(&img);
 
+        msg.mutable_req()->mutable_inner()->PackFrom(req);
         try {
             mTransport->send(msg);
             // we still need the image, keep protobuf from deleting it by releasing it manually
-            req->release_image();
+            req.release_image();
             mTransport->receive(msg);
         } catch (std::exception &e) {
             std::cout << "[ERROR] Transport I/O error: " << e.what() << std::endl;
             return;
         }
 
-        Seraphim::Face::FaceRecognizer::RecognitionResponse res =
-            msg.res().face().face_recognizer().recognition();
+        Seraphim::Face::FaceRecognizer::RecognitionResponse res;
+        if (!msg.res().inner().UnpackTo(&res)) {
+            std::cout << "[ERROR] Failed to deserialize" << std::endl;
+            return;
+        }
         std::cout << "Server sent response:" << std::endl
                   << "  status=" << msg.res().status() << std::endl
                   << "  faces=" << res.labels_size() << std::endl;
@@ -357,24 +368,27 @@ void MainWindow::backendWork() {
 
     if (mFaceTraining > 0) {
         Seraphim::Message msg;
-        Seraphim::Face::FaceRecognizer::TrainingRequest *req =
-            msg.mutable_req()->mutable_face()->mutable_face_recognizer()->mutable_training();
-        req->set_label(mFaceLabel);
-        req->set_allocated_image(&img);
-        req->set_invalidate(mFaceTraining == 10);
+        Seraphim::Face::FaceRecognizer::TrainingRequest req;
+        req.set_label(mFaceLabel);
+        req.set_allocated_image(&img);
+        req.set_invalidate(mFaceTraining == 10);
 
+        msg.mutable_req()->mutable_inner()->PackFrom(req);
         try {
             mTransport->send(msg);
             // we still need the image, keep protobuf from deleting it by releasing it manually
-            req->release_image();
+            req.release_image();
             mTransport->receive(msg);
         } catch (std::exception &e) {
             std::cout << "[ERROR] Transport I/O error: " << e.what() << std::endl;
             return;
         }
 
-        Seraphim::Face::FaceRecognizer::TrainingResponse res =
-            msg.res().face().face_recognizer().training();
+        Seraphim::Face::FaceRecognizer::TrainingResponse res;
+        if (!msg.res().inner().UnpackTo(&res)) {
+            std::cout << "[ERROR] Failed to deserialize" << std::endl;
+            return;
+        }
         std::cout << "Server sent response:" << std::endl
                   << "  status=" << msg.res().status() << std::endl
                   << "  label=" << res.label() << std::endl;

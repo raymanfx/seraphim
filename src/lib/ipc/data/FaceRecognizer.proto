@@ -22,13 +22,6 @@ message RecognitionRequest {
   Types.Region2D roi = 3;
 }
 
-message Request {
-  oneof req {
-    TrainingRequest training = 1;
-    RecognitionRequest recognition = 2;
-  }
-}
-
 /*
  * Responses
  *
@@ -44,11 +37,4 @@ message RecognitionResponse {
   repeated int32 labels = 1;
   repeated double distances = 2;
   repeated Types.Region2D rois = 3;
-}
-
-message Response {
-  oneof res {
-    TrainingResponse training = 1;
-    RecognitionResponse recognition = 2;
-  }
 }

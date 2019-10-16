@@ -41,13 +41,6 @@ message DetectionRequest {
   Types.PointSet2D polyroi = 2;
 }
 
-message Request {
-  oneof req {
-    ParameterRequest params = 1;
-    DetectionRequest detection = 2;
-  }
-}
-
 /*
  * Responses
  *
@@ -60,11 +53,4 @@ message ParameterResponse {
 
 message DetectionResponse {
   repeated Lane lanes = 1;
-}
-
-message Response {
-  oneof res {
-    ParameterResponse params = 1;
-    DetectionResponse detection = 2;
-  }
 }

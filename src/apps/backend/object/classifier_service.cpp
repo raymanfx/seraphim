@@ -17,14 +17,15 @@ ClassifierService::ClassifierService(std::shared_ptr<sph::object::Classifier> re
 }
 
 bool ClassifierService::handle_request(const Seraphim::Request &req, Seraphim::Response &res) {
-    if (!req.has_object() || !req.object().has_classifier()) {
-        return false;
-    }
+    if (req.inner().Is<Seraphim::Object::Classifier::ClassificationRequest>()) {
+        Seraphim::Object::Classifier::ClassificationRequest inner_req;
+        Seraphim::Object::Classifier::ClassificationResponse inner_res;
 
-    if (req.object().classifier().has_classification()) {
-        return handle_classification_request(
-            req.object().classifier().classification(),
-            *res.mutable_object()->mutable_classifier()->mutable_classification());
+        req.inner().UnpackTo(&inner_req);
+        if (handle_classification_request(inner_req, inner_res)) {
+            res.mutable_inner()->PackFrom(inner_res);
+            return true;
+        }
     }
 
     return false;

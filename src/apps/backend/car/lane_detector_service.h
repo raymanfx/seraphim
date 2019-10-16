@@ -8,8 +8,10 @@
 #ifndef SPH_CAR_LANE_DETECTOR_SERVICE_H
 #define SPH_CAR_LANE_DETECTOR_SERVICE_H
 
-#include <LaneDetector.pb.h>
 #include <seraphim/car/lane_detector.h>
+
+#include <LaneDetector.pb.h>
+#include <Seraphim.pb.h>
 
 #include "../service.h"
 

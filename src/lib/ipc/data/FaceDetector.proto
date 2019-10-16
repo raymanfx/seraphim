@@ -15,12 +15,6 @@ message DetectionRequest {
   Types.Region2D roi = 2;
 }
 
-message Request {
-  oneof req {
-    DetectionRequest detection = 1;
-  }
-}
-
 /*
  * Responses
  *
@@ -29,10 +23,4 @@ message Request {
 
 message DetectionResponse {
   repeated Types.Region2D faces = 1;
-}
-
-message Response {
-  oneof res {
-    DetectionResponse detection = 1;
-  }
 }

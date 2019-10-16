@@ -19,14 +19,15 @@ FaceDetectorService::FaceDetectorService(std::shared_ptr<sph::face::IFaceDetecto
 }
 
 bool FaceDetectorService::handle_request(const Seraphim::Request &req, Seraphim::Response &res) {
-    if (!req.has_face() || !req.face().has_face_detector()) {
-        return false;
-    }
+    if (req.inner().Is<Seraphim::Face::FaceDetector::DetectionRequest>()) {
+        Seraphim::Face::FaceDetector::DetectionRequest inner_req;
+        Seraphim::Face::FaceDetector::DetectionResponse inner_res;
 
-    if (req.face().face_detector().has_detection()) {
-        return handle_detection_request(
-            req.face().face_detector().detection(),
-            *res.mutable_face()->mutable_face_detector()->mutable_detection());
+        req.inner().UnpackTo(&inner_req);
+        if (handle_detection_request(inner_req, inner_res)) {
+            res.mutable_inner()->PackFrom(inner_res);
+            return true;
+        }
     }
 
     return false;

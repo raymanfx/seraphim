@@ -121,31 +121,19 @@ bool message_incoming(void *data) {
 
     if (!msg->has_req()) {
         std::cout << "Server: no request; ignore" << std::endl;
-        msg->mutable_res()->set_status(Seraphim::Response::SEINVAL);
+        msg->mutable_res()->set_status(-2);
         return false;
     }
 
     std::cout << ">> Request" << std::endl << "   size=" << msg->ByteSizeLong() << std::endl;
 
-    if (msg->req().has_car()) {
-        if (msg->req().car().has_detector()) {
-            status = lane_detector_service.handle_request(msg->req(), res);
-        }
-    } else if (msg->req().has_face()) {
-        if (msg->req().face().has_face_detector()) {
-            status = face_detector_service.handle_request(msg->req(), res);
-        } else if (msg->req().face().has_face_recognizer()) {
-            status = face_recognizer_service.handle_request(msg->req(), res);
-        } else if (msg->req().face().has_facemark_detector()) {
-            status = facemark_detector_service.handle_request(msg->req(), res);
-        }
-    } else if (msg->req().has_object()) {
-        if (msg->req().object().has_classifier()) {
-            status = object_classifier_service.handle_request(msg->req(), res);
-        }
-    }
+    status = status || lane_detector_service.handle_request(msg->req(), res);
+    status = status || face_detector_service.handle_request(msg->req(), res);
+    status = status || face_recognizer_service.handle_request(msg->req(), res);
+    status = status || facemark_detector_service.handle_request(msg->req(), res);
+    status = status || object_classifier_service.handle_request(msg->req(), res);
 
-    res.set_status(status ? Seraphim::Response::OK : Seraphim::Response::ERROR);
+    res.set_status(status ? 0 : -1);
     res.Swap(msg->mutable_res());
 
     std::cout << "<< Response" << std::endl

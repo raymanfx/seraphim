@@ -16,12 +16,6 @@ message ClassificationRequest {
   float confidence = 3;
 }
 
-message Request {
-  oneof req {
-    ClassificationRequest classification = 1;
-  }
-}
-
 /*
  * Responses
  *
@@ -32,10 +26,4 @@ message ClassificationResponse {
   repeated int32 labels = 1;
   repeated float confidences = 2;
   repeated Types.Region2D rois = 3;
-}
-
-message Response {
-  oneof res {
-    ClassificationResponse classification = 1;
-  }
 }

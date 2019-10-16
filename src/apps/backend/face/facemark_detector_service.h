@@ -8,7 +8,7 @@
 #ifndef SPH_FACEMARK_DETECTOR_SERVICE_H
 #define SPH_FACEMARK_DETECTOR_SERVICE_H
 
-#include <FaceDetector.pb.h>
+#include <FacemarkDetector.pb.h>
 #include <seraphim/face/face_detector.h>
 #include <seraphim/face/facemark_detector.h>
 

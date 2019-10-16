@@ -4,9 +4,11 @@
 
 #include <ImageUtilsQt.h>
 #include <QCameraCaptureStream/QCameraCaptureStream.h>
-#include <Seraphim.pb.h>
 #include <seraphim/core/image.h>
 #include <seraphim/ipc/transport_factory.h>
+
+#include <ObjectClassifier.pb.h>
+#include <Seraphim.pb.h>
 
 #include "MainWindow.h"
 #include "coco.h"
@@ -252,25 +254,28 @@ void MainWindow::backendWork() {
 
     if (mObjectRecognition) {
         Seraphim::Message msg;
-        Seraphim::Object::Classifier::ClassificationRequest *req =
-            msg.mutable_req()->mutable_object()->mutable_classifier()->mutable_classification();
-        req->set_allocated_image(&img);
+        Seraphim::Object::Classifier::ClassificationRequest req;
+        req.set_allocated_image(&img);
 
         // force at least 0.5 confidence
-        req->set_confidence(0.5f);
+        req.set_confidence(0.5f);
 
+        msg.mutable_req()->mutable_inner()->PackFrom(req);
         try {
             mTransport->send(msg);
             // we still need the image, keep protobuf from deleting it by releasing it manually
-            req->release_image();
+            req.release_image();
             mTransport->receive(msg);
         } catch (std::exception &e) {
             std::cout << "[ERROR] Transport I/O error: " << e.what() << std::endl;
             return;
         }
 
-        Seraphim::Object::Classifier::ClassificationResponse res =
-            msg.res().object().classifier().classification();
+        Seraphim::Object::Classifier::ClassificationResponse res;
+        if (!msg.res().inner().UnpackTo(&res)) {
+            std::cout << "[ERROR] Failed to deserialize" << std::endl;
+            return;
+        }
         std::cout << "Server sent response:" << std::endl
                   << "  status=" << msg.res().status() << std::endl
                   << "  objects=" << res.labels().size() << std::endl;

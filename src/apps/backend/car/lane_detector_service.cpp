@@ -19,14 +19,15 @@ LaneDetectorService::LaneDetectorService(std::shared_ptr<sph::car::ILaneDetector
 }
 
 bool LaneDetectorService::handle_request(const Seraphim::Request &req, Seraphim::Response &res) {
-    if (!req.has_car() || !req.car().has_detector()) {
-        return false;
-    }
+    if (req.inner().Is<Seraphim::Car::LaneDetector::DetectionRequest>()) {
+        Seraphim::Car::LaneDetector::DetectionRequest inner_req;
+        Seraphim::Car::LaneDetector::DetectionResponse inner_res;
 
-    if (req.car().detector().has_detection()) {
-        return handle_detection_request(
-            req.car().detector().detection(),
-            *res.mutable_car()->mutable_detector()->mutable_detection());
+        req.inner().UnpackTo(&inner_req);
+        if (handle_detection_request(inner_req, inner_res)) {
+            res.mutable_inner()->PackFrom(inner_res);
+            return true;
+        }
     }
 
     return false;
