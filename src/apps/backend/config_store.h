@@ -24,8 +24,6 @@ namespace backend {
  * instead, e.g. using https://github.com/nlohmann/json.
  */
 
-static const std::string CONFIG_FILE_NAME = "eMirror.conf";
-
 class ConfigStore {
     // generic callback function template
     typedef std::function<void(const std::string &key, const std::string &value)> CallbackFunction;
