@@ -34,25 +34,21 @@
 using namespace sph::backend;
 
 static bool server_running = false;
-static Seraphim::Message msg;
 
-static std::shared_ptr<sph::car::LinearLaneDetector>
-    lane_detector(new sph::car::LinearLaneDetector());
-static std::shared_ptr<sph::face::LBPFaceDetector> face_detector(new sph::face::LBPFaceDetector());
-static std::shared_ptr<sph::face::LBPFaceRecognizer>
-    face_recognizer(new sph::face::LBPFaceRecognizer());
-static std::shared_ptr<sph::face::LBFFacemarkDetector>
-    facemark_detector(new sph::face::LBFFacemarkDetector());
-static std::shared_ptr<sph::object::DNNClassifier>
-    object_classifier(new sph::object::DNNClassifier());
+static auto lane_detector = std::make_shared<sph::car::LinearLaneDetector>();
+static auto face_detector = std::make_shared<sph::face::LBPFaceDetector>();
+static auto face_recognizer = std::make_shared<sph::face::LBPFaceRecognizer>();
+static auto facemark_detector = std::make_shared<sph::face::LBFFacemarkDetector>();
+static auto object_classifier = std::make_shared<sph::object::DNNClassifier>();
 
-static sph::car::LaneDetectorService lane_detector_service(lane_detector);
-static sph::face::FaceDetectorService face_detector_service(face_detector);
-static sph::face::FaceRecognizerService face_recognizer_service(face_detector, facemark_detector,
-                                                                face_recognizer);
-static sph::face::FacemarkDetectorService facemark_detector_service(face_detector,
-                                                                    facemark_detector);
-static sph::object::ClassifierService object_classifier_service(object_classifier);
+static auto lane_detector_service = std::make_shared<sph::car::LaneDetectorService>(lane_detector);
+static auto face_detector_service = std::make_shared<sph::face::FaceDetectorService>(face_detector);
+static auto face_recognizer_service = std::make_shared<sph::face::FaceRecognizerService>(
+    face_detector, facemark_detector, face_recognizer);
+static auto facemark_detector_service =
+    std::make_shared<sph::face::FacemarkDetectorService>(face_detector, facemark_detector);
+static auto object_classifier_service =
+    std::make_shared<sph::object::ClassifierService>(object_classifier);
 
 void signal_handler(int signal) {
     switch (signal) {
@@ -114,41 +110,13 @@ static void print_usage(int print_description) {
     }
 }
 
-bool message_incoming(void *data) {
-    Seraphim::Message *msg = reinterpret_cast<Seraphim::Message *>(data);
-    Seraphim::Response res;
-    bool status = false;
-
-    if (!msg->has_req()) {
-        std::cout << "Server: no request; ignore" << std::endl;
-        msg->mutable_res()->set_status(-2);
-        return false;
-    }
-
-    std::cout << ">> Request" << std::endl << "   size=" << msg->ByteSizeLong() << std::endl;
-
-    status = status || lane_detector_service.handle_request(msg->req(), res);
-    status = status || face_detector_service.handle_request(msg->req(), res);
-    status = status || face_recognizer_service.handle_request(msg->req(), res);
-    status = status || facemark_detector_service.handle_request(msg->req(), res);
-    status = status || object_classifier_service.handle_request(msg->req(), res);
-
-    res.set_status(status ? 0 : -1);
-    res.Swap(msg->mutable_res());
-
-    std::cout << "<< Response" << std::endl
-              << "   status=" << msg->res().status() << std::endl
-              << "   size=" << msg->ByteSizeLong() << std::endl;
-    return true;
-}
-
 int main(int argc, char **argv) {
     // Verify that the version of the library that we linked against is
     // compatible with the version of the headers we compiled against.
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
     std::string config_path = "seraphim.conf";
-    std::vector<std::unique_ptr<Server>> servers;
+    std::list<std::unique_ptr<Server>> servers;
     std::string val;
     std::string val2;
 
@@ -259,39 +227,73 @@ int main(int argc, char **argv) {
     val = ConfigStore::Instance().get_value("shm_server_uri");
     if (!val.empty()) {
         std::cout << "Creating SHM server (uri: " << val << ")" << std::endl;
-        SharedMemoryServer *server = new SharedMemoryServer();
-        if (!server->init(val)) {
-            std::cout << "Failed to create SHM segment: " << strerror(errno) << std::endl;
-            delete server;
+        auto server = std::unique_ptr<SharedMemoryServer>(new SharedMemoryServer());
+        if (server->init(val)) {
+            servers.emplace_back(std::move(server));
         } else {
-            server->register_event_handler(Server::EVENT_MESSAGE_INCOMING, message_incoming);
-            std::cout << "Starting SHM server" << std::endl;
-            if (!server->run()) {
-                std::cout << "Failed to run SHM server: " << strerror(errno) << std::endl;
-                delete server;
-            } else {
-                servers.push_back(std::unique_ptr<Server>(server));
-            }
+            std::cout << "Failed to create SHM segment: " << strerror(errno) << std::endl;
         }
     }
 
     val = ConfigStore::Instance().get_value("tcp_server_uri");
     if (!val.empty()) {
         std::cout << "Creating TCP server (uri: " << val << ")" << std::endl;
-        TCPServer *server = new TCPServer();
-        if (!server->init(val)) {
-            std::cout << "Failed to create TCP server: " << strerror(errno) << std::endl;
-            delete server;
+        auto server = std::unique_ptr<TCPServer>(new TCPServer());
+        if (server->init(val)) {
+            servers.emplace_back(std::move(server));
         } else {
-            server->register_event_handler(Server::EVENT_MESSAGE_INCOMING, message_incoming);
-            std::cout << "Starting TCP server" << std::endl;
-            if (!server->run()) {
-                std::cout << "Failed to run TCP server: " << strerror(errno) << std::endl;
-                delete server;
-            } else {
-                servers.push_back(std::unique_ptr<Server>(server));
-            }
+            std::cout << "Failed to create TCP server: " << strerror(errno) << std::endl;
         }
+    }
+
+    // register the event handlers on all servers
+    for (const auto &server : servers) {
+        server->register_event_handler(Server::EVENT_CLIENT_CONNECTED, [](void *) {
+            std::cout << "** Client connected" << std::endl;
+        });
+        server->register_event_handler(Server::EVENT_CLIENT_DISCONNECTED, [](void *) {
+            std::cout << "** Client disconnected" << std::endl;
+        });
+        server->register_event_handler(Server::EVENT_MESSAGE_INBOUND, [](void *data) {
+            Seraphim::Message *msg = reinterpret_cast<Seraphim::Message *>(data);
+            std::cout << ">> Message inbound" << std::endl
+                      << "   id=" << msg->id() << std::endl
+                      << "   size=" << msg->ByteSizeLong() << std::endl;
+        });
+        server->register_event_handler(Server::EVENT_MESSAGE_OUTBOUND, [](void *data) {
+            Seraphim::Message *msg = reinterpret_cast<Seraphim::Message *>(data);
+            std::cout << "<< Message outbound" << std::endl
+                      << "   id=" << msg->id() << std::endl
+                      << "   size=" << msg->ByteSizeLong() << std::endl;
+        });
+        server->register_event_handler(Server::EVENT_MESSAGE_HANDLED, [](void *data) {
+            Seraphim::Message *msg = reinterpret_cast<Seraphim::Message *>(data);
+            std::cout << "== Message handled" << std::endl
+                      << "   id=" << msg->id() << std::endl
+                      << "   response status=" << msg->res().status() << std::endl;
+        });
+    }
+
+    // register the services on all servers
+    for (const auto &server : servers) {
+        server->register_service(lane_detector_service);
+        server->register_service(face_detector_service);
+        server->register_service(face_recognizer_service);
+        server->register_service(facemark_detector_service);
+        server->register_service(object_classifier_service);
+    }
+
+    // start the servers
+    auto iter = servers.begin();
+    auto end = servers.end();
+    while (iter != end) {
+        if (!iter->get()->run()) {
+            std::cout << "Failed to run server: " << strerror(errno) << std::endl;
+            iter = servers.erase(iter);
+            continue;
+        }
+
+        iter++;
     }
 
     while (server_running) {

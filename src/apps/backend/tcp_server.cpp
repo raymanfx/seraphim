@@ -74,7 +74,7 @@ bool TCPServer::run() {
                 if (client == -1) {
                     continue;
                 }
-                std::cout << "[INFO] Peer connected (fd=" << client << ")" << std::endl;
+                emit_event(EVENT_CLIENT_CONNECTED, nullptr);
                 client_fds.push_back(client);
                 continue;
             }
@@ -87,14 +87,15 @@ bool TCPServer::run() {
                 // get data from client
                 try {
                     tcp->receive(client_fds[i], m_msg);
-                    handle_event(EVENT_MESSAGE_INCOMING, &m_msg);
+                    emit_event(EVENT_MESSAGE_INBOUND, &m_msg);
+                    handle_message(m_msg);
+                    emit_event(EVENT_MESSAGE_OUTBOUND, &m_msg);
                     tcp->send(client_fds[i], m_msg);
                 } catch (TimeoutException) {
                     // ignore
                     continue;
                 } catch (PeerDisconnectedException) {
-                    std::cout << "[INFO] Peer disconnected (fd=" << client_fds[i] << ")"
-                              << std::endl;
+                    emit_event(EVENT_CLIENT_DISCONNECTED, nullptr);
                     client_fds.erase(client_fds.begin() + i);
                     continue;
                 } catch (RuntimeException &e) {
@@ -113,17 +114,5 @@ void TCPServer::terminate() {
     m_transport->set_tx_timeout(1);
     if (m_thread.joinable()) {
         m_thread.join();
-    }
-}
-
-void TCPServer::register_event_handler(const event_t &mask, const event_handler_t handler) {
-    m_event_handlers.push_back(std::make_pair(mask, handler));
-}
-
-void TCPServer::handle_event(const event_t &event, void *data) {
-    for (const auto &handler : m_event_handlers) {
-        if (handler.first & event) {
-            handler.second(data);
-        }
     }
 }

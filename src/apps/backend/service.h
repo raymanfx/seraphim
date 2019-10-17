@@ -17,6 +17,13 @@ class Service {
 public:
     virtual ~Service() = default;
 
+    /**
+     * @brief Handle a request message.
+     * @param req The request.
+     * @param res The response, filled by this method.
+     * @return True on success, false otherwise (e.g. if this service does not handle this kind of
+     * request).
+     */
     virtual bool handle_request(const Seraphim::Request &req, Seraphim::Response &res) = 0;
 
 protected:

@@ -25,8 +25,6 @@ public:
     bool init(const std::string &uri) override;
     bool run() override;
     void terminate() override;
-    void register_event_handler(const event_t &mask, const event_handler_t handler) override;
-    void handle_event(const event_t &event, void *data);
 
 private:
     std::unique_ptr<sph::ipc::Transport> m_transport;
@@ -35,8 +33,6 @@ private:
     std::thread m_thread;
     std::atomic<bool> m_running;
     Seraphim::Message m_msg;
-
-    std::vector<std::pair<Server::event_t, Server::event_handler_t>> m_event_handlers;
 };
 
 } // namespace backend
