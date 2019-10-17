@@ -6,7 +6,7 @@
  */
 
 #include "seraphim/ipc/transport_factory.h"
-#include "seraphim/core/except.h"
+#include "seraphim/except.h"
 #include "seraphim/ipc/shm_transport.h"
 #include "seraphim/ipc/tcp_transport.h"
 

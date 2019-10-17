@@ -8,7 +8,7 @@
 #ifndef SPH_GUI_WINDOW_H
 #define SPH_GUI_WINDOW_H
 
-#include <seraphim/core/image.h>
+#include <seraphim/image.h>
 #include <string>
 
 namespace sph {

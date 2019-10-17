@@ -8,8 +8,8 @@
 #ifndef SPH_CAR_LANE_DETECTOR_H
 #define SPH_CAR_LANE_DETECTOR_H
 
-#include <seraphim/core/image.h>
-#include <seraphim/core/polygon.h>
+#include <seraphim/image.h>
+#include <seraphim/polygon.h>
 #include <vector>
 
 namespace sph {

@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include "seraphim/core/image_converter.h"
+#include "seraphim/image_converter.h"
 
 using namespace sph;
 

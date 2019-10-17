@@ -9,7 +9,7 @@
 #define SPH_FRONTEND_IMAGE_UTILS_QT_H
 
 #include <QImage>
-#include <seraphim/core/image.h>
+#include <seraphim/image.h>
 
 namespace sph {
 namespace frontend {

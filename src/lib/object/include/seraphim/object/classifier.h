@@ -8,8 +8,8 @@
 #ifndef SPH_OBJECT_CLASSIFIER_H
 #define SPH_OBJECT_CLASSIFIER_H
 
-#include <seraphim/core/image.h>
-#include <seraphim/core/polygon.h>
+#include <seraphim/image.h>
+#include <seraphim/polygon.h>
 #include <vector>
 
 namespace sph {

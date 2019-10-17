@@ -9,7 +9,7 @@
 #include <csignal>
 #include <getopt.h>
 #include <opencv2/videoio.hpp>
-#include <seraphim/core/image.h>
+#include <seraphim/image.h>
 #include <seraphim/gui/gl_window.h>
 #include <seraphim/iop/opencv/mat.h>
 

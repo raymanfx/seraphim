@@ -9,7 +9,7 @@
 #define SPH_IOP_CV_MAT_H
 
 #include <opencv2/core.hpp>
-#include <seraphim/core/image.h>
+#include <seraphim/image.h>
 
 namespace sph {
 namespace iop {

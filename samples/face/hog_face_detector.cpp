@@ -9,7 +9,7 @@
 #include <getopt.h>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
-#include <seraphim/core/polygon.h>
+#include <seraphim/polygon.h>
 #include <seraphim/face/hog_face_detector.h>
 #include <seraphim/gui/gl_window.h>
 #include <seraphim/iop/opencv/mat.h>

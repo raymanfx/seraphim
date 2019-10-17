@@ -5,7 +5,7 @@
 #include <ImageUtilsQt.h>
 #include <QCameraCaptureStream/QCameraCaptureStream.h>
 #include <QPainter>
-#include <seraphim/core/image.h>
+#include <seraphim/image.h>
 #include <seraphim/ipc/transport_factory.h>
 
 #include <FaceDetector.pb.h>

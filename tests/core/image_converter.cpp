@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
 
-#include <seraphim/core/image.h>
-#include <seraphim/core/image_converter.h>
+#include <seraphim/image.h>
+#include <seraphim/image_converter.h>
 
 using namespace sph;
 

@@ -8,8 +8,8 @@
 #ifndef SPH_FACE_RECOGNIZER_H
 #define SPH_FACE_RECOGNIZER_H
 
-#include <seraphim/core/image.h>
-#include <seraphim/core/polygon.h>
+#include <seraphim/image.h>
+#include <seraphim/polygon.h>
 #include <vector>
 
 namespace sph {

@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <seraphim/core/except.h>
+#include <seraphim/except.h>
 
 #include "shm_server.h"
 

@@ -11,7 +11,7 @@
 #include <thread>
 #include <unistd.h>
 
-#include "seraphim/core/except.h"
+#include "seraphim/except.h"
 #include "seraphim/ipc/tcp_transport.h"
 
 using namespace sph;

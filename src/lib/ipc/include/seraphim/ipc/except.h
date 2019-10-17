@@ -8,7 +8,7 @@
 #ifndef SPH_IPC_EXCEPT_H
 #define SPH_IPC_EXCEPT_H
 
-#include "seraphim/core/except.h"
+#include "seraphim/except.h"
 
 namespace sph {
 namespace ipc {

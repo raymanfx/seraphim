@@ -9,7 +9,7 @@
 #include <getopt.h>
 #include <opencv2/videoio.hpp>
 #include <seraphim/car/linear_lane_detector.h>
-#include <seraphim/core/polygon.h>
+#include <seraphim/polygon.h>
 #include <seraphim/gui/gl_window.h>
 #include <seraphim/iop/opencv/mat.h>
 

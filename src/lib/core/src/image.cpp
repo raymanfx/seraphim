@@ -1,4 +1,4 @@
-#include <seraphim/core/image.h>
+#include <seraphim/image.h>
 
 using namespace sph;
 

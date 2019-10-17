@@ -12,7 +12,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include "seraphim/core/except.h"
+#include "seraphim/except.h"
 #include "seraphim/ipc/except.h"
 #include "seraphim/ipc/net/tcp_socket.h"
 

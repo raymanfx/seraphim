@@ -8,7 +8,7 @@
 #include <iostream>
 #include <thread>
 
-#include "seraphim/core/except.h"
+#include "seraphim/except.h"
 #include "seraphim/gui/gl_window.h"
 
 using namespace sph;

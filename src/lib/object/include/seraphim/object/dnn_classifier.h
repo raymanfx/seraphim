@@ -12,7 +12,7 @@
 #include <mutex>
 #include <opencv2/dnn.hpp>
 #include <opencv2/opencv.hpp>
-#include <seraphim/core/computable.h>
+#include <seraphim/computable.h>
 #include <vector>
 
 namespace sph {

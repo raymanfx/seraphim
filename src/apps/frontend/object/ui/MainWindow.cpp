@@ -4,7 +4,7 @@
 
 #include <ImageUtilsQt.h>
 #include <QCameraCaptureStream/QCameraCaptureStream.h>
-#include <seraphim/core/image.h>
+#include <seraphim/image.h>
 #include <seraphim/ipc/transport_factory.h>
 
 #include <ObjectClassifier.pb.h>

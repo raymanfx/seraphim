@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <seraphim/core/image.h>
-#include <seraphim/core/polygon.h>
+#include <seraphim/image.h>
+#include <seraphim/polygon.h>
 #include <utils.h>
 
 #include "lane_detector_service.h"

@@ -11,7 +11,7 @@
 #include <dlib/image_processing.h>
 #include <memory>
 #include <mutex>
-#include <seraphim/core/computable.h>
+#include <seraphim/computable.h>
 #include <vector>
 
 #include "face_detector.h"

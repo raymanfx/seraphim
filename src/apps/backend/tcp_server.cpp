@@ -6,7 +6,7 @@
  */
 
 #include <poll.h>
-#include <seraphim/core/except.h>
+#include <seraphim/except.h>
 #include <seraphim/ipc/except.h>
 #include <seraphim/ipc/tcp_transport.h>
 

@@ -12,7 +12,7 @@
 #include <mutex>
 #include <opencv2/face.hpp>
 #include <opencv2/opencv.hpp>
-#include <seraphim/core/computable.h>
+#include <seraphim/computable.h>
 #include <vector>
 
 #include "face_detector.h"

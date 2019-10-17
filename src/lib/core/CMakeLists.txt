@@ -8,15 +8,15 @@ set(SOURCES
     src/image_converter.cpp)
 
 set(HEADERS
-    include/seraphim/core/computable.h
-    include/seraphim/core/except.h
-    include/seraphim/core/image.h
-    include/seraphim/core/image_converter.h
-    include/seraphim/core/matrix.h
-    include/seraphim/core/module.h
-    include/seraphim/core/pixelformat.h
-    include/seraphim/core/point.h
-    include/seraphim/core/polygon.h)
+    include/seraphim/computable.h
+    include/seraphim/except.h
+    include/seraphim/image.h
+    include/seraphim/image_converter.h
+    include/seraphim/matrix.h
+    include/seraphim/module.h
+    include/seraphim/pixelformat.h
+    include/seraphim/point.h
+    include/seraphim/polygon.h)
 
 add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})
 add_library(seraphim::${MODULE_NAME} ALIAS ${MODULE_NAME})

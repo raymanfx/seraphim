@@ -8,7 +8,7 @@
 #include <cstring>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
-#include <seraphim/core/image.h>
+#include <seraphim/image.h>
 #include <seraphim/iop/opencv/mat.h>
 
 #include "utils.h"

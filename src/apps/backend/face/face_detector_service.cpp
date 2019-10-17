@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <seraphim/core/polygon.h>
+#include <seraphim/polygon.h>
 #include <seraphim/iop/opencv/mat.h>
 #include <utils.h>
 

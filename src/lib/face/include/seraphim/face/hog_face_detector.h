@@ -10,8 +10,8 @@
 
 #include <dlib/image_processing/frontal_face_detector.h>
 #include <mutex>
-#include <seraphim/core/computable.h>
-#include <seraphim/core/polygon.h>
+#include <seraphim/computable.h>
+#include <seraphim/polygon.h>
 #include <vector>
 
 #include "face_detector.h"

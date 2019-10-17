@@ -14,7 +14,7 @@
 #include <iostream>
 
 #include "glad/glad.h"
-#include "seraphim/core/except.h"
+#include "seraphim/except.h"
 
 namespace sph {
 namespace gui {
