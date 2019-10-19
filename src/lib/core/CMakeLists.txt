@@ -16,7 +16,8 @@ set(HEADERS
     include/seraphim/module.h
     include/seraphim/pixelformat.h
     include/seraphim/point.h
-    include/seraphim/polygon.h)
+    include/seraphim/polygon.h
+    include/seraphim/threading.h)
 
 add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})
 add_library(seraphim::${MODULE_NAME} ALIAS ${MODULE_NAME})

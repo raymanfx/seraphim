@@ -6,8 +6,13 @@ set(SOURCES
     main.cpp
     matrix.cpp
     point.cpp
-    polygon.cpp)
+    polygon.cpp
+    threading.cpp)
 
 add_executable(${TEST_NAME} ${SOURCES})
 
 target_link_libraries(${TEST_NAME} seraphim::core)
+
+# Include threads
+find_package(Threads REQUIRED)
+target_link_libraries(${TEST_NAME} Threads::Threads)
