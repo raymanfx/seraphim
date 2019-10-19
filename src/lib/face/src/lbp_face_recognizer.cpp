@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <seraphim/polygon.h>
 #include <seraphim/iop/opencv/mat.h>
+#include <seraphim/polygon.h>
 
 #include "seraphim/face/lbp_face_recognizer.h"
 

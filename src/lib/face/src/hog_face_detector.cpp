@@ -7,8 +7,8 @@
 
 #include <dlib/image_io.h>
 #include <dlib/opencv/cv_image.h>
-#include <seraphim/polygon.h>
 #include <seraphim/iop/opencv/mat.h>
+#include <seraphim/polygon.h>
 
 #include "seraphim/face/hog_face_detector.h"
 
