@@ -27,6 +27,9 @@ clean:
 format:
 	clang-format -i -style=file $(SOURCES) $(HEADERS)
 
+lint: format
+	git ls-files -m | wc -l | xargs test 0 -eq
+
 test: build
 	find build/tests -type f -executable | xargs -L 1 sh -c
 

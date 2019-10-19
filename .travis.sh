@@ -33,7 +33,7 @@ fi
 declare -A COMMON_TASKS
 
 COMMON_TASKS=(
-    ["lint"]="make format && git ls-files -m | wc -l"
+    ["lint"]="make lint"
     ["build"]="make build"
     ["test"]="make test"
 )
