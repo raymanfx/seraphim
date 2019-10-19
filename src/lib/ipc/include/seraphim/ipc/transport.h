@@ -10,6 +10,8 @@
 
 #include <Seraphim.pb.h>
 
+#include "seraphim/threading.h"
+
 namespace sph {
 namespace ipc {
 
@@ -20,7 +22,7 @@ namespace ipc {
  * The interface provides basic send and receive methods that must be implemented and operate on
  * Seraphim messages (which are protobuf messages).
  */
-class Transport {
+class Transport : public Synchronizeable<Transport> {
 public:
     virtual ~Transport() = default;
 
