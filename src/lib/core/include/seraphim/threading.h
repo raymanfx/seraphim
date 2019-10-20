@@ -74,13 +74,22 @@ public:
      */
     Synchronized<T> synchronized() { return Synchronized<T>(*(static_cast<T *>(this))); }
 
+    /**
+     * @brief Thread safe access to children of the class implementing this marker interface.
+     *
+     * @see @synchronized
+     */
+    template <class Derived> Synchronized<Derived> synchronized() {
+        return Synchronized<Derived>(*(static_cast<Derived *>(this)));
+    }
+
 protected:
     /// Since this is a marker interface, disallow arbitrary instantiation.
     Synchronizeable() = default;
 
 private:
     /// the @ref Synchronized wrapper must have access to the mutex
-    friend class Synchronized<T>;
+    template <class T_> friend class Synchronized;
 
     /// mutex used by the @ref Synchronized wrapper
     std::mutex m_mutex;
