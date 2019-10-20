@@ -13,6 +13,7 @@ set(HEADERS
     include/seraphim/image.h
     include/seraphim/image_converter.h
     include/seraphim/matrix.h
+    include/seraphim/memory.h
     include/seraphim/module.h
     include/seraphim/pixelformat.h
     include/seraphim/point.h
