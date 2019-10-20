@@ -11,11 +11,10 @@
 
 using namespace sph;
 using namespace sph::backend;
+using namespace sph::ipc;
 
-SharedMemoryServer::SharedMemoryServer() {
-    m_init = false;
-    m_running = false;
-}
+SharedMemoryServer::SharedMemoryServer(std::shared_ptr<SharedMemoryTransport> ptr)
+    : m_transport(ptr), m_running(false) {}
 
 SharedMemoryServer::~SharedMemoryServer() {
     m_running = false;
@@ -24,30 +23,16 @@ SharedMemoryServer::~SharedMemoryServer() {
     }
 }
 
-bool SharedMemoryServer::init(const std::string &uri) {
-    if (uri.find("shm://", 0, strlen("shm://")) == std::string::npos) {
-        return false;
-    }
-
-    m_transport = sph::ipc::TransportFactory::Instance().create(uri);
-    m_init = m_transport != nullptr;
-    return m_init;
-}
-
 bool SharedMemoryServer::run() {
-    if (!m_init) {
-        return false;
-    }
-
     m_running = true;
     m_thread = std::thread([&]() {
         while (m_running) {
             try {
-                m_transport->receive(m_msg);
+                m_transport->synchronized()->receive(m_msg);
                 emit_event(EVENT_MESSAGE_INBOUND, &m_msg);
                 handle_message(m_msg);
                 emit_event(EVENT_MESSAGE_OUTBOUND, &m_msg);
-                m_transport->send(m_msg);
+                m_transport->synchronized()->send(m_msg);
             } catch (TimeoutException) {
                 // ignore
                 continue;

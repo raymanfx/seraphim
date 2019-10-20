@@ -9,7 +9,7 @@
 #define SPH_SHARED_MEMORY_SERVER_H
 
 #include <atomic>
-#include <seraphim/ipc/transport_factory.h>
+#include <seraphim/ipc/shm_transport.h>
 #include <thread>
 
 #include "server.h"
@@ -19,16 +19,14 @@ namespace backend {
 
 class SharedMemoryServer : public sph::backend::Server {
 public:
-    SharedMemoryServer();
+    SharedMemoryServer(std::shared_ptr<sph::ipc::SharedMemoryTransport> ptr);
     ~SharedMemoryServer() override;
 
-    bool init(const std::string &uri) override;
     bool run() override;
     void terminate() override;
 
 private:
-    std::unique_ptr<sph::ipc::Transport> m_transport;
-    bool m_init;
+    std::shared_ptr<sph::ipc::SharedMemoryTransport> m_transport;
 
     std::thread m_thread;
     std::atomic<bool> m_running;

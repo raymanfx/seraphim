@@ -21,7 +21,6 @@ class Server {
 public:
     virtual ~Server() = default;
 
-    virtual bool init(const std::string &uri) = 0;
     virtual bool run() = 0;
     virtual void terminate() = 0;
 

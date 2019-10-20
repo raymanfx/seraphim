@@ -13,13 +13,10 @@
 #include "tcp_server.h"
 
 using namespace sph;
-using namespace sph::ipc;
 using namespace sph::backend;
+using namespace sph::ipc;
 
-TCPServer::TCPServer() {
-    m_init = false;
-    m_running = false;
-}
+TCPServer::TCPServer(std::shared_ptr<TCPTransport> ptr) : m_transport(ptr), m_running(false) {}
 
 TCPServer::~TCPServer() {
     m_running = false;
@@ -28,35 +25,18 @@ TCPServer::~TCPServer() {
     }
 }
 
-bool TCPServer::init(const std::string &uri) {
-    if (uri.find("tcp://", 0, strlen("tcp://")) == std::string::npos) {
-        return false;
-    }
-
-    m_transport = sph::ipc::TransportFactory::Instance().create(uri);
-    m_init = m_transport != nullptr;
-    return m_init;
-}
-
 bool TCPServer::run() {
-    sph::ipc::TCPTransport *tcp = static_cast<sph::ipc::TCPTransport *>(m_transport.get());
-
-    if (!m_init) {
-        return false;
-    }
-
-    tcp->listen(1);
+    m_transport->synchronized<TCPTransport>()->listen(1);
 
     m_running = true;
     m_thread = std::thread([&]() {
-        sph::ipc::TCPTransport *tcp = static_cast<sph::ipc::TCPTransport *>(m_transport.get());
         std::vector<int> client_fds;
         std::vector<struct pollfd> poll_fds;
 
         while (m_running) {
             poll_fds.resize(client_fds.size() + 1);
 
-            poll_fds[0].fd = tcp->socket().fd();
+            poll_fds[0].fd = m_transport->synchronized<TCPTransport>()->socket().fd();
             poll_fds[0].events = POLLIN;
             for (size_t i = 0; i < client_fds.size(); i++) {
                 poll_fds[i + 1].fd = client_fds[i];
@@ -70,7 +50,7 @@ bool TCPServer::run() {
             // check which client got input
             if (poll_fds[0].revents == POLLIN) {
                 // add a new client
-                int client = tcp->accept(nullptr, nullptr);
+                int client = m_transport->synchronized<TCPTransport>()->accept(nullptr, nullptr);
                 if (client == -1) {
                     continue;
                 }
@@ -86,11 +66,11 @@ bool TCPServer::run() {
 
                 // get data from client
                 try {
-                    tcp->receive(client_fds[i], m_msg);
+                    m_transport->synchronized<TCPTransport>()->receive(client_fds[i], m_msg);
                     emit_event(EVENT_MESSAGE_INBOUND, &m_msg);
                     handle_message(m_msg);
                     emit_event(EVENT_MESSAGE_OUTBOUND, &m_msg);
-                    tcp->send(client_fds[i], m_msg);
+                    m_transport->synchronized<TCPTransport>()->send(client_fds[i], m_msg);
                 } catch (TimeoutException) {
                     // ignore
                     continue;

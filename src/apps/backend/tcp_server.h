@@ -9,7 +9,7 @@
 #define SPH_TCP_SERVER_H
 
 #include <atomic>
-#include <seraphim/ipc/transport_factory.h>
+#include <seraphim/ipc/tcp_transport.h>
 #include <thread>
 
 #include "server.h"
@@ -19,16 +19,14 @@ namespace backend {
 
 class TCPServer : public sph::backend::Server {
 public:
-    TCPServer();
+    TCPServer(std::shared_ptr<sph::ipc::TCPTransport> ptr);
     ~TCPServer() override;
 
-    bool init(const std::string &uri) override;
     bool run() override;
     void terminate() override;
 
 private:
-    std::unique_ptr<sph::ipc::Transport> m_transport;
-    bool m_init;
+    std::shared_ptr<sph::ipc::TCPTransport> m_transport;
 
     std::thread m_thread;
     std::atomic<bool> m_running;

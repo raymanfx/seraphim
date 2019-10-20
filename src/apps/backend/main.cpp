@@ -20,6 +20,7 @@
 #include <seraphim/face/lbp_face_recognizer.h>
 #include <seraphim/face/utils.h>
 #include <seraphim/ipc.h>
+#include <seraphim/memory.h>
 #include <seraphim/object/dnn_classifier.h>
 
 #include "car/lane_detector_service.h"
@@ -32,6 +33,7 @@
 #include "tcp_server.h"
 
 using namespace sph::backend;
+using namespace sph::ipc;
 
 static bool server_running = false;
 
@@ -227,22 +229,26 @@ int main(int argc, char **argv) {
     val = ConfigStore::Instance().get_value("shm_server_uri");
     if (!val.empty()) {
         std::cout << "Creating SHM server (uri: " << val << ")" << std::endl;
-        auto server = std::unique_ptr<SharedMemoryServer>(new SharedMemoryServer());
-        if (server->init(val)) {
+        try {
+            auto transport = TransportFactory::Instance().create(val);
+            auto shared = sph::convert_shared<SharedMemoryTransport>(transport);
+            auto server = std::unique_ptr<SharedMemoryServer>(new SharedMemoryServer(shared));
             servers.emplace_back(std::move(server));
-        } else {
-            std::cout << "Failed to create SHM segment: " << strerror(errno) << std::endl;
+        } catch (const std::exception &e) {
+            std::cout << "Failed to create SHM segment: " << e.what() << std::endl;
         }
     }
 
     val = ConfigStore::Instance().get_value("tcp_server_uri");
     if (!val.empty()) {
         std::cout << "Creating TCP server (uri: " << val << ")" << std::endl;
-        auto server = std::unique_ptr<TCPServer>(new TCPServer());
-        if (server->init(val)) {
+        try {
+            auto transport = TransportFactory::Instance().create(val);
+            auto shared = sph::convert_shared<TCPTransport>(transport);
+            auto server = std::unique_ptr<TCPServer>(new TCPServer(shared));
             servers.emplace_back(std::move(server));
-        } else {
-            std::cout << "Failed to create TCP server: " << strerror(errno) << std::endl;
+        } catch (const std::exception &e) {
+            std::cout << "Failed to create TCP server: " << e.what() << std::endl;
         }
     }
 
