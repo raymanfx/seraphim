@@ -7,7 +7,7 @@ set(MODULE_VERSION_MINOR 0)
 set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
-    src/linear_lane_detector.cpp)
+    linear_lane_detector.cpp)
 
 set(HEADERS
     include/seraphim/car.h

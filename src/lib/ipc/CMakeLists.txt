@@ -7,12 +7,12 @@ set(MODULE_VERSION_MINOR 0)
 set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
-    src/net/socket.cpp
-    src/net/tcp_socket.cpp
-    src/semaphore.cpp
-    src/shm_transport.cpp
-    src/tcp_transport.cpp
-    src/transport_factory.cpp)
+    net/socket.cpp
+    net/tcp_socket.cpp
+    semaphore.cpp
+    shm_transport.cpp
+    tcp_transport.cpp
+    transport_factory.cpp)
 
 set(HEADERS
     include/seraphim/ipc.h

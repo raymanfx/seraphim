@@ -7,12 +7,12 @@ set(MODULE_VERSION_MINOR 0)
 set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
-    src/hog_face_detector.cpp
-    src/kazemi_facemark_detector.cpp
-    src/lbp_face_detector.cpp
-    src/lbp_face_recognizer.cpp
-    src/lbf_facemark_detector.cpp
-    src/utils.cpp)
+    hog_face_detector.cpp
+    kazemi_facemark_detector.cpp
+    lbp_face_detector.cpp
+    lbp_face_recognizer.cpp
+    lbf_facemark_detector.cpp
+    utils.cpp)
 
 set(HEADERS
     include/seraphim/face.h

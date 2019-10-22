@@ -28,7 +28,7 @@ target_include_directories(${MODULE_NAME} PUBLIC
 find_package(OpenCV COMPONENTS opencv_core)
 if (OpenCV_FOUND)
     target_sources(${MODULE_NAME} PRIVATE
-        src/opencv/mat.cpp
+        opencv/mat.cpp
         include/seraphim/iop/opencv/mat.h)
     target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_imgproc)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWITH_OPENCV")

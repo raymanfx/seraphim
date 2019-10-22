@@ -4,8 +4,8 @@ set(MODULE_VERSION_MINOR 0)
 set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
-    src/gl_window.cpp
-    src/glad.c)
+    gl_window.cpp
+    glad.c)
 
 set(HEADERS
     include/KHR/khrplatform.h
