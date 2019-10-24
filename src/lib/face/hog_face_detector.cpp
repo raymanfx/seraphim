@@ -6,8 +6,6 @@
  */
 
 #include <dlib/image_io.h>
-#include <dlib/opencv/cv_image.h>
-#include <seraphim/iop/opencv/mat.h>
 #include <seraphim/polygon.h>
 
 #include "seraphim/face/hog_face_detector.h"
@@ -23,20 +21,18 @@ bool HOGFaceDetector::detect(const Image &img, std::vector<Polygon<int>> &faces)
     // http://dlib.net/face_detection_ex.cpp.html
     dlib::array2d<unsigned char> dlib_gray_image;
     std::vector<dlib::rectangle> dets;
-    cv::Mat mat;
 
-    mat = sph::iop::cv::MatFacility::from_image(img);
-    if (mat.empty()) {
-        return false;
-    }
-
-    // convert from cv to dlib image
-    switch (mat.channels()) {
+    // convert from sph to dlib image
+    switch (img.channels()) {
     case 1:
-        dlib::assign_image(dlib_gray_image, dlib::cv_image<unsigned char>(mat));
+        dlib::assign_image(dlib_gray_image,
+                           dlib::mat<unsigned char>(img.data(), img.height(), img.width()));
         break;
     case 3:
-        dlib::assign_image(dlib_gray_image, dlib::cv_image<dlib::bgr_pixel>(mat));
+        dlib::assign_image(
+            dlib_gray_image,
+            dlib::mat<dlib::bgr_pixel>(reinterpret_cast<const dlib::bgr_pixel *>(img.data()),
+                                       img.height(), img.width()));
         break;
     default:
         return false;
