@@ -14,7 +14,7 @@
 namespace sph {
 namespace frontend {
 
-static bool Image2QImage(const sph::Image &src, QImage &dst) {
+bool Image2QImage(const sph::Image &src, QImage &dst) {
     const uchar *bytes = src.data();
     uint32_t row_alignment;
 
@@ -49,7 +49,7 @@ static bool Image2QImage(const sph::Image &src, QImage &dst) {
     return true;
 }
 
-static bool QImage2Image(QImage &src, sph::Image &dst) {
+bool QImage2Image(QImage &src, sph::Image &dst) {
     // TODO: implement
     (void)src;
     (void)dst;

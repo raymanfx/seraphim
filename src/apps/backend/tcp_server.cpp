@@ -71,14 +71,14 @@ bool TCPServer::run() {
                     handle_message(m_msg);
                     emit_event(EVENT_MESSAGE_OUTBOUND, &m_msg);
                     m_transport->synchronized<TCPTransport>()->send(client_fds[i], m_msg);
-                } catch (TimeoutException) {
+                } catch (const TimeoutException &) {
                     // ignore
                     continue;
-                } catch (PeerDisconnectedException) {
+                } catch (const PeerDisconnectedException &) {
                     emit_event(EVENT_CLIENT_DISCONNECTED, nullptr);
                     client_fds.erase(client_fds.begin() + i);
                     continue;
-                } catch (RuntimeException &e) {
+                } catch (const RuntimeException &e) {
                     std::cout << "[ERROR] TCPServer: " << e.what() << std::endl;
                 }
             }

@@ -25,7 +25,7 @@ static constexpr std::pair<FacemarkDetector::FacemarkType, std::pair<size_t, siz
 bool KazemiFacemarkDetector::load_facemark_model(const std::string &path) {
     try {
         dlib::deserialize(path) >> m_predictor;
-    } catch (dlib::serialization_error) {
+    } catch (const dlib::serialization_error &) {
         return false;
     }
 

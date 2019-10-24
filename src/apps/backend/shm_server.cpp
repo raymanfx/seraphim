@@ -33,10 +33,10 @@ bool SharedMemoryServer::run() {
                 handle_message(m_msg);
                 emit_event(EVENT_MESSAGE_OUTBOUND, &m_msg);
                 m_transport->synchronized()->send(m_msg);
-            } catch (TimeoutException) {
+            } catch (const TimeoutException &) {
                 // ignore
                 continue;
-            } catch (RuntimeException &e) {
+            } catch (const RuntimeException &e) {
                 std::cout << "[ERROR] SharedMemoryServer: " << e.what() << std::endl;
             }
         }

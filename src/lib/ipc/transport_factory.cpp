@@ -59,7 +59,7 @@ std::unique_ptr<Transport> TransportFactory::create_shm(const std::string &uri) 
 
     try {
         size = std::stol(uri.substr(size_start));
-    } catch (std::invalid_argument) {
+    } catch (const std::invalid_argument &) {
         SPH_THROW(InvalidArgumentException, "Failed to parse memory region size");
     }
 
@@ -92,7 +92,7 @@ std::unique_ptr<Transport> TransportFactory::create_tcp(const std::string &uri) 
     address = uri.substr(address_start, port_start - address_start - 1);
     try {
         port = std::stoi(uri.substr(port_start));
-    } catch (std::invalid_argument) {
+    } catch (const std::invalid_argument &) {
         SPH_THROW(InvalidArgumentException, "Failed to parse network port");
     }
     // port must be a uint16_t
@@ -167,7 +167,7 @@ std::unique_ptr<Transport> TransportFactory::open_tcp(const std::string &uri) {
     address = uri.substr(address_start, port_start - address_start - 1);
     try {
         port = std::stoi(uri.substr(port_start));
-    } catch (std::invalid_argument) {
+    } catch (const std::invalid_argument &) {
         SPH_THROW(InvalidArgumentException, "Failed to parse network port");
     }
 
