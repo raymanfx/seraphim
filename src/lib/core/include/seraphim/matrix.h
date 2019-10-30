@@ -373,8 +373,8 @@ public:
         // otherwise, we have to fallback to row copying (which works because padding is only ever
         // present at the end of a row, so we can just copy the data and leave out the padding)
         for (size_t i = 0; i < m_rows; i++) {
-            std::copy(m_data + i * m_cols, m_data + (i + 1) * m_cols,
-                      target.m_data + i * target.cols());
+            std::copy(bytes() + i * m_step, bytes() + i * m_step + m_cols * sizeof(T),
+                      target.m_data + i * target.m_cols);
         }
     }
 
