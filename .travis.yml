@@ -13,21 +13,21 @@ cache:
     - $HOME/docker
     - $HOME/ccache
 
-before_cache:
-  # Save tagged docker images
-  - echo "$(docker images -a)"
-  - >
-    mkdir -p $HOME/docker && if [[ ! -f "$HOME/docker/$(docker images --format '{{.Repository}} {{.ID}}' | grep builder | xargs -n 2 | cut -d' ' -f2).tar.gz" ]]; then echo 'docker save builder:latest fedora:latest | gzip -2 > $HOME/docker/$1.tar.gz' | bash /dev/stdin $(docker images --format '{{.Repository}} {{.ID}}' | grep builder | xargs -n 2 | cut -d' ' -f2); fi
-  - if [[ "$(ls -1 $HOME/docker | wc -l)" -gt 1 ]]; then rm "$(ls -d -t $HOME/docker/* | tail -1)"; fi
-  - echo "$(ls $HOME/docker)"
+#before_cache:
+#  # Save tagged docker images
+#  - echo "$(docker images -a)"
+#  - >
+#    mkdir -p $HOME/docker && if [[ ! -f "$HOME/docker/$(docker images --format '{{.Repository}} {{.ID}}' | grep builder | xargs -n 2 | cut -d' ' -f2).tar.gz" ]]; then echo 'docker save builder:latest fedora:latest | gzip -2 > $HOME/docker/$1.tar.gz' | bash /dev/stdin $(docker images --format '{{.Repository}} {{.ID}}' | grep builder | xargs -n 2 | cut -d' ' -f2); fi
+#  - if [[ "$(ls -1 $HOME/docker | wc -l)" -gt 1 ]]; then rm "$(ls -d -t $HOME/docker/* | tail -1)"; fi
+#  - echo "$(ls $HOME/docker)"
 
-before_install:
-  # Load cached docker images
-  - if [[ "$(ls -1 $HOME/docker | wc -l)" -gt 1 ]]; then rm $HOME/docker/*; fi
-  - echo "$(ls $HOME/docker)"
-  - >
-    if [[ -d $HOME/docker ]] && [[ ! -z "$(ls $HOME/docker)" ]]; then docker load -i $HOME/docker/*.tar.gz; fi
-  - echo "$(docker images -a)"
+#before_install:
+#  # Load cached docker images
+#  - if [[ "$(ls -1 $HOME/docker | wc -l)" -gt 1 ]]; then rm $HOME/docker/*; fi
+#  - echo "$(ls $HOME/docker)"
+#  - >
+#    if [[ -d $HOME/docker ]] && [[ ! -z "$(ls $HOME/docker)" ]]; then docker load -i $HOME/docker/*.tar.gz; fi
+#  - echo "$(docker images -a)"
 
 before_script:
   - sudo chown -R 1000 .
