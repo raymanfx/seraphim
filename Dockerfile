@@ -1,4 +1,4 @@
-FROM fedora
+FROM fedora:30
 
 RUN dnf -y install make bash catch-devel ccache clang clang-tools-extra cmake \
     dlib-devel findutils git glfw-devel opencv-contrib opencv-devel \
