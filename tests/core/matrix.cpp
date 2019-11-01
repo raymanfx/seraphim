@@ -373,8 +373,8 @@ TEST_CASE( "Matrix runtime behavior", "[Matrix<T>]" ) {
 
         m1.reserve(7, 7);
 
-        REQUIRE( m1.rows() == 0 );
-        REQUIRE( m1.cols() == 0 );
+        REQUIRE( m1.rows() == m1_rows);
+        REQUIRE( m1.cols() == m1_cols );
     }
     SECTION( "resize() only performs reallocation if the size has changed" ) {
         Matrix<int> m1(5, 3);

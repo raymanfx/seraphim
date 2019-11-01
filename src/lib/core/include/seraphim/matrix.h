@@ -290,11 +290,14 @@ public:
             step = cols * sizeof(T);
         }
 
+        if (rows == 0 || cols == 0) {
+            return;
+        }
+
         if (m_capacity > 0 && (rows * step <= m_rows * m_step)) {
             return;
         }
 
-        clear();
         m_step = step;
         m_capacity = rows * (step / sizeof(T));
         m_buffer.reset(new T[m_capacity]);
