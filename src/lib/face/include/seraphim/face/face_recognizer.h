@@ -25,9 +25,10 @@ public:
         double confidence;
     };
 
-    virtual void train(const std::vector<sph::Image> &imgs, const std::vector<int> &labels) = 0;
+    virtual void train(const std::vector<sph::BufferedImage> &imgs,
+                       const std::vector<int> &labels) = 0;
     virtual bool predict(const sph::Image &img, std::vector<Prediction> &preds) = 0;
-    virtual void update(const std::vector<sph::Image> &imgs, const std::vector<int> &labels,
+    virtual void update(const std::vector<sph::BufferedImage> &imgs, const std::vector<int> &labels,
                         bool invalidate = false) = 0;
 };
 

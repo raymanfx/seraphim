@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
     std::string model_config_path;
     sph::object::DNNClassifier classifier;
     std::vector<sph::object::Classifier::Prediction> predictions;
-    sph::Image image;
+    sph::VolatileImage image;
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;
     std::chrono::high_resolution_clock::time_point t_frame_captured;

@@ -25,9 +25,9 @@ namespace sph {
  * If you need more dimensions, you should create a new class and describe the third dimension
  * in a meaningful way (e.g. time, pixel (voxel), etc).
  */
-class IImage {
+class Image {
 public:
-    virtual ~IImage() = default;
+    virtual ~Image() = default;
 
     /**
      * @brief Retrieve a pointer to the underlying data of the image.
@@ -78,25 +78,109 @@ public:
      * @return
      */
     virtual uint32_t depth() const = 0;
-
-    /**
-     * @brief Unary "not" operator, checks whether the instance is valid.
-     * @return True if the image is not empty, false otherwise.
-     */
-    virtual bool operator!() const = 0;
 };
 
 /**
- * @brief Image reference implementation class, buffered image with additional metadata.
+ * @brief Shallow image representation.
  *
- * The buffer can either load (hold) data which means it owns it or assign data, which means
- * the data was gathered from any memory location and may be used, but not altered.
+ * Data is never copied. This class can be used to wrap external image data from arbitrary sources
+ * to pass to interfaces expecting an sph::Image.
  */
-class Image : public IImage {
+class VolatileImage : public Image {
 public:
-    Image() = default;
-    Image(unsigned char *data, uint32_t width, uint32_t height, Pixelformat::Enum pixfmt,
-          size_t stride = 0);
+    VolatileImage() = default;
+
+    /**
+     * @brief Image with external data.
+     * @param data The raw data to use.
+     * @param width Width of the input data.
+     * @param height Height of the input data.
+     * @param pixfmt Pixelformat of the input data.
+     * @param stride Number of bytes per pixel row (default: auto).
+     */
+    VolatileImage(unsigned char *data, uint32_t width, uint32_t height, Pixelformat::Enum pixfmt,
+                  size_t stride = 0);
+
+    const unsigned char *data() const override { return m_data; }
+    bool empty() const override { return m_data == nullptr; }
+    uint32_t width() const override { return m_width; }
+    uint32_t height() const override { return m_height; }
+    size_t stride() const override { return m_stride; }
+    Pixelformat::Enum pixfmt() const override { return m_pixfmt; }
+    uint32_t channels() const override { return Pixelformat::channels(m_pixfmt); }
+    uint32_t depth() const override { return Pixelformat::bits(m_pixfmt); }
+
+    /**
+     * @brief Checks whether the instance is valid.
+     * @return True if not empty and the pixelformat is known.
+     */
+    bool valid() const { return !empty() && m_pixfmt != Pixelformat::Enum::UNKNOWN; }
+
+    bool operator!() const { return !valid(); }
+
+    /**
+     * @brief Get the scanline position in memory.
+     * @param y Y offset.
+     * @return Pixel scanline address in memory.
+     */
+    const unsigned char *scanline(uint32_t y) const {
+        assert(y < m_height);
+        return m_data + y * m_stride;
+    }
+
+    /**
+     * @brief Get the pixel position in memory.
+     * @param x X offset.
+     * @param y Y offset.
+     * @return Pixel address in memory.
+     */
+    const unsigned char *pixel(uint32_t x, uint32_t y) const {
+        assert(x < m_width && y < m_height);
+        if (m_pixfmt == Pixelformat::Enum::UNKNOWN) {
+            return nullptr;
+        }
+        return scanline(y) + x * Pixelformat::bits(m_pixfmt) / 8;
+    }
+
+private:
+    /// pixel data
+    const unsigned char *m_data = nullptr;
+
+    /// width in pixels
+    uint32_t m_width = 0;
+    /// height in pixels
+    uint32_t m_height = 0;
+    /// pixelformat
+    Pixelformat::Enum m_pixfmt = Pixelformat::Enum::UNKNOWN;
+    /// amount of bytes per row
+    size_t m_stride = 0;
+};
+
+/**
+ * @brief Image reference implementation class.
+ *
+ * Buffered image with additional metadata.
+ */
+class BufferedImage : public Image {
+public:
+    BufferedImage() = default;
+
+    /**
+     * @brief Image with buffered data.
+     * @param data The raw data to copy to the instance buffer.
+     * @param width Width of the input data.
+     * @param height Height of the input data.
+     * @param pixfmt Pixelformat of the input data.
+     * @param stride Number of bytes per pixel row (default: auto).
+     */
+    BufferedImage(unsigned char *data, uint32_t width, uint32_t height, Pixelformat::Enum pixfmt,
+                  size_t stride = 0);
+
+    /**
+     * @brief BufferedImage Create a buffered image from a shallow wrapper instance.
+     * @param img Image acting as wrapper around raw data.
+     */
+    BufferedImage(const VolatileImage &img);
 
     const unsigned char *data() const override { return m_buffer.data(); }
     bool empty() const override { return m_buffer.empty(); }
@@ -104,19 +188,28 @@ public:
     uint32_t height() const override { return m_height; }
     size_t stride() const override { return m_buffer.step(); }
     Pixelformat::Enum pixfmt() const override { return m_pixfmt; }
-    uint32_t channels() const override;
-    uint32_t depth() const override;
-    bool operator!() const override { return !validate(); }
+    uint32_t channels() const override { return Pixelformat::channels(m_pixfmt); }
+    uint32_t depth() const override { return Pixelformat::bits(m_pixfmt); }
 
+    /**
+     * @brief Clear the internal buffer contents.
+     */
     void clear();
-    bool validate() const { return !empty() && m_pixfmt != Pixelformat::Enum::UNKNOWN; }
+
+    /**
+     * @brief Checks whether the instance is valid.
+     * @return True if not empty and the pixelformat is known.
+     */
+    bool valid() const { return !empty() && m_pixfmt != Pixelformat::Enum::UNKNOWN; }
+
+    bool operator!() const { return !valid(); }
 
     /**
      * @brief Get the scanline position in memory.
      * @param y Y offset.
      * @return Pixel scanline address in memory.
      */
-    unsigned char *scanline(uint32_t y) const {
+    const unsigned char *scanline(uint32_t y) const {
         assert(y < m_height);
         return m_buffer[y];
     }
@@ -127,22 +220,13 @@ public:
      * @param y Y offset.
      * @return Pixel address in memory.
      */
-    unsigned char *pixel(uint32_t x, uint32_t y) const {
+    const unsigned char *pixel(uint32_t x, uint32_t y) const {
         assert(x < m_width && y < m_height);
         if (m_pixfmt == Pixelformat::Enum::UNKNOWN) {
             return nullptr;
         }
         return m_buffer[y] + x * Pixelformat::bits(m_pixfmt) / 8;
     }
-
-    /**
-     * @brief Copy an image buffer so this instance owns the data.
-     *        Convert the buffer if necessary prior to loading it.
-     * @param src Address of the source buffer.
-     * @param pixfmt Pixelformat of the target buffer.
-     * @return True on success, false otherwise.
-     */
-    bool load(const ImageConverter::Source &src, Pixelformat::Enum pixfmt);
 
     /**
      * @brief Convert between internal formats.

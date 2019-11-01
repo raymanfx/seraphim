@@ -34,7 +34,7 @@ bool ClassifierService::handle_request(const Seraphim::Request &req, Seraphim::R
 bool ClassifierService::handle_classification_request(
     const Seraphim::Object::Classifier::PredictionRequest &req,
     Seraphim::Object::Classifier::PredictionResponse &res) {
-    sph::Image image;
+    sph::VolatileImage image;
     cv::Mat mat;
     cv::Rect2i roi;
     std::vector<sph::object::Classifier::Prediction> predictions;

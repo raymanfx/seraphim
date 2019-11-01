@@ -111,6 +111,26 @@ struct Pixelformat {
             return 0;
         }
     }
+
+    /**
+     * @brief Number of channels in the format.
+     * @param uid The @ref Pixelformat identifier.
+     * @return The amount of channels.
+     */
+    static uint32_t channels(Pixelformat::Enum uid) {
+        switch (uid) {
+        case Pixelformat::Enum::GRAY8:
+        case Pixelformat::Enum::GRAY16:
+            return 1;
+        case Pixelformat::Enum::BGR24:
+        case Pixelformat::Enum::BGR32:
+        case Pixelformat::Enum::RGB24:
+        case Pixelformat::Enum::RGB32:
+            return 3;
+        default:
+            return 0;
+        }
+    }
 };
 
 } // namespace sph

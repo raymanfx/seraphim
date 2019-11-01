@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
     LBFFacemarkDetector facemark_detector;
     std::vector<sph::Polygon<int>> faces;
     std::vector<FacemarkDetector::Facemarks> facemarks;
-    sph::Image image;
+    sph::VolatileImage image;
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;
     std::chrono::high_resolution_clock::time_point t_frame_captured;

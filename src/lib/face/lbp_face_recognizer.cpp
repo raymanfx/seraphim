@@ -13,7 +13,8 @@
 using namespace sph;
 using namespace sph::face;
 
-void LBPFaceRecognizer::train(const std::vector<sph::Image> &imgs, const std::vector<int> &labels) {
+void LBPFaceRecognizer::train(const std::vector<sph::BufferedImage> &imgs,
+                              const std::vector<int> &labels) {
     std::vector<cv::Mat> gray_imgs;
 
     // invalidate old faces
@@ -43,8 +44,8 @@ void LBPFaceRecognizer::train(const std::vector<sph::Image> &imgs, const std::ve
     m_impl->train(gray_imgs, labels);
 }
 
-void LBPFaceRecognizer::update(const std::vector<sph::Image> &imgs, const std::vector<int> &labels,
-                               bool invalidate) {
+void LBPFaceRecognizer::update(const std::vector<sph::BufferedImage> &imgs,
+                               const std::vector<int> &labels, bool invalidate) {
     std::vector<cv::Mat> gray_imgs;
 
     // convert to 8-bit single channel if necessary
