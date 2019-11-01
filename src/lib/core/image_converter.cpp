@@ -59,7 +59,7 @@ static bool bgr_to_rgb(const ImageConverter::Source &src, ImageConverter::Target
     dst_size = src.height * dst_stride;
 
     // not all formats can be converted in-place
-    if (dst.buf == src.buf && src_pixel_size < dst_pixel_size) {
+    if (dst.buf == src.buf && src_pixel_size != dst_pixel_size) {
         return false;
     }
 
@@ -125,7 +125,7 @@ static bool rgb_to_bgr(const ImageConverter::Source &src, ImageConverter::Target
     dst_size = src.height * dst_stride;
 
     // not all formats can be converted in-place
-    if (dst.buf == src.buf && src_pixel_size < dst_pixel_size) {
+    if (dst.buf == src.buf && src_pixel_size != dst_pixel_size) {
         return false;
     }
 
@@ -193,7 +193,7 @@ static size_t rgb_to_y(const ImageConverter::Source &src, ImageConverter::Target
     dst_size = src.height * dst_stride;
 
     // not all formats can be converted in-place
-    if (dst.buf == src.buf && src_pixel_size < dst_pixel_size) {
+    if (dst.buf == src.buf && src_pixel_size != dst_pixel_size) {
         return false;
     }
 
@@ -287,7 +287,7 @@ static bool y_to_bgr(const ImageConverter::Source &src, ImageConverter::Target &
     dst_size = src.height * dst_stride;
 
     // not all formats can be converted in-place
-    if (dst.buf == src.buf && src_pixel_size < dst_pixel_size) {
+    if (dst.buf == src.buf && src_pixel_size != dst_pixel_size) {
         return false;
     }
 
@@ -358,7 +358,7 @@ static size_t yuy2_to_bgr(const ImageConverter::Source &src, ImageConverter::Tar
     dst_size = src.height * dst_stride;
 
     // not all formats can be converted in-place
-    if (dst.buf == src.buf && src_pixel_size < dst_pixel_size) {
+    if (dst.buf == src.buf && src_pixel_size != dst_pixel_size) {
         return false;
     }
 
