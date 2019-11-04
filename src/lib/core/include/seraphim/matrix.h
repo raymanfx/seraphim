@@ -100,9 +100,9 @@ public:
      */
     Matrix(const Matrix m, size_t i, size_t j, size_t rows, size_t cols) : Matrix(rows, cols) {
         assert((i + rows) <= m.rows() && (j + cols) <= m.cols());
-        for (size_t i_ = 0; i_ < rows; i_++) {
-            for (size_t j_ = 0; j_ < cols; j_++) {
-                m_data[i_ * m_cols + j_] = m[i_ + i][j_ + j];
+        for (size_t i_ = 1; i_ <= rows; i_++) {
+            for (size_t j_ = 1; j_ <= cols; j_++) {
+                (*this)(i_, j_) = m(i_ + i, j_ + j);
             }
         }
     }
@@ -149,19 +149,10 @@ public:
     }
 
     /**
-     * @brief Array subscript operator, returns the memory location of a row.
-     *        Note that array indexing is used, i.e. the first row has an index of 0.
-     * @param i The index of the matrix row.
-     * @return Pointer to the matrix row.
-     */
-    T *operator[](size_t i) const {
-        assert(i < m_rows);
-        return m_data + i * (m_step / sizeof(T));
-    }
-
-    /**
      * @brief Subscript operator retrieving a single matrix element reference.
-     *        Note that element indexing is used, i.e. the first element is at (1, 1).
+     *
+     * Note that element indexing is used, i.e. the first element is at (1, 1).
+     *
      * @param i Matrix row index.
      * @param j Matrix column index.
      * @return The Matrix element at the specified offsets.
@@ -169,7 +160,22 @@ public:
     T &operator()(size_t i, size_t j) {
         assert(i > 0 && j > 0);
         assert(i <= m_rows && j <= m_cols);
-        return (m_data + (i - 1) * (m_step / sizeof(T)))[j - 1];
+        return data(i - 1)[j - 1];
+    }
+
+    /**
+     * @brief Subscript operator retrieving a single matrix element reference.
+     *
+     * Note that element indexing is used, i.e. the first element is at (1, 1).
+     *
+     * @param i Matrix row index.
+     * @param j Matrix column index.
+     * @return The Matrix element at the specified offsets.
+     */
+    T operator()(size_t i, size_t j) const {
+        assert(i > 0 && j > 0);
+        assert(i <= m_rows && j <= m_cols);
+        return data(i - 1)[j - 1];
     }
 
     /**
@@ -194,19 +200,19 @@ public:
      */
     friend std::ostream &operator<<(std::ostream &os, Matrix &m) {
         os << std::endl << "[";
-        for (size_t i = 0; i < m.rows(); i++) {
-            if (i > 0) {
+        for (size_t i = 1; i <= m.rows(); i++) {
+            if (i > 1) {
                 os << " ";
             }
             os << "[";
-            for (size_t j = 0; j < m.cols(); j++) {
-                os << m[i][j];
-                if (j < m.cols() - 1) {
+            for (size_t j = 1; j <= m.cols(); j++) {
+                os << m(i, j);
+                if (j < m.cols()) {
                     os << " ";
                 }
             }
             os << "]";
-            if (i < m.rows() - 1) {
+            if (i < m.rows()) {
                 os << std::endl;
             }
         }
@@ -246,17 +252,21 @@ public:
     size_t capacity() const { return m_capacity; }
 
     /**
-     * @brief Read-only pointer to matrix memory.
-     * @return Memory location of the first element.
+     * @brief Memory location of a row.
+     *
+     * Note that array indexing is used, i.e. the first row has an index of 0.
+     * The data is guaranteed to be continuous if step == cols * sizeof(T), otherwise there are
+     * padding bytes at the end of each row.
+     *
+     * @param i The index of the matrix row.
+     * @return Pointer to the matrix row.
      */
-    unsigned char *bytes() const { return reinterpret_cast<unsigned char *>(m_data); }
-
-    /**
-     * @brief Read-only pointer to matrix elements.
-     * @return Memory location of the first element.
-     *         The memory space is continuous, but padding may lead to empty or invalid elements.
-     */
-    T *data() const { return m_data; }
+    T *data(size_t i = 0) const {
+        if (i > 0) {
+            assert(i < m_rows);
+        }
+        return reinterpret_cast<T *>(reinterpret_cast<unsigned char *>(m_data) + i * m_step);
+    }
 
     /**
      * @brief Check whether the matrix is empty.
@@ -375,9 +385,10 @@ public:
 
         // otherwise, we have to fallback to row copying (which works because padding is only ever
         // present at the end of a row, so we can just copy the data and leave out the padding)
+        auto bytes = reinterpret_cast<unsigned char *>(m_data);
         for (size_t i = 0; i < m_rows; i++) {
-            std::copy(bytes() + i * m_step, bytes() + i * m_step + m_cols * sizeof(T),
-                      target.m_data + i * target.m_cols);
+            std::copy(bytes + i * m_step, bytes + i * m_step + m_cols * sizeof(T),
+                      target.m_data + i * m_cols);
         }
     }
 

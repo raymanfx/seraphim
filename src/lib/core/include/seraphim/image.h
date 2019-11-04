@@ -211,7 +211,7 @@ public:
      */
     const unsigned char *scanline(uint32_t y) const {
         assert(y < m_height);
-        return m_buffer[y];
+        return m_buffer.data(y);
     }
 
     /**
@@ -225,7 +225,7 @@ public:
         if (m_pixfmt == Pixelformat::Enum::UNKNOWN) {
             return nullptr;
         }
-        return m_buffer[y] + x * Pixelformat::bits(m_pixfmt) / 8;
+        return m_buffer.data(y) + x * Pixelformat::bits(m_pixfmt) / 8;
     }
 
     /**
