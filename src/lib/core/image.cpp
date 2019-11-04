@@ -102,7 +102,7 @@ bool BufferedImage::convert(Pixelformat::Enum target) {
         // allocate a new buffer by first moving the contents to an alternative location
         Matrix<unsigned char> tmp;
         m_buffer.move(tmp);
-        m_buffer.resize(src.height, src.width, dst_stride);
+        m_buffer.resize(src.height, dst_stride);
         src.buf = tmp.data();
         dst.buf = m_buffer.data();
         dst.buf_len = m_buffer.rows() * m_buffer.step();

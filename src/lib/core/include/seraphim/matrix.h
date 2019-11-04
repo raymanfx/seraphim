@@ -37,12 +37,9 @@ public:
      * @param rows Number of rows.
      * @param cols Number of columns.
      */
-    Matrix(size_t rows, size_t cols, size_t step = 0) : m_rows(rows), m_cols(cols), m_step(step) {
-        if (m_step == 0) {
-            m_step = cols * sizeof(T);
-        }
-
-        m_capacity = rows * (m_step / sizeof(T));
+    Matrix(size_t rows, size_t cols) : m_rows(rows), m_cols(cols) {
+        m_step = cols * sizeof(T);
+        m_capacity = rows * cols;
         m_buffer.reset(new T[m_capacity]);
         m_data = m_buffer.get();
     }
@@ -118,8 +115,6 @@ public:
      * @param m Instance to move from.
      */
     Matrix(Matrix &&m) : Matrix() { m.move(*this); }
-
-    ~Matrix() { clear(); }
 
     /**
      * @brief Copy assignment operator, performs a deep copy of elements.
@@ -293,23 +288,18 @@ public:
      *        the current one.
      * @param rows Number of rows.
      * @param cols Number of columns.
-     * @param step Number of bytes per row. If 0, this is calculated as cols * sizeof(T).
      */
-    void reserve(size_t rows, size_t cols, size_t step = 0) {
-        if (step == 0) {
-            step = cols * sizeof(T);
-        }
-
+    void reserve(size_t rows, size_t cols) {
         if (rows == 0 || cols == 0) {
             return;
         }
 
-        if (m_capacity > 0 && (rows * step <= m_rows * m_step)) {
+        if (m_capacity > 0 && (rows * cols <= m_rows * m_cols)) {
             return;
         }
 
-        m_step = step;
-        m_capacity = rows * (step / sizeof(T));
+        m_step = cols * sizeof(T);
+        m_capacity = rows * cols;
         m_buffer.reset(new T[m_capacity]);
         m_data = m_buffer.get();
     }
@@ -319,22 +309,17 @@ public:
      *        Causes a reallocation if the current size does not match the requested one.
      * @param rows Number of rows.
      * @param cols Number of columns.
-     * @param step Number of bytes per row. If 0, this is calculated as cols * sizeof(T).
      */
-    void resize(size_t rows, size_t cols, size_t step = 0) {
-        if (step == 0) {
-            step = cols * sizeof(T);
-        }
-
-        if (m_capacity > 0 && (rows * cols == m_rows * m_cols && step == m_step)) {
+    void resize(size_t rows, size_t cols) {
+        if (m_capacity > 0 && (rows * cols == m_rows * m_cols)) {
             return;
         }
 
         clear();
-        reserve(rows, cols, step);
+        reserve(rows, cols);
         m_rows = rows;
         m_cols = cols;
-        m_step = step;
+        m_step = cols * sizeof(T);
     }
 
     /**
