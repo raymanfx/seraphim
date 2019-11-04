@@ -75,9 +75,15 @@ public:
     /**
      * @brief The number of bits for each channel.
      *        E.g. for RGB32 this would return 32.
-     * @return
+     * @return Depth as bits.
      */
     virtual uint32_t depth() const = 0;
+
+    /**
+     * @brief Image size in bytes.
+     * @return Height * stride.
+     */
+    size_t size() const { return height() * stride(); }
 };
 
 /**
@@ -195,6 +201,17 @@ public:
      * @brief Clear the internal buffer contents.
      */
     void clear();
+
+    /**
+     * @brief Resize the internal buffer.
+     * @param width Target width.
+     * @param height Target height.
+     */
+    void resize(uint32_t width, uint32_t height) {
+        m_buffer.resize(height, stride());
+        m_width = width;
+        m_height = height;
+    }
 
     /**
      * @brief Checks whether the instance is valid.

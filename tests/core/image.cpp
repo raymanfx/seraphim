@@ -375,4 +375,26 @@ TEST_CASE( "BufferedImage runtime behavior", "[BufferedImage]" ) {
         REQUIRE( i1.stride() == 2 * 4 );
         REQUIRE( i1.width() == 2 );
     }
+    SECTION( "size() returns the image size in bytes" ) {
+        unsigned char bytes[] = {
+            1, 2,
+            4, 5,
+            1, 3
+        };
+        BufferedImage i1(bytes, 2, 3, Pixelformat::Enum::GRAY8);
+
+        REQUIRE( i1.size() == 6 );
+    }
+    SECTION( "resize() resizes the image" ) {
+        unsigned char bytes[] = {
+            1, 2,
+            4, 5,
+            1, 3
+        };
+        BufferedImage i1(bytes, 2, 3, Pixelformat::Enum::GRAY8);
+        i1.resize(2, 1);
+
+        REQUIRE( i1.width() == 2 );
+        REQUIRE( i1.height() == 1 );
+    }
 }
