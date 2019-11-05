@@ -35,7 +35,7 @@ static void glfw_error_callback(int, const char *msg) {
  * An error callback is registered to print failures.
  * Throws sph::RuntimeException in case of errors.
  */
-void glfw_init() {
+inline void glfw_init() {
     if (!glfw_initialized) {
         glfwSetErrorCallback(glfw_error_callback);
         glfw_initialized = glfwInit() == GLFW_TRUE;
@@ -53,7 +53,7 @@ void glfw_init() {
  *
  * Throws sph::RuntimeException in case of errors.
  */
-void glfw_terminate() {
+inline void glfw_terminate() {
     if (glfw_initialized && glfw_windows == 0) {
         glfwTerminate();
     }
@@ -68,7 +68,7 @@ void glfw_terminate() {
  * @param title Window title used by the window toolkit.
  * @return The created window instance on success or nullptr on error.
  */
-GLFWwindow *glfw_create_window(int width, int height, const char *title) {
+inline GLFWwindow *glfw_create_window(int width, int height, const char *title) {
     GLFWwindow *window;
 
     window = glfwCreateWindow(width, height, title, nullptr, nullptr);
@@ -82,7 +82,7 @@ GLFWwindow *glfw_create_window(int width, int height, const char *title) {
  * @brief Destroy a GLFW window.
  * @param window Pointer to the instance as returned by glfw_create_window().
  */
-void glfw_destroy_window(GLFWwindow *window) {
+inline void glfw_destroy_window(GLFWwindow *window) {
     glfwDestroyWindow(window);
     if (glfw_windows > 0) {
         glfw_windows--;
