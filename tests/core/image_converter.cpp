@@ -24,7 +24,7 @@ TEST_CASE( "Image conversions", "[ImageConverter]" ) {
             10, 50, 16, 43, 42, 7, 88, 2, 44
         };
         BufferedImage i1(bytes, 3, 3, Pixelformat::Enum::BGR24);
-        bool success = i1.convert(Pixelformat::Enum::RGB32);
+        bool success = ImageConverter::Instance().convert(i1, i1, Pixelformat::Enum::RGB32);
 
         REQUIRE( success );
         REQUIRE( i1.stride() == 3 /* width */ * 4 /* bpp * 8 */ );
@@ -47,10 +47,10 @@ TEST_CASE( "Image conversions", "[ImageConverter]" ) {
             10, 50, 16, 0, 43, 42, 7, 0, 88, 2, 44, 0
         };
         BufferedImage i1(bytes, 3, 3, Pixelformat::Enum::RGB32);
-        bool success = i1.convert(Pixelformat::Enum::BGR24);
+        bool success = ImageConverter::Instance().convert(i1, i1, Pixelformat::Enum::BGR24);
 
         REQUIRE( success );
-        REQUIRE( i1.stride() == 3 /* width */ * 3 /* bpp * 8 */ + 3 /* padding */ );
+        REQUIRE( i1.stride() == 3 /* width */ * 3 /* bpp * 8 */ );
         // validate the last pixel row
         REQUIRE( i1.pixel(0, 2)[0] == 16 );
         REQUIRE( i1.pixel(0, 2)[1] == 50 );
@@ -70,10 +70,10 @@ TEST_CASE( "Image conversions", "[ImageConverter]" ) {
             10, 50, 16, 43, 42, 7, 88, 2, 44
         };
         BufferedImage i1(bytes, 3, 3, Pixelformat::Enum::BGR24);
-        bool success = i1.convert(Pixelformat::Enum::GRAY8);
+        bool success = ImageConverter::Instance().convert(i1, i1, Pixelformat::Enum::GRAY8);
 
         REQUIRE( success );
-        REQUIRE( i1.stride() == 3 /* width */ * 1 /* bpp * 8 */ + 1 /* padding */ );
+        REQUIRE( i1.stride() == 3 /* width */ * 1 /* bpp * 8 */);
 
         for (uint32_t i = 0; i < i1.height(); i++) {
             for (uint32_t j = 0; j < i1.width(); j++) {

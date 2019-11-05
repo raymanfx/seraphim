@@ -31,9 +31,10 @@ public:
 
     /**
      * @brief Retrieve a pointer to the underlying data of the image.
+     * @param i The index of the image row.
      * @return Start of the first row of the image.
      */
-    virtual const unsigned char *data() const = 0;
+    virtual const unsigned char *data(size_t i = 0) const = 0;
 
     /**
      * @brief Check whether the buffer is empty.
@@ -107,7 +108,7 @@ public:
     VolatileImage(unsigned char *data, uint32_t width, uint32_t height, Pixelformat::Enum pixfmt,
                   size_t stride = 0);
 
-    const unsigned char *data() const override { return m_data; }
+    const unsigned char *data(size_t i = 0) const override { return m_data + i * m_stride; }
     bool empty() const override { return m_data == nullptr; }
     uint32_t width() const override { return m_width; }
     uint32_t height() const override { return m_height; }
@@ -123,30 +124,6 @@ public:
     bool valid() const { return !empty() && m_pixfmt != Pixelformat::Enum::UNKNOWN; }
 
     bool operator!() const { return !valid(); }
-
-    /**
-     * @brief Get the scanline position in memory.
-     * @param y Y offset.
-     * @return Pixel scanline address in memory.
-     */
-    const unsigned char *scanline(uint32_t y) const {
-        assert(y < m_height);
-        return m_data + y * m_stride;
-    }
-
-    /**
-     * @brief Get the pixel position in memory.
-     * @param x X offset.
-     * @param y Y offset.
-     * @return Pixel address in memory.
-     */
-    const unsigned char *pixel(uint32_t x, uint32_t y) const {
-        assert(x < m_width && y < m_height);
-        if (m_pixfmt == Pixelformat::Enum::UNKNOWN) {
-            return nullptr;
-        }
-        return scanline(y) + x * Pixelformat::bits(m_pixfmt) / 8;
-    }
 
 private:
     /// pixel data
@@ -172,6 +149,14 @@ public:
     BufferedImage() = default;
 
     /**
+     * @brief Empty image with no initial data.
+     * @param width Width of the input data.
+     * @param height Height of the input data.
+     * @param pixfmt Pixelformat of the input data.
+     */
+    BufferedImage(uint32_t width, uint32_t height, Pixelformat::Enum pixfmt);
+
+    /**
      * @brief Image with buffered data.
      * @param data The raw data to copy to the instance buffer.
      * @param width Width of the input data.
@@ -188,7 +173,7 @@ public:
      */
     BufferedImage(const VolatileImage &img);
 
-    const unsigned char *data() const override { return m_buffer.data(); }
+    const unsigned char *data(size_t i = 0) const override { return m_buffer.data(i); }
     bool empty() const override { return m_buffer.empty(); }
     uint32_t width() const override { return m_width; }
     uint32_t height() const override { return m_height; }
@@ -222,35 +207,15 @@ public:
     bool operator!() const { return !valid(); }
 
     /**
-     * @brief Get the scanline position in memory.
-     * @param y Y offset.
-     * @return Pixel scanline address in memory.
-     */
-    const unsigned char *scanline(uint32_t y) const {
-        assert(y < m_height);
-        return m_buffer.data(y);
-    }
-
-    /**
      * @brief Get the pixel position in memory.
      * @param x X offset.
      * @param y Y offset.
      * @return Pixel address in memory.
      */
-    const unsigned char *pixel(uint32_t x, uint32_t y) const {
+    unsigned char *pixel(uint32_t x, uint32_t y) {
         assert(x < m_width && y < m_height);
-        if (m_pixfmt == Pixelformat::Enum::UNKNOWN) {
-            return nullptr;
-        }
         return m_buffer.data(y) + x * Pixelformat::bits(m_pixfmt) / 8;
     }
-
-    /**
-     * @brief Convert between internal formats.
-     * @param target Target pixel format.
-     * @return True on success, false otherwise.
-     */
-    bool convert(Pixelformat::Enum target);
 
 private:
     /// matrix back buffer holding pixel data
@@ -258,8 +223,10 @@ private:
 
     /// width in pixels
     uint32_t m_width = 0;
+
     /// height in pixels
     uint32_t m_height = 0;
+
     /// pixelformat
     Pixelformat::Enum m_pixfmt = Pixelformat::Enum::UNKNOWN;
 };

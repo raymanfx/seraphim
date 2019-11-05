@@ -30,40 +30,40 @@ TEST_CASE( "VolatileImage constructor", "[VolatileImage]" ) {
         REQUIRE( i1.data() == bytes1 );
         REQUIRE( i2.data() == bytes2 );
 
-        REQUIRE( i1.pixel(0, 0)[0] == 10 );
-        REQUIRE( i1.pixel(1, 0)[0] == 50 );
-        REQUIRE( i1.pixel(2, 0)[0] == 10 );
-        REQUIRE( i1.pixel(0, 1)[0] == 50 );
-        REQUIRE( i1.pixel(1, 1)[0] == 100 );
-        REQUIRE( i1.pixel(2, 1)[0] == 50 );
-        REQUIRE( i1.pixel(0, 2)[0] == 10 );
-        REQUIRE( i1.pixel(1, 2)[0] == 50 );
-        REQUIRE( i1.pixel(2, 2)[0] == 10 );
+        REQUIRE( i1.data(0)[0] == 10 );
+        REQUIRE( i1.data(0)[1] == 50 );
+        REQUIRE( i1.data(0)[2] == 10 );
+        REQUIRE( i1.data(1)[0] == 50 );
+        REQUIRE( i1.data(1)[1] == 100 );
+        REQUIRE( i1.data(1)[2] == 50 );
+        REQUIRE( i1.data(2)[0] == 10 );
+        REQUIRE( i1.data(2)[1] == 50 );
+        REQUIRE( i1.data(2)[2] == 10 );
 
-        REQUIRE( i2.pixel(0, 0)[0] == 10 );
-        REQUIRE( i2.pixel(0, 0)[1] == 4 );
-        REQUIRE( i2.pixel(0, 0)[2] == 20 );
-        REQUIRE( i2.pixel(1, 0)[0] == 0 );
-        REQUIRE( i2.pixel(1, 0)[1] == 100 );
-        REQUIRE( i2.pixel(1, 0)[2] == 1 );
-        REQUIRE( i2.pixel(0, 1)[0] == 3 );
-        REQUIRE( i2.pixel(0, 1)[1] == 100 );
-        REQUIRE( i2.pixel(0, 1)[2] == 9 );
-        REQUIRE( i2.pixel(1, 1)[0] == 100 );
-        REQUIRE( i2.pixel(1, 1)[1] == 0 );
-        REQUIRE( i2.pixel(1, 1)[2] == 7 );
-        REQUIRE( i2.pixel(0, 2)[0] == 0 );
-        REQUIRE( i2.pixel(0, 2)[1] == 0 );
-        REQUIRE( i2.pixel(0, 2)[2] == 100 );
-        REQUIRE( i2.pixel(1, 2)[0] == 0 );
-        REQUIRE( i2.pixel(1, 2)[1] == 100 );
-        REQUIRE( i2.pixel(1, 2)[2] == 0 );
-        REQUIRE( i2.pixel(0, 3)[0] == 255 );
-        REQUIRE( i2.pixel(0, 3)[1] == 0 );
-        REQUIRE( i2.pixel(0, 3)[2] == 0 );
-        REQUIRE( i2.pixel(1, 3)[0] == 0 );
-        REQUIRE( i2.pixel(1, 3)[1] == 0 );
-        REQUIRE( i2.pixel(1, 3)[2] == 255 );
+        REQUIRE( i2.data(0)[0] == 10 );
+        REQUIRE( i2.data(0)[1] == 4 );
+        REQUIRE( i2.data(0)[2] == 20 );
+        REQUIRE( i2.data(0)[3] == 0 );
+        REQUIRE( i2.data(0)[4] == 100 );
+        REQUIRE( i2.data(0)[5] == 1 );
+        REQUIRE( i2.data(1)[0] == 3 );
+        REQUIRE( i2.data(1)[1] == 100 );
+        REQUIRE( i2.data(1)[2] == 9 );
+        REQUIRE( i2.data(1)[3] == 100 );
+        REQUIRE( i2.data(1)[4] == 0 );
+        REQUIRE( i2.data(1)[5] == 7 );
+        REQUIRE( i2.data(2)[0] == 0 );
+        REQUIRE( i2.data(2)[1] == 0 );
+        REQUIRE( i2.data(2)[2] == 100 );
+        REQUIRE( i2.data(2)[3] == 0 );
+        REQUIRE( i2.data(2)[4] == 100 );
+        REQUIRE( i2.data(2)[5] == 0 );
+        REQUIRE( i2.data(3)[0] == 255 );
+        REQUIRE( i2.data(3)[1] == 0 );
+        REQUIRE( i2.data(3)[2] == 0 );
+        REQUIRE( i2.data(3)[3] == 0 );
+        REQUIRE( i2.data(3)[4] == 0 );
+        REQUIRE( i2.data(3)[5] == 255 );
     }
 }
 
@@ -152,8 +152,8 @@ TEST_CASE( "VolatileImage runtime behavior", "[VolatileImage]" ) {
         };
         VolatileImage i1(bytes, 2, 3, Pixelformat::Enum::GRAY8);
 
-        REQUIRE( i1.scanline(0) == bytes );
-        REQUIRE( i1.scanline(1) == bytes + 2 );
+        REQUIRE( i1.data(0) == bytes );
+        REQUIRE( i1.data(1) == bytes + 2 );
     }
     SECTION( "pixel() returns the address of the pixel" ) {
         unsigned char bytes[] = {
@@ -163,24 +163,8 @@ TEST_CASE( "VolatileImage runtime behavior", "[VolatileImage]" ) {
         };
         VolatileImage i1(bytes, 2, 3, Pixelformat::Enum::GRAY8);
 
-        REQUIRE( i1.pixel(1, 0) == bytes + 1 );
-        REQUIRE( i1.pixel(1, 2) == bytes + 5 );
-    }
-    SECTION( "convert() converts pixel data into well-defined formats" ) {
-        unsigned char bytes[] = {
-            1, 2,
-            4, 5,
-            1, 3
-        };
-        BufferedImage i1(bytes, 2, 3, Pixelformat::Enum::GRAY8);
-        bool success = i1.convert(Pixelformat::Enum::BGR32);
-
-        REQUIRE( success );
-        REQUIRE( i1.width() == 2 );
-        REQUIRE( i1.height() == 3 );
-        REQUIRE( i1.pixfmt() == Pixelformat::Enum::BGR32 );
-        REQUIRE( i1.stride() == 2 * 4 );
-        REQUIRE( i1.width() == 2 );
+        REQUIRE( i1.data() + 1 == bytes + 1 );
+        REQUIRE( i1.data(2) + 1 == bytes + 5 );
     }
 }
 
@@ -345,8 +329,8 @@ TEST_CASE( "BufferedImage runtime behavior", "[BufferedImage]" ) {
         };
         BufferedImage i1(bytes, 2, 3, Pixelformat::Enum::GRAY8);
 
-        REQUIRE( i1.scanline(0) != bytes );
-        REQUIRE( i1.scanline(1) != bytes + 2 );
+        REQUIRE( i1.data(0) != bytes );
+        REQUIRE( i1.data(1) != bytes + 2 );
     }
     SECTION( "pixel() returns the address of the pixel" ) {
         unsigned char bytes[] = {
@@ -358,22 +342,6 @@ TEST_CASE( "BufferedImage runtime behavior", "[BufferedImage]" ) {
 
         REQUIRE( i1.pixel(1, 0) != bytes + 1 );
         REQUIRE( i1.pixel(1, 2) != bytes + 5 );
-    }
-    SECTION( "convert() converts pixel data into well-defined formats" ) {
-        unsigned char bytes[] = {
-            1, 2,
-            4, 5,
-            1, 3
-        };
-        BufferedImage i1(bytes, 2, 3, Pixelformat::Enum::GRAY8);
-        bool success = i1.convert(Pixelformat::Enum::BGR32);
-
-        REQUIRE( success );
-        REQUIRE( i1.width() == 2 );
-        REQUIRE( i1.height() == 3 );
-        REQUIRE( i1.pixfmt() == Pixelformat::Enum::BGR32 );
-        REQUIRE( i1.stride() == 2 * 4 );
-        REQUIRE( i1.width() == 2 );
     }
     SECTION( "size() returns the image size in bytes" ) {
         unsigned char bytes[] = {

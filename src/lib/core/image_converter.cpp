@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include "seraphim/except.h"
+#include "seraphim/image.h"
 #include "seraphim/image_converter.h"
 
 using namespace sph;
@@ -22,205 +24,90 @@ template <class T> static T clamp(T val, T min, T max) {
     return val;
 }
 
-static bool bgr_to_rgb(const ImageConverter::Source &src, ImageConverter::Target &dst) {
-    size_t src_offset;
-    size_t src_pixel_size;
-    size_t dst_size;
-    size_t dst_offset;
-    size_t dst_pixel_size;
-    size_t dst_padding;
-    size_t dst_stride;
-
-    // validate source format
-    switch (src.fourcc) {
-    case fourcc('B', 'G', 'R', '3'):
-        src_pixel_size = 3; /* 24 bpp */
-        break;
-    case fourcc('B', 'G', 'R', '4'):
-        src_pixel_size = 4; /* 32 bpp */
-        break;
-    default:
-        return false;
-    }
-
-    switch (dst.fourcc) {
-    case fourcc('R', 'G', 'B', '3'):
-        dst_pixel_size = 3; /* 24 bpp */
-        break;
-    case fourcc('R', 'G', 'B', '4'):
-        dst_pixel_size = 4; /* 32 bpp */
-        break;
-    default:
-        return false;
-    }
-
-    dst_padding = (dst.alignment - ((src.width * dst_pixel_size) % dst.alignment)) % dst.alignment;
-    dst_stride = src.width * dst_pixel_size + dst_padding;
-    dst_size = src.height * dst_stride;
-
-    // not all formats can be converted in-place
-    if (dst.buf == src.buf && src_pixel_size != dst_pixel_size) {
-        return false;
-    }
-
-    // make sure the target buffer is large enough
-    if (dst.buf_len < dst_size) {
-        return false;
-    }
-
-    for (size_t y = 0; y < src.height; y++) {
-        for (size_t x = 0; x < src.width; x++) {
-            src_offset = y * src.stride + x * src_pixel_size;
-            dst_offset = y * dst_stride + x * dst_pixel_size;
-            /* each pixel is three buf */
-            if (src.buf == dst.buf) {
-                unsigned char tmp = src.buf[src_offset + 0];
-                dst.buf[dst_offset + 0] = src.buf[src_offset + 2];
-                dst.buf[dst_offset + 2] = tmp;
-            } else {
-                dst.buf[dst_offset + 0] = src.buf[src_offset + 2];
-                dst.buf[dst_offset + 1] = src.buf[src_offset + 1];
-                dst.buf[dst_offset + 2] = src.buf[src_offset + 0];
-            }
-        }
-    }
-
-    return true;
-}
-
 static bool rgb_to_bgr(const ImageConverter::Source &src, ImageConverter::Target &dst) {
     size_t src_offset;
-    size_t src_pixel_size;
-    size_t dst_size;
-    size_t dst_offset;
-    size_t dst_pixel_size;
-    size_t dst_padding;
-    size_t dst_stride;
+    BufferedImage converted;
 
     // validate source format
     switch (src.fourcc) {
-    case fourcc('R', 'G', 'B', '3'):
-        src_pixel_size = 3; /* 24 bpp */
-        break;
-    case fourcc('R', 'G', 'B', '4'):
-        src_pixel_size = 4; /* 32 bpp */
-        break;
-    default:
-        return false;
-    }
-
-    switch (dst.fourcc) {
     case fourcc('B', 'G', 'R', '3'):
-        dst_pixel_size = 3; /* 24 bpp */
-        break;
+    case fourcc('R', 'G', 'B', '3'):
     case fourcc('B', 'G', 'R', '4'):
-        dst_pixel_size = 4; /* 32 bpp */
+    case fourcc('R', 'G', 'B', '4'):
         break;
     default:
         return false;
     }
 
-    dst_padding = (dst.alignment - ((src.width * dst_pixel_size) % dst.alignment)) % dst.alignment;
-    dst_stride = src.width * dst_pixel_size + dst_padding;
-    dst_size = src.height * dst_stride;
-
-    // not all formats can be converted in-place
-    if (dst.buf == src.buf && src_pixel_size != dst_pixel_size) {
+    switch (dst.fmt) {
+    case Pixelformat::Enum::BGR24:
+    case Pixelformat::Enum::BGR32:
+    case Pixelformat::Enum::RGB24:
+    case Pixelformat::Enum::RGB32:
+        break;
+    default:
         return false;
     }
 
-    // make sure the target buffer is large enough
-    if (dst.buf_len < dst_size) {
-        return false;
-    }
+    converted = BufferedImage(src.img->width(), src.img->height(), dst.fmt);
 
-    for (size_t y = 0; y < src.height; y++) {
-        for (size_t x = 0; x < src.width; x++) {
-            src_offset = y * src.stride + x * src_pixel_size;
-            dst_offset = y * dst_stride + x * dst_pixel_size;
-            /* each pixel is three buf */
-            if (src.buf == dst.buf) {
-                unsigned char tmp = src.buf[src_offset + 0];
-                dst.buf[dst_offset + 0] = src.buf[src_offset + 2];
-                dst.buf[dst_offset + 2] = tmp;
-            } else {
-                dst.buf[dst_offset + 0] = src.buf[src_offset + 2];
-                dst.buf[dst_offset + 1] = src.buf[src_offset + 1];
-                dst.buf[dst_offset + 2] = src.buf[src_offset + 0];
-            }
+    for (uint32_t y = 0; y < src.img->height(); y++) {
+        for (uint32_t x = 0; x < src.img->width(); x++) {
+            src_offset = y * src.img->stride() + x * src.img->depth() / 8;
+            /* each pixel is three bytes */
+            converted.pixel(x, y)[0] = src.img->data()[src_offset + 2];
+            converted.pixel(x, y)[1] = src.img->data()[src_offset + 1];
+            converted.pixel(x, y)[2] = src.img->data()[src_offset + 0];
         }
     }
 
+    *dst.img = std::move(converted);
     return true;
 }
 
 static size_t rgb_to_y(const ImageConverter::Source &src, ImageConverter::Target &dst) {
     size_t src_offset;
-    size_t src_pixel_size;
-    size_t dst_size;
-    size_t dst_offset;
-    size_t dst_pixel_size;
-    size_t dst_padding;
-    size_t dst_stride;
+    BufferedImage converted;
 
     // validate source format
     switch (src.fourcc) {
     case fourcc('B', 'G', 'R', '3'):
     case fourcc('R', 'G', 'B', '3'):
-        src_pixel_size = 3; /* 24 bpp */
-        break;
     case fourcc('B', 'G', 'R', '4'):
     case fourcc('R', 'G', 'B', '4'):
-        src_pixel_size = 4; /* 32 bpp */
         break;
     default:
         return false;
     }
 
-    switch (dst.fourcc) {
-    case fourcc('G', 'R', 'E', 'Y'):
-        dst_pixel_size = 1; /* 8 bpp */
-        break;
-    case fourcc('Y', '1', '6', ' '):
-        dst_pixel_size = 2; /* 16 bpp */
+    switch (dst.fmt) {
+    case Pixelformat::Enum::GRAY8:
+    case Pixelformat::Enum::GRAY16:
         break;
     default:
         return false;
     }
 
-    dst_padding = (dst.alignment - ((src.width * dst_pixel_size) % dst.alignment)) % dst.alignment;
-    dst_stride = src.width * dst_pixel_size + dst_padding;
-    dst_size = src.height * dst_stride;
+    converted = BufferedImage(src.img->width(), src.img->height(), dst.fmt);
 
-    // not all formats can be converted in-place
-    if (dst.buf == src.buf && src_pixel_size != dst_pixel_size) {
-        return false;
-    }
+    for (uint32_t y = 0; y < src.img->height(); y++) {
+        for (uint32_t x = 0; x < src.img->width(); x++) {
+            src_offset = y * src.img->stride() + x * src.img->depth() / 8;
 
-    // make sure the target buffer is large enough
-    if (dst.buf_len < dst_size) {
-        return false;
-    }
-
-    for (size_t y = 0; y < src.height; y++) {
-        for (size_t x = 0; x < src.width; x++) {
-            src_offset = y * src.stride + x * src_pixel_size;
-            dst_offset = y * dst_stride + x * dst_pixel_size;
-
-            // locate the src.buf pixels
-            unsigned char *r, *g, *b;
+            // locate the src.img->data() pixels
+            const unsigned char *r, *g, *b;
             switch (src.fourcc) {
             case fourcc('B', 'G', 'R', '3'):
             case fourcc('B', 'G', 'R', '4'):
-                r = src.buf + src_offset + 2;
-                g = src.buf + src_offset + 1;
-                b = src.buf + src_offset + 0;
+                r = src.img->data() + src_offset + 2;
+                g = src.img->data() + src_offset + 1;
+                b = src.img->data() + src_offset + 0;
                 break;
             case fourcc('R', 'G', 'B', '3'):
             case fourcc('R', 'G', 'B', '4'):
-                r = src.buf + src_offset + 0;
-                g = src.buf + src_offset + 1;
-                b = src.buf + src_offset + 2;
+                r = src.img->data() + src_offset + 0;
+                g = src.img->data() + src_offset + 1;
+                b = src.img->data() + src_offset + 2;
                 break;
             default:
                 return false;
@@ -230,14 +117,14 @@ static size_t rgb_to_y(const ImageConverter::Source &src, ImageConverter::Target
             // http://www.fourcc.org/fccyvrgb.php
             uint8_t *y8;
             uint16_t *y16;
-            switch (dst.fourcc) {
-            case fourcc('G', 'R', 'E', 'Y'):
-                y8 = reinterpret_cast<uint8_t *>(dst.buf + dst_offset);
+            switch (dst.fmt) {
+            case Pixelformat::Enum::GRAY8:
+                y8 = reinterpret_cast<uint8_t *>(converted.pixel(x, y));
                 *y8 = static_cast<uint8_t>(
                     clamp(0.299f * *r + 0.587f * *g + 0.114f * *b, 0.0f, 255.0f));
                 break;
-            case fourcc('Y', '1', '6', ' '):
-                y16 = reinterpret_cast<uint16_t *>(dst.buf + dst_offset);
+            case Pixelformat::Enum::GRAY16:
+                y16 = reinterpret_cast<uint16_t *>(converted.pixel(x, y));
                 *y16 = static_cast<uint16_t>(
                     clamp(0.299f * *r + 0.587f * *g + 0.114f * *b, 0.0f, 65535.0f));
                 break;
@@ -247,170 +134,144 @@ static size_t rgb_to_y(const ImageConverter::Source &src, ImageConverter::Target
         }
     }
 
+    *dst.img = std::move(converted);
     return true;
 }
 
-static bool y_to_bgr(const ImageConverter::Source &src, ImageConverter::Target &dst) {
+static bool y_to_rgb(const ImageConverter::Source &src, ImageConverter::Target &dst) {
     size_t src_offset;
-    size_t src_pixel_size;
-    size_t dst_size;
-    size_t dst_offset;
-    size_t dst_pixel_size;
-    size_t dst_padding;
-    size_t dst_stride;
+    BufferedImage converted;
 
     // validate source format
     switch (src.fourcc) {
     case fourcc('G', 'R', 'E', 'Y'):
-        src_pixel_size = 1; /* 8 bpp */
-        break;
     case fourcc('Y', '1', '6', ' '):
-        src_pixel_size = 2; /* 16 bpp */
         break;
     default:
         return false;
     }
 
-    switch (dst.fourcc) {
-    case fourcc('B', 'G', 'R', '3'):
-        dst_pixel_size = 3; /* 24 bpp */
-        break;
-    case fourcc('B', 'G', 'R', '4'):
-        dst_pixel_size = 4; /* 32 bpp */
+    switch (dst.fmt) {
+    case Pixelformat::Enum::BGR24:
+    case Pixelformat::Enum::BGR32:
+    case Pixelformat::Enum::RGB24:
+    case Pixelformat::Enum::RGB32:
         break;
     default:
         return false;
     }
 
-    dst_padding = (dst.alignment - ((src.width * dst_pixel_size) % dst.alignment)) % dst.alignment;
-    dst_stride = src.width * dst_pixel_size + dst_padding;
-    dst_size = src.height * dst_stride;
-
-    // not all formats can be converted in-place
-    if (dst.buf == src.buf && src_pixel_size != dst_pixel_size) {
-        return false;
-    }
-
-    // make sure the target buffer is large enough
-    if (dst.buf_len < dst_size) {
-        return false;
-    }
+    converted = BufferedImage(src.img->width(), src.img->height(), dst.fmt);
 
     // https://stackoverflow.com/a/4494004
-    for (size_t y = 0; y < src.height; y++) {
-        for (size_t x = 0; x < src.width; x++) {
-            src_offset = y * src.stride + x * src_pixel_size;
-            dst_offset = y * dst_stride + x * dst_pixel_size;
+    for (uint32_t y = 0; y < src.img->height(); y++) {
+        for (uint32_t x = 0; x < src.img->width(); x++) {
+            src_offset = y * src.img->stride() + x * src.img->depth() / 8;
 
             uint16_t y16;
             switch (src.fourcc) {
             case fourcc('G', 'R', 'E', 'Y'):
-                y16 = *(reinterpret_cast<uint8_t *>(src.buf + src_offset));
+                y16 = *(reinterpret_cast<const uint8_t *>(src.img->data() + src_offset));
                 break;
             case fourcc('Y', '1', '6', ' '):
-                y16 = *(reinterpret_cast<uint16_t *>(src.buf + src_offset));
+                y16 = *(reinterpret_cast<const uint16_t *>(src.img->data() + src_offset));
                 break;
             default:
                 return false;
             }
 
-            dst.buf[dst_offset + 0] = clamp(y16, (uint16_t)0, (uint16_t)255); // b
-            dst.buf[dst_offset + 1] = clamp(y16, (uint16_t)0, (uint16_t)255); // g
-            dst.buf[dst_offset + 2] = clamp(y16, (uint16_t)0, (uint16_t)255); // r
+            converted.pixel(x, y)[0] = clamp(y16, (uint16_t)0, (uint16_t)255);
+            converted.pixel(x, y)[1] = clamp(y16, (uint16_t)0, (uint16_t)255);
+            converted.pixel(x, y)[2] = clamp(y16, (uint16_t)0, (uint16_t)255);
         }
     }
 
+    *dst.img = std::move(converted);
     return true;
 }
 
-static size_t yuy2_to_bgr(const ImageConverter::Source &src, ImageConverter::Target &dst) {
+static size_t yuy2_to_rgb(const ImageConverter::Source &src, ImageConverter::Target &dst) {
     size_t src_offset;
-    size_t src_pixel_size;
-    size_t dst_size;
-    size_t dst_offset;
-    size_t dst_pixel_size;
-    size_t dst_padding;
-    size_t dst_stride;
+    BufferedImage converted;
 
     // validate source format
     switch (src.fourcc) {
     case fourcc('Y', 'U', 'Y', '2'):
     case fourcc('Y', 'U', 'Y', 'V'):
-        src_pixel_size = 4; /* 16 bpp, one macropixel is two pixels */
         break;
     default:
         return false;
     }
 
-    switch (dst.fourcc) {
-    case fourcc('B', 'G', 'R', '3'):
-        dst_pixel_size = 3; /* 24 bpp */
-        break;
-    case fourcc('B', 'G', 'R', '4'):
-        dst_pixel_size = 4; /* 32 bpp */
+    switch (dst.fmt) {
+    case Pixelformat::Enum::BGR24:
+    case Pixelformat::Enum::BGR32:
+    case Pixelformat::Enum::RGB24:
+    case Pixelformat::Enum::RGB32:
         break;
     default:
         return false;
     }
 
-    dst_padding = (dst.alignment - ((src.width * dst_pixel_size) % dst.alignment)) % dst.alignment;
-    dst_stride = src.width * dst_pixel_size + dst_padding;
-    dst_size = src.height * dst_stride;
-
-    // not all formats can be converted in-place
-    if (dst.buf == src.buf && src_pixel_size != dst_pixel_size) {
-        return false;
-    }
-
-    // make sure the target buffer is large enough
-    if (dst.buf_len < dst_size) {
-        return false;
-    }
+    converted = BufferedImage(src.img->width(), src.img->height(), dst.fmt);
 
     // https://stackoverflow.com/a/4494004
-    for (size_t y = 0; y < src.height; y++) {
-        for (size_t x = 0; x < src.width; x++) {
-            src_offset = y * src.stride + x * src_pixel_size;
-            dst_offset = y * dst_stride + x * dst_pixel_size;
-            /* each pixel is two buf, each macropixel (YUYV) is two image pixels */
-            unsigned char *y0 = src.buf + src_offset + 0;
-            unsigned char *u0 = src.buf + src_offset + 1;
-            unsigned char *y1 = src.buf + src_offset + 2;
-            unsigned char *v0 = src.buf + src_offset + 3;
+    for (uint32_t y = 0; y < src.img->height(); y++) {
+        for (uint32_t x = 0; x < src.img->width(); x += 2) {
+            src_offset = y * src.img->stride() + x * src.img->depth() / 8;
+
+            /* each pixel is two bytes, each macropixel (YUYV) is two image pixels */
+            const unsigned char *y0 = src.img->data() + src_offset + 0;
+            const unsigned char *u0 = src.img->data() + src_offset + 1;
+            const unsigned char *y1 = src.img->data() + src_offset + 2;
+            const unsigned char *v0 = src.img->data() + src_offset + 3;
             uint8_t c = *y0 - 16;
             uint8_t d = *u0 - 128;
             uint8_t e = *v0 - 128;
-            // the first BGR pixel
-            dst.buf[dst_offset + 0] = clamp(((298 * c + 516 * d + 128) >> 8), 0, 255); // b
-            dst.buf[dst_offset + 1] =
-                clamp(((298 * c - 100 * d - 208 * e + 128) >> 8), 0, 255);             // g
-            dst.buf[dst_offset + 2] = clamp(((298 * c + 409 * e + 128) >> 8), 0, 255); // r
 
-            if (dst_pixel_size > 3) {
-                dst_offset += dst_pixel_size - 3;
-            }
+            // the first RGB pixel
+            converted.pixel(x, y)[0] = clamp(((298 * c + 409 * e + 128) >> 8), 0, 255); // r
+            converted.pixel(x, y)[1] =
+                clamp(((298 * c - 100 * d - 208 * e + 128) >> 8), 0, 255);              // g
+            converted.pixel(x, y)[2] = clamp(((298 * c + 516 * d + 128) >> 8), 0, 255); // b
 
-            // the second BGR pixel
+            // the second RGB pixel
             c = *y1 - 16;
-            dst.buf[dst_offset + 3] = clamp(((298 * c + 516 * d + 128) >> 8), 0, 255); // b
-            dst.buf[dst_offset + 4] =
-                clamp(((298 * c - 100 * d - 208 * e + 128) >> 8), 0, 255);             // g
-            dst.buf[dst_offset + 5] = clamp(((298 * c + 409 * e + 128) >> 8), 0, 255); // r
+            converted.pixel(x + 1, y)[0] = clamp(((298 * c + 409 * e + 128) >> 8), 0, 255); // r
+            converted.pixel(x + 1, y)[1] =
+                clamp(((298 * c - 100 * d - 208 * e + 128) >> 8), 0, 255);                  // g
+            converted.pixel(x + 1, y)[2] = clamp(((298 * c + 516 * d + 128) >> 8), 0, 255); // b
+
+            // swap B/R for BGR
+            unsigned char byte;
+            switch (dst.fmt) {
+            case Pixelformat::Enum::BGR24:
+            case Pixelformat::Enum::BGR32:
+                // first pixel
+                byte = converted.pixel(x, y)[0];
+                converted.pixel(x, y)[0] = converted.pixel(x, y)[2];
+                converted.pixel(x, y)[2] = byte;
+                // second pixel
+                byte = converted.pixel(x + 1, y)[0];
+                converted.pixel(x + 1, y)[0] = converted.pixel(x + 1, y)[2];
+                converted.pixel(x + 1, y)[2] = byte;
+                break;
+            default:
+                break;
+            }
         }
     }
 
+    *dst.img = std::move(converted);
     return true;
 }
 
 ImageConverter::ImageConverter() {
-    Converter bgr_rgb;
-    bgr_rgb.source_fmts = { fourcc('B', 'G', 'R', '3'), fourcc('B', 'G', 'R', '4') };
-    bgr_rgb.target_fmts = { fourcc('R', 'G', 'B', '3'), fourcc('R', 'G', 'B', '4') };
-    bgr_rgb.function = bgr_to_rgb;
-
     Converter rgb_bgr;
-    rgb_bgr.source_fmts = { fourcc('R', 'G', 'B', '3'), fourcc('R', 'G', 'B', '4') };
-    rgb_bgr.target_fmts = { fourcc('B', 'G', 'R', '3'), fourcc('B', 'G', 'R', '4') };
+    rgb_bgr.source_fmts = { fourcc('B', 'G', 'R', '3'), fourcc('B', 'G', 'R', '4'),
+                            fourcc('R', 'G', 'B', '3'), fourcc('R', 'G', 'B', '4') };
+    rgb_bgr.target_fmts = { fourcc('B', 'G', 'R', '3'), fourcc('B', 'G', 'R', '4'),
+                            fourcc('R', 'G', 'B', '3'), fourcc('R', 'G', 'B', '4') };
     rgb_bgr.function = rgb_to_bgr;
 
     Converter rgb_y;
@@ -419,33 +280,50 @@ ImageConverter::ImageConverter() {
     rgb_y.target_fmts = { fourcc('G', 'R', 'E', 'Y'), fourcc('Y', '1', '6', ' ') };
     rgb_y.function = rgb_to_y;
 
-    Converter y_bgr;
-    y_bgr.source_fmts = { fourcc('G', 'R', 'E', 'Y'), fourcc('Y', '1', '6', ' ') };
-    y_bgr.target_fmts = { fourcc('B', 'G', 'R', '3'), fourcc('B', 'G', 'R', '4') };
-    y_bgr.function = y_to_bgr;
+    Converter y_rgb;
+    y_rgb.source_fmts = { fourcc('G', 'R', 'E', 'Y'), fourcc('Y', '1', '6', ' ') };
+    y_rgb.target_fmts = { fourcc('B', 'G', 'R', '3'), fourcc('B', 'G', 'R', '4'),
+                          fourcc('R', 'G', 'B', '3'), fourcc('R', 'G', 'B', '4') };
+    y_rgb.function = y_to_rgb;
 
-    Converter yuy2_bgr;
-    yuy2_bgr.source_fmts = { fourcc('Y', 'U', 'Y', '2'), fourcc('Y', 'U', 'Y', 'V') };
-    yuy2_bgr.target_fmts = { fourcc('B', 'G', 'R', '3'), fourcc('B', 'G', 'R', '4') };
-    yuy2_bgr.function = yuy2_to_bgr;
+    Converter yuy2_rgb;
+    yuy2_rgb.source_fmts = { fourcc('Y', 'U', 'Y', '2'), fourcc('Y', 'U', 'Y', 'V') };
+    yuy2_rgb.target_fmts = { fourcc('B', 'G', 'R', '3'), fourcc('B', 'G', 'R', '4'),
+                             fourcc('R', 'G', 'B', '3'), fourcc('R', 'G', 'B', '4') };
+    yuy2_rgb.function = yuy2_to_rgb;
 
-    register_converter(bgr_rgb, 0 /* prio */);
     register_converter(rgb_bgr, 0 /* prio */);
     register_converter(rgb_y, 0 /* prio */);
-    register_converter(y_bgr, 0 /* prio */);
-    register_converter(yuy2_bgr, 0 /* prio */);
+    register_converter(y_rgb, 0 /* prio */);
+    register_converter(yuy2_rgb, 0 /* prio */);
+}
+
+static inline bool validate_source(const ImageConverter::Source &src) {
+    return src.img && !src.img->empty() && src.fourcc > 0;
+}
+
+static inline bool validate_target(const ImageConverter::Target &dst) {
+    return dst.img && dst.fmt != Pixelformat::Enum::UNKNOWN;
 }
 
 bool ImageConverter::convert(const Source &src, Target &dst) {
     Converter conv = {};
     int prio = -1;
 
+    if (!validate_source(src)) {
+        SPH_THROW(LogicException, "Invalid converter source parameters");
+    }
+
+    if (!validate_target(dst)) {
+        SPH_THROW(LogicException, "Invalid converter target parameters");
+    }
+
     for (const auto &candidate : m_converters) {
         // check source and target format support
         if (std::find(candidate.second.source_fmts.begin(), candidate.second.source_fmts.end(),
                       src.fourcc) != candidate.second.source_fmts.end() &&
             std::find(candidate.second.target_fmts.begin(), candidate.second.target_fmts.end(),
-                      dst.fourcc) != candidate.second.target_fmts.end()) {
+                      Pixelformat::fourcc(dst.fmt)) != candidate.second.target_fmts.end()) {
             if (!conv.function || prio < candidate.first) {
                 conv = candidate.second;
             }
@@ -453,44 +331,24 @@ bool ImageConverter::convert(const Source &src, Target &dst) {
     }
 
     if (!conv.function) {
-        return false;
+        SPH_THROW(LogicException, "No converter for pixelformat");
     }
 
     return conv.function(src, dst);
 }
 
-size_t ImageConverter::probe(const Source &src, Target &dst) {
-    size_t dst_size;
-    size_t dst_pixel_size;
-    size_t dst_padding;
-    size_t dst_stride;
+bool ImageConverter::convert(const Image &src, BufferedImage &dst, sph::Pixelformat::Enum fmt) {
+    Source src_;
+    Target dst_;
 
-    switch (dst.fourcc) {
-    case fourcc('B', 'G', 'R', '3'):
-        dst_pixel_size = 3; /* 24 bpp */
-        break;
-    case fourcc('B', 'G', 'R', '4'):
-        dst_pixel_size = 4; /* 32 bpp */
-        break;
-    case fourcc('R', 'G', 'B', '3'):
-        dst_pixel_size = 3; /* 24 bpp */
-        break;
-    case fourcc('R', 'G', 'B', '4'):
-        dst_pixel_size = 4; /* 32 bpp */
-        break;
-    case fourcc('G', 'R', 'E', 'Y'):
-        dst_pixel_size = 1; /* 8 bpp */
-        break;
-    case fourcc('Y', '1', '6', ' '):
-        dst_pixel_size = 2; /* 16 bpp */
-        break;
-    default:
-        return false;
+    if (src.pixfmt() == sph::Pixelformat::Enum::UNKNOWN) {
+        SPH_THROW(LogicException, "Source pixelformat must not be unknown");
     }
 
-    dst_padding = (dst.alignment - ((src.width * dst_pixel_size) % dst.alignment)) % dst.alignment;
-    dst_stride = src.width * dst_pixel_size + dst_padding;
-    dst_size = src.height * dst_stride;
+    src_.img = &src;
+    src_.fourcc = Pixelformat::fourcc(src.pixfmt());
+    dst_.img = &dst;
+    dst_.fmt = fmt;
 
-    return dst_size;
+    return convert(src_, dst_);
 }

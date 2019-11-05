@@ -15,6 +15,9 @@
 
 namespace sph {
 
+class Image;
+class BufferedImage;
+
 /**
  * @brief Image converter singleton facility.
  *
@@ -42,33 +45,20 @@ public:
      * @brief Source buffer description.
      */
     struct Source {
-        /// pixel source
-        unsigned char *buf;
-        /// width in pixels
-        uint32_t width = 0;
-        /// height in pixels
-        uint32_t height = 0;
+        /// image representation
+        const Image *img = nullptr;
         /// pixelformat
         uint32_t fourcc = 0;
-        /// length of one pixel row in bytes
-        size_t stride = width;
     };
 
     /**
      * @brief Target buffer description.
      */
     struct Target {
-        /// target pixel buffer, must be preallocated
-        unsigned char *buf;
-        /// number of bytes allocated in the target buffer
-        size_t buf_len = 0;
+        /// image representation
+        BufferedImage *img = nullptr;
         /// pixelformat
-        uint32_t fourcc = 0;
-        /// pixel row alignment
-        /// sensible choices are:
-        /// 1 (one-byte alignment)
-        /// 4 (word alignment, default)
-        uint8_t alignment = 4;
+        sph::Pixelformat::Enum fmt = sph::Pixelformat::Enum::UNKNOWN;
     };
 
     /**
@@ -100,18 +90,19 @@ public:
     /**
      * @brief Create a new image buffer.
      * @param src Source buffer description.
-     * @param src Source buffer description.
+     * @param dst Target buffer description.
      * @return True on success, false otherwise.
      */
     bool convert(const Source &src, Target &dst);
 
     /**
-     * @brief Probe image buffer conversion.
-     * @param src Source buffer description.
-     * @param src Source buffer description.
-     * @return Size of the target buffer in bytes.
+     * @brief Create a new image buffer.
+     * @param src Source image.
+     * @param dst Target image.
+     * @param fmt Target image format.
+     * @return True on success, false otherwise.
      */
-    static size_t probe(const Source &src, Target &dst);
+    bool convert(const Image &src, BufferedImage &dst, sph::Pixelformat::Enum fmt);
 
 private:
     ImageConverter();

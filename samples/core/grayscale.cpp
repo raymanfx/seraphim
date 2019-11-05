@@ -10,6 +10,7 @@
 #include <getopt.h>
 #include <opencv2/videoio.hpp>
 #include <seraphim/image.h>
+#include <seraphim/image_converter.h>
 #include <seraphim/gui/gl_window.h>
 #include <seraphim/iop/opencv/mat.h>
 
@@ -135,20 +136,14 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        gray_image = sph::iop::cv::MatFacility::to_image(frame);
-        if (gray_image.empty()) {
-            std::cout << "[ERROR] Failed to convert Mat to Image" << std::endl;
-            continue;
-        }
-
         // convert to grayscale
-        if (!gray_image.convert(sph::Pixelformat::Enum::GRAY16)) {
+        if (!sph::ImageConverter::Instance().convert(rgb_image, gray_image, sph::Pixelformat::Enum::GRAY16)) {
             std::cout << "[ERROR] Failed to convert Image buffer to Y16" << std::endl;
             continue;
         }
 
         // back to RGB because our GL viewer does not support Y16 right now
-        if (!gray_image.convert(sph::Pixelformat::Enum::BGR24)) {
+        if (!sph::ImageConverter::Instance().convert(gray_image, gray_image, sph::Pixelformat::Enum::BGR24)) {
             std::cout << "[ERROR] Failed to convert Image buffer to BGR24" << std::endl;
             continue;
         }
