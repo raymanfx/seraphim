@@ -2,9 +2,6 @@
 add_subdirectory(data)
 
 set(MODULE_NAME object)
-set(MODULE_VERSION_MAJOR 0)
-set(MODULE_VERSION_MINOR 0)
-set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
     dnn_classifier.cpp)
@@ -14,17 +11,8 @@ set(HEADERS
     include/seraphim/object/classifier.h
     include/seraphim/object/dnn_classifier.h)
 
-add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})
+add_library(${MODULE_NAME} STATIC ${SOURCES} ${HEADERS})
 add_library(seraphim::${MODULE_NAME} ALIAS ${MODULE_NAME})
-
-# set the shared lib name
-set_target_properties(${MODULE_NAME} PROPERTIES OUTPUT_NAME seraphim_${MODULE_NAME})
-
-# set the shared lib version
-set_target_properties(${MODULE_NAME} PROPERTIES VERSION
-                      ${MODULE_VERSION_MAJOR}.${MODULE_VERSION_MINOR}.${MODULE_VERSION_PATCH})
-set_target_properties(${MODULE_NAME} PROPERTIES SOVERSION
-                      ${MODULE_VERSION_MAJOR})
 
 # Make sure the compiler can find include files for our library
 # when other libraries or executables link to it
@@ -42,9 +30,8 @@ endif ()
 
 target_link_libraries(${MODULE_NAME} PUBLIC seraphim::core seraphim::iop)
 
-# install shared lib and headers
-install(DIRECTORY include/seraphim DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(TARGETS ${MODULE_NAME} EXPORT ${MODULE_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+# shared libraries need PIC
+set_property(TARGET ${MODULE_NAME} PROPERTY POSITION_INDEPENDENT_CODE 1)
 
-# add cmake install target
-install(EXPORT ${MODULE_NAME} NAMESPACE seraphim:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/seraphim)
+# install headers
+install(DIRECTORY include/seraphim DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

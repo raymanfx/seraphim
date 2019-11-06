@@ -1,3 +1,5 @@
+project(seraphim-lib VERSION 0.0.0)
+
 # the (library) modules to build
 set(SERAPHIM_MODULES "core")
 
@@ -33,3 +35,25 @@ foreach (module ${SERAPHIM_MODULES})
 endforeach ()
 
 set(SERAPHIM_MODULES ${SERAPHIM_MODULES} CACHE INTERNAL "List of modules" FORCE)
+
+# the main library
+add_library(${PROJECT_NAME} SHARED dummy.cpp)
+
+foreach (module ${SERAPHIM_MODULES})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${module})
+endforeach ()
+
+# set the shared lib version
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION
+                      ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
+set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION
+                      ${PROJECT_VERSION_MAJOR})
+
+install(TARGETS ${PROJECT_NAME}
+        EXPORT ${PROJECT_NAME}-targets
+        DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+# add cmake install target
+install(EXPORT ${PROJECT_NAME}-targets
+        NAMESPACE seraphim::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/seraphim)

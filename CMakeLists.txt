@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.3)
 include(GNUInstallDirs)
 
-project(Seraphim VERSION 0.0.0)
-
 # global compiler flags
 string(CONCAT CMAKE_CXX_FLAGS
               "${CMAKE_CXX_FLAGS}"

@@ -1,3 +1,5 @@
+project(seraphim-backend VERSION 0.0.0)
+
 # We include OpenCV headers in some classes, so make sure we include their
 # locations globally during compilation.
 find_package(OpenCV COMPONENTS opencv_core REQUIRED)
