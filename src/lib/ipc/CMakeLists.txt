@@ -9,6 +9,7 @@ set(MODULE_VERSION_PATCH 0)
 set(SOURCES
     net/socket.cpp
     net/tcp_socket.cpp
+    net/udp_socket.cpp
     semaphore.cpp
     shm_transport.cpp
     tcp_transport.cpp
@@ -18,6 +19,7 @@ set(HEADERS
     include/seraphim/ipc.h
     include/seraphim/ipc/net/socket.h
     include/seraphim/ipc/net/tcp_socket.h
+    include/seraphim/ipc/net/udp_socket.h
     include/seraphim/ipc/except.h
     include/seraphim/ipc/transport.h
     include/seraphim/ipc/transport_factory.h
