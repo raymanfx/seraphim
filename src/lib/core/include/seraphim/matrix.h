@@ -39,9 +39,8 @@ public:
      */
     Matrix(size_t rows, size_t cols) : m_rows(rows), m_cols(cols) {
         m_step = cols * sizeof(T);
-        m_capacity = rows * cols;
-        m_buffer.reset(new T[m_capacity]);
-        m_data = m_buffer.get();
+        m_buffer.resize(rows * cols);
+        m_data = m_buffer.data();
     }
 
     /**
@@ -50,16 +49,11 @@ public:
      * @param rows Number of source rows.
      * @param cols Number of source columns.
      * @param step Number of bytes per row. If 0, this is calculated as rows * sizeof(T).
-     * @param transfer Whether to transfer element ownership to the newly created instance.
      */
-    Matrix(T *elements, size_t rows, size_t cols, size_t step = 0, const bool &transfer = false)
+    Matrix(T *elements, size_t rows, size_t cols, size_t step = 0)
         : m_rows(rows), m_cols(cols), m_step(step) {
         if (m_step == 0) {
             m_step = cols * sizeof(T);
-        }
-
-        if (transfer) {
-            m_capacity = rows * (m_step / sizeof(T));
         }
 
         m_data = elements;
@@ -244,7 +238,7 @@ public:
      * @brief Number of elements that the matrix instance can hold in its backing buffer.
      * @return Number of elements or 0 for shallow (wrapping) matrices.
      */
-    size_t capacity() const { return m_capacity; }
+    size_t capacity() const { return m_buffer.capacity(); }
 
     /**
      * @brief Memory location of a row.
@@ -278,8 +272,7 @@ public:
         m_cols = 0;
         m_step = 0;
         m_data = nullptr;
-        m_buffer.reset(nullptr);
-        m_capacity = 0;
+        m_buffer.clear();
     }
 
     /**
@@ -294,14 +287,13 @@ public:
             return;
         }
 
-        if (m_capacity > 0 && (rows * cols <= m_rows * m_cols)) {
+        if (capacity() > 0 && (rows * cols <= m_rows * m_cols)) {
             return;
         }
 
         m_step = cols * sizeof(T);
-        m_capacity = rows * cols;
-        m_buffer.reset(new T[m_capacity]);
-        m_data = m_buffer.get();
+        m_buffer.reserve(rows * cols);
+        m_data = m_buffer.data();
     }
 
     /**
@@ -311,7 +303,7 @@ public:
      * @param cols Number of columns.
      */
     void resize(size_t rows, size_t cols) {
-        if (m_capacity > 0 && (rows * cols == m_rows * m_cols)) {
+        if (capacity() > 0 && (rows * cols == m_rows * m_cols)) {
             return;
         }
 
@@ -387,28 +379,28 @@ public:
         target.m_rows = m_rows;
         target.m_cols = m_cols;
         target.m_step = m_step;
-        target.m_capacity = m_capacity;
         target.m_data = m_data;
-        m_buffer.swap(target.m_buffer);
+        target.m_buffer = std::move(m_buffer);
 
-        m_capacity = 0;
         clear();
     }
 
 private:
     /// Matrix rows.
     size_t m_rows = 0;
+
     /// Matrix columns.
     size_t m_cols = 0;
+
     /// Matrix step (to account for padding), eqivalent to image stride.
     size_t m_step = 0;
+
     /// Matrix element pointer (can be arbitrary source or internal buffer).
     T *m_data = nullptr;
+
     /// Back buffer, only valid if the instance has allocated memory.
-    /// In case of wrapped data, this is null.
-    std::unique_ptr<T[]> m_buffer = nullptr;
-    /// Number of elements the backing buffer can hold.
-    size_t m_capacity = 0;
+    /// In case of wrapped data, this is empty.
+    std::vector<T> m_buffer;
 };
 
 } // namespace sph
