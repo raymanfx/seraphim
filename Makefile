@@ -28,7 +28,8 @@ format:
 	clang-format -i -style=file $(SOURCES) $(HEADERS)
 
 lint: format
-	git ls-files -m | wc -l | xargs test 0 -eq
+	$(eval MODIFIED := $(shell git ls-files -m))
+	$(if $(strip $(MODIFIED)), echo $(MODIFIED) && exit 1, exit 0)
 
 test: build
 	find build/tests -type f -executable | xargs -L 1 sh -c
