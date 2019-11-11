@@ -385,6 +385,116 @@ public:
         clear();
     }
 
+    class iterator {
+    public:
+        typedef iterator self_type;
+        typedef T value_type;
+        typedef T &reference;
+        typedef T *pointer;
+        typedef std::forward_iterator_tag iterator_category;
+        iterator(Matrix &m, size_t i, size_t j) : m_mat(m), m_row(i), m_col(j) {
+            assert(i > 0 && j > 0);
+        }
+        self_type operator++() {
+            m_col++;
+            if (m_col > m_mat.cols()) {
+                m_col = 1;
+                m_row++;
+            }
+            assert(m_col <= m_mat.cols() && m_row <= m_mat.rows());
+            return *this;
+        }
+        self_type operator++(int) {
+            self_type i = *this;
+            m_col++;
+            if (m_col > m_mat.cols()) {
+                m_col = 1;
+                m_row++;
+            }
+            assert(m_col <= m_mat.cols() && m_row <= m_mat.rows());
+            return i;
+        }
+        value_type &operator*() { return m_mat(m_row, m_col); }
+        value_type *operator->() { return m_mat.data(m_row - 1) + (m_col - 1); }
+        bool operator==(const self_type &rhs) { return m_row == rhs.m_row && m_col == rhs.m_col; }
+        bool operator!=(const self_type &rhs) { return m_row != rhs.m_row || m_col != rhs.m_col; }
+
+    private:
+        Matrix &m_mat;
+        size_t m_row;
+        size_t m_col;
+    };
+
+    class const_iterator {
+    public:
+        typedef iterator self_type;
+        typedef T value_type;
+        typedef T &reference;
+        typedef T *pointer;
+        typedef std::forward_iterator_tag iterator_category;
+        const_iterator(const Matrix &m, size_t i, size_t j) : m_mat(m), m_row(i), m_col(j) {
+            assert(i > 0 && j > 0);
+        }
+        self_type operator++() {
+            m_col++;
+            if (m_col > m_mat.cols()) {
+                m_col = 1;
+                m_row++;
+            }
+            assert(m_col <= m_mat.cols() && m_row <= m_mat.rows());
+            return *this;
+        }
+        self_type operator++(int) {
+            self_type i = *this;
+            m_col++;
+            if (m_col > m_mat.cols()) {
+                m_col = 1;
+                m_row++;
+            }
+            assert(m_col <= m_mat.cols() && m_row <= m_mat.rows());
+            return i;
+        }
+        const value_type &operator*() { return m_mat(m_row, m_col); }
+        const value_type *operator->() { return m_mat.data(m_row - 1) + (m_col - 1); }
+        bool operator==(const self_type &rhs) { return m_row == rhs.m_row && m_col == rhs.m_col; }
+        bool operator!=(const self_type &rhs) { return m_row != rhs.m_row || m_col != rhs.m_col; }
+
+    private:
+        const Matrix &m_mat;
+        size_t m_row;
+        size_t m_col;
+    };
+
+    /**
+     * @brief Begin of the matrix, points to its first element.
+     *
+     * May modify the current element.
+     *
+     * @return Forward iterator.
+     */
+    iterator begin() { return iterator(*this, 1, 1); }
+
+    /**
+     * @brief End of the matrix, points to its last element.
+     *
+     * May modify the current element.
+     *
+     * @return Forward iterator.
+     */
+    iterator end() { return iterator(*this, rows(), cols()); }
+
+    /**
+     * @brief Begin of the matrix, points to its first element.
+     * @return Constant forward iterator.
+     */
+    const_iterator begin() const { return const_iterator(*this, 1, 1); }
+
+    /**
+     * @brief End of the matrix, points to its last element.
+     * @return Constant forward iterator.
+     */
+    const_iterator end() const { return const_iterator(*this, rows(), cols()); }
+
 private:
     /// Matrix rows.
     size_t m_rows = 0;

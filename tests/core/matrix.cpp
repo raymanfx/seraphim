@@ -503,4 +503,33 @@ TEST_CASE( "Matrix runtime behavior", "[Matrix<T>]" ) {
         REQUIRE( m3(3, 1) == data[4] );
         REQUIRE( m3(3, 2) == data[5] );
     }
+    SECTION( "forward iterator moves through all elements" ) {
+        // padded data
+        int data[] = {
+            3, 4, 0 ,
+            1, 9, 0,
+            4, 5, 0
+        };
+        Matrix<int> m1(data, 3, 3);
+        Matrix<int> m2(data, 3, 2, 3 * sizeof(data[0]));
+
+        size_t index = 0;
+        for (auto it = m1.begin(); it != m1.end(); ++it) {
+
+            REQUIRE( *it == data[index] );
+
+            index++;
+        }
+
+        index = 0;
+        for (const auto &elem : m2) {
+
+            REQUIRE( elem == data[index] );
+
+            index++;
+            if (data[index] == 0) {
+                index++;
+            }
+        }
+    }
 }
