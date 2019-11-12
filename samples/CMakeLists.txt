@@ -8,6 +8,9 @@ set(SERAPHIM_SAMPLES_DEPENDENCIES_face "face" "object")
 set(SERAPHIM_SAMPLES_DEPENDENCIES_gui "gui")
 set(SERAPHIM_SAMPLES_DEPENDENCIES_object "object")
 
+# shared bits
+add_subdirectory(common)
+
 foreach (sample ${SERAPHIM_SAMPLES})
   set(DEPENDENCY_CHECK_SUCCESS TRUE)
   foreach (module ${SERAPHIM_SAMPLES_DEPENDENCIES_${sample}})
