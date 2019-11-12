@@ -1,5 +1,5 @@
 set(SAMPLES
-    dnn_classifier)
+    dnn_detector)
 
 # OpenCV dependency
 find_package(OpenCV COMPONENTS opencv_core opencv_imgproc REQUIRED)

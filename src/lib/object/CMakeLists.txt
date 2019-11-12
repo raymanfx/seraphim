@@ -7,12 +7,12 @@ set(MODULE_VERSION_MINOR 0)
 set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
-    dnn_classifier.cpp)
+    dnn_detector.cpp)
 
 set(HEADERS
     include/seraphim/object.h
     include/seraphim/object/classifier.h
-    include/seraphim/object/dnn_classifier.h)
+    include/seraphim/object/dnn_detector.h)
 
 add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})
 add_library(seraphim::${MODULE_NAME} ALIAS ${MODULE_NAME})

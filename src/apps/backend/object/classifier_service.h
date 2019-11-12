@@ -8,7 +8,7 @@
 #ifndef SPH_OBJECT_CLASSIFIER_SERVICE_H
 #define SPH_OBJECT_CLASSIFIER_SERVICE_H
 
-#include <ObjectClassifier.pb.h>
+#include <ObjectDetector.pb.h>
 #include <seraphim/object/classifier.h>
 
 #include "../service.h"
@@ -21,8 +21,8 @@ public:
     explicit ClassifierService(std::shared_ptr<sph::object::Classifier> recognizer);
 
     bool handle_request(const Seraphim::Request &req, Seraphim::Response &res) override;
-    bool handle_classification_request(const Seraphim::Object::Classifier::PredictionRequest &req,
-                                       Seraphim::Object::Classifier::PredictionResponse &res);
+    bool handle_detection_request(const Seraphim::Object::Detector::DetectionRequest &req,
+                                  Seraphim::Object::Detector::DetectionResponse &res);
 
 private:
     std::shared_ptr<sph::object::Classifier> m_recognizer;

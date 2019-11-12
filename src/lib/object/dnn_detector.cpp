@@ -7,13 +7,13 @@
 
 #include <seraphim/iop/opencv/mat.h>
 
-#include "seraphim/object/dnn_classifier.h"
+#include "seraphim/object/dnn_detector.h"
 
 using namespace sph;
 using namespace sph::object;
 
-bool DNNClassifier::read_net(const std::string &model, const std::string &config,
-                             const std::string &framework) {
+bool DNNDetector::read_net(const std::string &model, const std::string &config,
+                           const std::string &framework) {
     try {
         m_net = cv::dnn::readNet(model, config, framework);
     } catch (...) {
@@ -24,7 +24,7 @@ bool DNNClassifier::read_net(const std::string &model, const std::string &config
     return true;
 }
 
-std::vector<std::string> DNNClassifier::get_unconnected_out_layer_names() {
+std::vector<std::string> DNNDetector::get_unconnected_out_layer_names() {
     static std::vector<std::string> names;
 
     if (m_refresh_layer_names || names.empty()) {
@@ -40,7 +40,7 @@ std::vector<std::string> DNNClassifier::get_unconnected_out_layer_names() {
     return names;
 }
 
-bool DNNClassifier::set_target(Target target) {
+bool DNNDetector::set_target(Target target) {
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
     switch (target) {
@@ -67,7 +67,7 @@ bool DNNClassifier::set_target(Target target) {
     return true;
 }
 
-bool DNNClassifier::predict(const Image &img, std::vector<Prediction> &preds) {
+bool DNNDetector::predict(const Image &img, std::vector<Prediction> &preds) {
     cv::Mat mat;
     cv::Mat blob;
     std::vector<cv::Mat> outputs;

@@ -12,7 +12,7 @@
 #include <seraphim/polygon.h>
 #include <seraphim/gui/gl_window.h>
 #include <seraphim/iop/opencv/mat.h>
-#include <seraphim/object/dnn_classifier.h>
+#include <seraphim/object/dnn_detector.h>
 
 static bool main_loop = true;
 
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
     float confidence_threshold = 0;
     std::string model_path;
     std::string model_config_path;
-    sph::object::DNNClassifier classifier;
+    sph::object::DNNDetector detector;
     std::vector<sph::object::Classifier::Prediction> predictions;
     sph::VolatileImage image;
     cv::Mat frame;
@@ -136,21 +136,21 @@ int main(int argc, char **argv) {
         }
     }
 
-    if (!classifier.read_net(model_path, model_config_path)) {
+    if (!detector.read_net(model_path, model_config_path)) {
         std::cout << "[ERROR Failed to read net" << std::endl;
         return 1;
     }
-    classifier.set_target(sph::Computable::Target::CPU);
+    detector.set_target(sph::Computable::Target::CPU);
 
     sph::gui::GLWindow viewer("DNN classifier");
 
     // parameters from:
     // https://becominghuman.ai/face-detection-with-opencv-and-deep-learning-90b84735f421
-    sph::object::DNNClassifier::BlobParameters params = {};
+    sph::object::DNNDetector::BlobParameters params = {};
     params.scalefactor = 1.0;
     params.size = cv::Size(300, 300);
     params.mean = cv::Scalar(103.93, 116.77, 123.68);
-    classifier.set_blob_parameters(params);
+    detector.set_blob_parameters(params);
 
     while (main_loop) {
         t_loop_start = std::chrono::high_resolution_clock::now();
@@ -172,7 +172,7 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        classifier.predict(image, predictions);
+        detector.predict(image, predictions);
         process_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                            std::chrono::high_resolution_clock::now() - t_frame_captured)
                            .count();

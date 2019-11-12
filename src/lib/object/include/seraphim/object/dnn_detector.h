@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SPH_OBJECT_CLASSIFIER_DNN_H
-#define SPH_OBJECT_CLASSIFIER_DNN_H
+#ifndef SPH_OBJECT_DETECTOR_DNN_H
+#define SPH_OBJECT_DETECTOR_DNN_H
 
 #include "classifier.h"
 #include <mutex>
@@ -25,9 +25,9 @@ namespace object {
  * models from Caffe, TensorFlow and many more frameworks.
  * The computation target can be set to CPU, OPENCL, VPU and more.
  */
-class DNNClassifier : public Classifier, public sph::Computable {
+class DNNDetector : public Classifier, public sph::Computable {
 public:
-    DNNClassifier() = default;
+    DNNDetector() = default;
 
     /**
      * @brief Parameters used for preparing input images.
@@ -95,4 +95,4 @@ private:
 } // namespace object
 } // namespace sph
 
-#endif // SPH_OBJECT_CLASSIFIER_DNN_H
+#endif // SPH_OBJECT_DETECTOR_DNN_H

@@ -21,7 +21,7 @@
 #include <seraphim/face/utils.h>
 #include <seraphim/ipc.h>
 #include <seraphim/memory.h>
-#include <seraphim/object/dnn_classifier.h>
+#include <seraphim/object/dnn_detector.h>
 
 #include "car/lane_detector_service.h"
 #include "config_store.h"
@@ -41,7 +41,7 @@ static auto lane_detector = std::make_shared<sph::car::LinearLaneDetector>();
 static auto face_detector = std::make_shared<sph::face::LBPFaceDetector>();
 static auto face_recognizer = std::make_shared<sph::face::LBPFaceRecognizer>();
 static auto facemark_detector = std::make_shared<sph::face::LBFFacemarkDetector>();
-static auto object_classifier = std::make_shared<sph::object::DNNClassifier>();
+static auto object_detector = std::make_shared<sph::object::DNNDetector>();
 
 static auto lane_detector_service = std::make_shared<sph::car::LaneDetectorService>(lane_detector);
 static auto face_detector_service = std::make_shared<sph::face::FaceDetectorService>(face_detector);
@@ -50,7 +50,7 @@ static auto face_recognizer_service = std::make_shared<sph::face::FaceRecognizer
 static auto facemark_detector_service =
     std::make_shared<sph::face::FacemarkDetectorService>(face_detector, facemark_detector);
 static auto object_classifier_service =
-    std::make_shared<sph::object::ClassifierService>(object_classifier);
+    std::make_shared<sph::object::ClassifierService>(object_detector);
 
 void signal_handler(int signal) {
     switch (signal) {
@@ -176,7 +176,7 @@ int main(int argc, char **argv) {
         std::cout << "[ERROR] Missing conf key: object_net_model|object_net_config" << std::endl;
         return 1;
     } else {
-        if (!object_classifier->read_net(val, val2)) {
+        if (!object_detector->read_net(val, val2)) {
             std::cout << "[ERROR] Failed to load object net from: model: " << val
                       << ", config: " << val2 << std::endl;
             return 1;
@@ -205,7 +205,7 @@ int main(int argc, char **argv) {
         if (!face_recognizer->set_target(target)) {
             std::cout << "[WARN] Failed to set Face Recognizer target to: " << val << std::endl;
         }
-        if (!object_classifier->set_target(target)) {
+        if (!object_detector->set_target(target)) {
             std::cout << "[WARN] Failed to set Object Classifier target to: " << val << std::endl;
         }
     }

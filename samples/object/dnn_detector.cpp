@@ -12,7 +12,7 @@
 #include <seraphim/polygon.h>
 #include <seraphim/gui/gl_window.h>
 #include <seraphim/iop/opencv/mat.h>
-#include <seraphim/object/dnn_classifier.h>
+#include <seraphim/object/dnn_detector.h>
 
 static bool main_loop = true;
 
@@ -40,7 +40,7 @@ static void print_usage(int print_description) {
         }
     }
 
-    printf("%s\n\n", "dnn_classifier [flags]");
+    printf("%s\n\n", "dnn_detector [flags]");
     for (size_t i = 0; i < sizeof(long_opts) / sizeof(long_opts[0]) - 1; i++) {
         const struct option opt = long_opts[i];
 
@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
     float confidence_threshold = 0;
     std::string model_path;
     std::string model_config_path;
-    sph::object::DNNClassifier classifier;
+    sph::object::DNNDetector detector;
     std::vector<sph::object::Classifier::Prediction> predictions;
     sph::VolatileImage image;
     cv::Mat frame;
@@ -135,24 +135,24 @@ int main(int argc, char **argv) {
         }
     }
 
-    if (!classifier.read_net(model_path, model_config_path)) {
+    if (!detector.read_net(model_path, model_config_path)) {
         std::cout << "[ERROR Failed to read net" << std::endl;
         return 1;
     }
-    classifier.set_target(sph::Computable::Target::CPU);
+    detector.set_target(sph::Computable::Target::CPU);
 
     sph::gui::GLWindow viewer("DNN classifier");
 
     // set parameters for MobileNet V2 (2018_03_29)
     // see https://github.com/opencv/opencv/wiki/TensorFlow-Object-Detection-API
     // see https://github.com/opencv/opencv/blob/master/samples/dnn/models.yml
-    sph::object::DNNClassifier::BlobParameters params = {};
+    sph::object::DNNDetector::BlobParameters params = {};
     params.scalefactor = 1.0;
     params.size = cv::Size(300, 300);
     params.mean = cv::Scalar();
     params.swap_rb = true;
     params.crop = false;
-    classifier.set_blob_parameters(params);
+    detector.set_blob_parameters(params);
 
     while (main_loop) {
         t_loop_start = std::chrono::high_resolution_clock::now();
@@ -174,7 +174,7 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        classifier.predict(image, predictions);
+        detector.predict(image, predictions);
         process_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                            std::chrono::high_resolution_clock::now() - t_frame_captured)
                            .count();
