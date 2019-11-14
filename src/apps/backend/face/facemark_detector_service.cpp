@@ -39,7 +39,7 @@ bool FacemarkDetectorService::handle_request(const Seraphim::Request &req,
 bool FacemarkDetectorService::handle_detection_request(
     const Seraphim::Face::FacemarkDetector::DetectionRequest &req,
     Seraphim::Face::FacemarkDetector::DetectionResponse &res) {
-    VolatileImage image;
+    CoreImage image;
     std::vector<Polygon<int>> faces;
     cv::Mat mat;
     std::vector<sph::face::FacemarkDetector::Facemarks> facemarks;

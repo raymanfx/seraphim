@@ -190,7 +190,7 @@ void MainWindow::updateBuffer(const ICaptureStream::Buffer &buf) {
     mCaptureBuffer = buf;
 
     // get the QImage wrapper representation
-    sph::VolatileImage img;
+    sph::CoreImage img;
     sph::Pixelformat::Enum pixfmt;
 
     pixfmt = sph::Pixelformat::uid(buf.format.fourcc);
@@ -198,8 +198,8 @@ void MainWindow::updateBuffer(const ICaptureStream::Buffer &buf) {
         return;
     }
 
-    img = sph::VolatileImage(static_cast<unsigned char *>(buf.start), buf.format.width,
-                             buf.format.height, pixfmt, buf.format.stride);
+    img = sph::CoreImage(static_cast<unsigned char *>(buf.start), buf.format.width,
+                         buf.format.height, pixfmt, buf.format.stride);
     if (!img) {
         return;
     }

@@ -13,7 +13,7 @@
 using namespace sph;
 using namespace sph::face;
 
-void LBPFaceRecognizer::train(const std::vector<sph::BufferedImage> &imgs,
+void LBPFaceRecognizer::train(const std::vector<sph::CoreImage> &imgs,
                               const std::vector<int> &labels) {
     std::vector<cv::Mat> gray_imgs;
 
@@ -44,7 +44,7 @@ void LBPFaceRecognizer::train(const std::vector<sph::BufferedImage> &imgs,
     m_impl->train(gray_imgs, labels);
 }
 
-void LBPFaceRecognizer::update(const std::vector<sph::BufferedImage> &imgs,
+void LBPFaceRecognizer::update(const std::vector<sph::CoreImage> &imgs,
                                const std::vector<int> &labels, bool invalidate) {
     std::vector<cv::Mat> gray_imgs;
 

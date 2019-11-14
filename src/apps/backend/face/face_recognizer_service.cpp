@@ -54,8 +54,8 @@ bool FaceRecognizerService::handle_request(const Seraphim::Request &req, Seraphi
 bool FaceRecognizerService::handle_training_request(
     const Seraphim::Face::FaceRecognizer::TrainingRequest &req,
     Seraphim::Face::FaceRecognizer::TrainingResponse &res) {
-    VolatileImage image;
-    std::vector<BufferedImage> images;
+    CoreImage image;
+    std::vector<CoreImage> images;
     std::vector<Polygon<int>> faces;
     cv::Mat mat;
     std::vector<int> labels;
@@ -139,7 +139,7 @@ bool FaceRecognizerService::handle_training_request(
         // bounding rect
         alignedFace = alignedFace(alignedROI.boundingRect());
 
-        BufferedImage buf = sph::iop::cv::MatFacility::to_image(alignedFace);
+        CoreImage buf = sph::iop::cv::MatFacility::to_image(alignedFace);
         if (image.empty()) {
             return false;
         }
@@ -154,7 +154,7 @@ bool FaceRecognizerService::handle_training_request(
 bool FaceRecognizerService::handle_recognition_request(
     const Seraphim::Face::FaceRecognizer::PredictionRequest &req,
     Seraphim::Face::FaceRecognizer::PredictionResponse &res) {
-    VolatileImage image;
+    CoreImage image;
     std::vector<Polygon<int>> faces;
     cv::Mat mat;
     cv::Rect2i roi;

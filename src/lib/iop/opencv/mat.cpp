@@ -44,14 +44,14 @@ using namespace sph::iop::cv;
     return mat;
 }
 
-sph::VolatileImage MatFacility::to_image(const ::cv::Mat &mat) {
+sph::CoreImage MatFacility::to_image(const ::cv::Mat &mat) {
     uint32_t width;
     uint32_t height;
     size_t stride;
     sph::Pixelformat::Enum pixfmt;
 
     if (mat.empty()) {
-        return sph::VolatileImage();
+        return sph::CoreImage();
     }
 
     pixfmt = sph::Pixelformat::Enum::UNKNOWN;
@@ -75,12 +75,12 @@ sph::VolatileImage MatFacility::to_image(const ::cv::Mat &mat) {
     }
 
     if (pixfmt == sph::Pixelformat::Enum::UNKNOWN) {
-        return sph::VolatileImage();
+        return sph::CoreImage();
     }
 
     width = static_cast<uint32_t>(mat.step / mat.elemSize());
     height = static_cast<uint32_t>(mat.rows);
     stride = mat.step;
 
-    return sph::VolatileImage(mat.data, width, height, pixfmt, stride);
+    return sph::CoreImage(mat.data, width, height, pixfmt, stride);
 }

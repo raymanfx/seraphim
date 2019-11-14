@@ -11,12 +11,10 @@
 #include <functional>
 #include <vector>
 
+#include "image.h"
 #include "pixelformat.h"
 
 namespace sph {
-
-class Image;
-class BufferedImage;
 
 /**
  * @brief Image converter singleton facility.
@@ -56,7 +54,7 @@ public:
      */
     struct Target {
         /// image representation
-        BufferedImage *img = nullptr;
+        CoreImage *img = nullptr;
         /// pixelformat
         sph::Pixelformat::Enum fmt = sph::Pixelformat::Enum::UNKNOWN;
     };
@@ -102,7 +100,7 @@ public:
      * @param fmt Target image format.
      * @return True on success, false otherwise.
      */
-    bool convert(const Image &src, BufferedImage &dst, sph::Pixelformat::Enum fmt);
+    bool convert(const Image &src, CoreImage &dst, sph::Pixelformat::Enum fmt);
 
 private:
     ImageConverter();

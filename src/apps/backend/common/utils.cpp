@@ -13,8 +13,8 @@
 
 #include "utils.h"
 
-bool sph::backend::Image2DtoImage(const Seraphim::Types::Image2D &src, sph::VolatileImage &dst) {
-    sph::VolatileImage img;
+bool sph::backend::Image2DtoImage(const Seraphim::Types::Image2D &src, sph::CoreImage &dst) {
+    sph::CoreImage img;
     sph::Pixelformat::Enum pixfmt;
     unsigned char *data;
 
@@ -24,13 +24,13 @@ bool sph::backend::Image2DtoImage(const Seraphim::Types::Image2D &src, sph::Vola
     }
 
     data = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(src.data().c_str()));
-    dst = sph::VolatileImage(data, src.width(), src.height(), pixfmt, src.stride());
+    dst = sph::CoreImage(data, src.width(), src.height(), pixfmt, src.stride());
     return true;
 }
 
 bool sph::backend::Image2DtoMat(const Seraphim::Types::Image2D &src, cv::Mat &dst) {
     // create intermediate wrapper
-    sph::VolatileImage img;
+    sph::CoreImage img;
 
     if (!Image2DtoImage(src, img)) {
         return false;

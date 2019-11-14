@@ -12,7 +12,6 @@
 #include <cstdint>
 #include <map>
 
-#include "image_converter.h"
 #include "matrix.h"
 #include "pixelformat.h"
 
@@ -88,65 +87,14 @@ public:
 };
 
 /**
- * @brief Shallow image representation.
- *
- * Data is never copied. This class can be used to wrap external image data from arbitrary sources
- * to pass to interfaces expecting an sph::Image.
- */
-class VolatileImage : public Image {
-public:
-    VolatileImage() = default;
-
-    /**
-     * @brief Image with external data.
-     * @param data The raw data to use.
-     * @param width Width of the input data.
-     * @param height Height of the input data.
-     * @param pixfmt Pixelformat of the input data.
-     * @param stride Number of bytes per pixel row (default: auto).
-     */
-    VolatileImage(unsigned char *data, uint32_t width, uint32_t height, Pixelformat::Enum pixfmt,
-                  size_t stride = 0);
-
-    const unsigned char *data(size_t i = 0) const override { return m_data + i * m_stride; }
-    bool empty() const override { return m_data == nullptr; }
-    uint32_t width() const override { return m_width; }
-    uint32_t height() const override { return m_height; }
-    size_t stride() const override { return m_stride; }
-    Pixelformat::Enum pixfmt() const override { return m_pixfmt; }
-    uint32_t channels() const override { return Pixelformat::channels(m_pixfmt); }
-    uint32_t depth() const override { return Pixelformat::bits(m_pixfmt); }
-
-    /**
-     * @brief Checks whether the instance is valid.
-     * @return True if not empty and the pixelformat is known.
-     */
-    bool valid() const { return !empty() && m_pixfmt != Pixelformat::Enum::UNKNOWN; }
-
-    bool operator!() const { return !valid(); }
-
-private:
-    /// pixel data
-    const unsigned char *m_data = nullptr;
-
-    /// width in pixels
-    uint32_t m_width = 0;
-    /// height in pixels
-    uint32_t m_height = 0;
-    /// pixelformat
-    Pixelformat::Enum m_pixfmt = Pixelformat::Enum::UNKNOWN;
-    /// amount of bytes per row
-    size_t m_stride = 0;
-};
-
-/**
  * @brief Image reference implementation class.
  *
  * Buffered image with additional metadata.
+ * The back buffer may consist of memory allocated by the instance itself or external data.
  */
-class BufferedImage : public Image {
+class CoreImage : public Image {
 public:
-    BufferedImage() = default;
+    CoreImage() = default;
 
     /**
      * @brief Empty image with no initial data.
@@ -154,24 +102,18 @@ public:
      * @param height Height of the input data.
      * @param pixfmt Pixelformat of the input data.
      */
-    BufferedImage(uint32_t width, uint32_t height, Pixelformat::Enum pixfmt);
+    CoreImage(uint32_t width, uint32_t height, Pixelformat::Enum pixfmt);
 
     /**
      * @brief Image with buffered data.
-     * @param data The raw data to copy to the instance buffer.
+     * @param data The raw data to use.
      * @param width Width of the input data.
      * @param height Height of the input data.
      * @param pixfmt Pixelformat of the input data.
      * @param stride Number of bytes per pixel row (default: auto).
      */
-    BufferedImage(unsigned char *data, uint32_t width, uint32_t height, Pixelformat::Enum pixfmt,
-                  size_t stride = 0);
-
-    /**
-     * @brief BufferedImage Create a buffered image from a shallow wrapper instance.
-     * @param img Image acting as wrapper around raw data.
-     */
-    BufferedImage(const VolatileImage &img);
+    CoreImage(unsigned char *data, uint32_t width, uint32_t height, Pixelformat::Enum pixfmt,
+              size_t stride = 0);
 
     const unsigned char *data(size_t i = 0) const override { return m_buffer.data(i); }
     bool empty() const override { return m_buffer.empty(); }

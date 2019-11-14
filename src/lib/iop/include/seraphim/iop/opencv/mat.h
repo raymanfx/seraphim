@@ -50,7 +50,7 @@ public:
      * @param mat The source Matrix.
      * @return The converted Image, which is empty if the conversion failed.
      */
-    static VolatileImage to_image(const ::cv::Mat &mat);
+    static CoreImage to_image(const ::cv::Mat &mat);
 
 private:
     MatFacility() = default;

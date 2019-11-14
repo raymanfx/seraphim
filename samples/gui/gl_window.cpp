@@ -30,7 +30,7 @@ void signal_handler(int signal) {
 
 int main(int argc, char **argv) {
     int camera_index = 0;
-    sph::VolatileImage image;
+    sph::CoreImage image;
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;
     std::chrono::high_resolution_clock::time_point t_frame_captured;

@@ -29,10 +29,9 @@ public:
     void setThreshold(double val) { return m_impl->setThreshold(val); }
     void write(cv::FileStorage &fs) const { return m_impl->write(fs); }
 
-    void train(const std::vector<sph::BufferedImage> &imgs,
-               const std::vector<int> &labels) override;
+    void train(const std::vector<sph::CoreImage> &imgs, const std::vector<int> &labels) override;
     bool predict(const sph::Image &img, std::vector<Prediction> &preds) override;
-    void update(const std::vector<sph::BufferedImage> &imgs, const std::vector<int> &labels,
+    void update(const std::vector<sph::CoreImage> &imgs, const std::vector<int> &labels,
                 bool invalidate = false) override;
 
     bool set_target(Target target) override;

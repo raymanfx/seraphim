@@ -36,7 +36,7 @@ bool LaneDetectorService::handle_request(const Seraphim::Request &req, Seraphim:
 bool LaneDetectorService::handle_detection_request(
     const Seraphim::Car::LaneDetector::DetectionRequest &req,
     Seraphim::Car::LaneDetector::DetectionResponse &res) {
-    VolatileImage image;
+    CoreImage image;
     Polygon<int> polyroi;
     std::vector<Polygon<int>> lanes;
 

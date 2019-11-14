@@ -23,7 +23,7 @@ TEST_CASE( "Image conversions", "[ImageConverter]" ) {
             50, 100, 50, 243, 3, 6, 1, 64, 8,
             10, 50, 16, 43, 42, 7, 88, 2, 44
         };
-        BufferedImage i1(bytes, 3, 3, Pixelformat::Enum::BGR24);
+        CoreImage i1(bytes, 3, 3, Pixelformat::Enum::BGR24);
         bool success = ImageConverter::Instance().convert(i1, i1, Pixelformat::Enum::RGB32);
 
         REQUIRE( success );
@@ -46,7 +46,7 @@ TEST_CASE( "Image conversions", "[ImageConverter]" ) {
             50, 100, 50, 0, 243, 3, 6, 0, 1, 64, 8, 0,
             10, 50, 16, 0, 43, 42, 7, 0, 88, 2, 44, 0
         };
-        BufferedImage i1(bytes, 3, 3, Pixelformat::Enum::RGB32);
+        CoreImage i1(bytes, 3, 3, Pixelformat::Enum::RGB32);
         bool success = ImageConverter::Instance().convert(i1, i1, Pixelformat::Enum::BGR24);
 
         REQUIRE( success );
@@ -69,7 +69,7 @@ TEST_CASE( "Image conversions", "[ImageConverter]" ) {
             50, 100, 50, 243, 3, 6, 1, 64, 8,
             10, 50, 16, 43, 42, 7, 88, 2, 44
         };
-        BufferedImage i1(bytes, 3, 3, Pixelformat::Enum::BGR24);
+        CoreImage i1(bytes, 3, 3, Pixelformat::Enum::BGR24);
         bool success = ImageConverter::Instance().convert(i1, i1, Pixelformat::Enum::GRAY8);
 
         REQUIRE( success );

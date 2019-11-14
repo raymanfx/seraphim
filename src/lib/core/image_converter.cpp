@@ -26,7 +26,7 @@ template <class T> static T clamp(T val, T min, T max) {
 
 static bool rgb_to_bgr(const ImageConverter::Source &src, ImageConverter::Target &dst) {
     size_t src_offset;
-    BufferedImage converted;
+    CoreImage converted;
 
     // validate source format
     switch (src.fourcc) {
@@ -49,7 +49,7 @@ static bool rgb_to_bgr(const ImageConverter::Source &src, ImageConverter::Target
         return false;
     }
 
-    converted = BufferedImage(src.img->width(), src.img->height(), dst.fmt);
+    converted = CoreImage(src.img->width(), src.img->height(), dst.fmt);
 
     for (uint32_t y = 0; y < src.img->height(); y++) {
         for (uint32_t x = 0; x < src.img->width(); x++) {
@@ -67,7 +67,7 @@ static bool rgb_to_bgr(const ImageConverter::Source &src, ImageConverter::Target
 
 static size_t rgb_to_y(const ImageConverter::Source &src, ImageConverter::Target &dst) {
     size_t src_offset;
-    BufferedImage converted;
+    CoreImage converted;
 
     // validate source format
     switch (src.fourcc) {
@@ -88,7 +88,7 @@ static size_t rgb_to_y(const ImageConverter::Source &src, ImageConverter::Target
         return false;
     }
 
-    converted = BufferedImage(src.img->width(), src.img->height(), dst.fmt);
+    converted = CoreImage(src.img->width(), src.img->height(), dst.fmt);
 
     for (uint32_t y = 0; y < src.img->height(); y++) {
         for (uint32_t x = 0; x < src.img->width(); x++) {
@@ -140,7 +140,7 @@ static size_t rgb_to_y(const ImageConverter::Source &src, ImageConverter::Target
 
 static bool y_to_rgb(const ImageConverter::Source &src, ImageConverter::Target &dst) {
     size_t src_offset;
-    BufferedImage converted;
+    CoreImage converted;
 
     // validate source format
     switch (src.fourcc) {
@@ -161,7 +161,7 @@ static bool y_to_rgb(const ImageConverter::Source &src, ImageConverter::Target &
         return false;
     }
 
-    converted = BufferedImage(src.img->width(), src.img->height(), dst.fmt);
+    converted = CoreImage(src.img->width(), src.img->height(), dst.fmt);
 
     // https://stackoverflow.com/a/4494004
     for (uint32_t y = 0; y < src.img->height(); y++) {
@@ -192,7 +192,7 @@ static bool y_to_rgb(const ImageConverter::Source &src, ImageConverter::Target &
 
 static size_t yuy2_to_rgb(const ImageConverter::Source &src, ImageConverter::Target &dst) {
     size_t src_offset;
-    BufferedImage converted;
+    CoreImage converted;
 
     // validate source format
     switch (src.fourcc) {
@@ -213,7 +213,7 @@ static size_t yuy2_to_rgb(const ImageConverter::Source &src, ImageConverter::Tar
         return false;
     }
 
-    converted = BufferedImage(src.img->width(), src.img->height(), dst.fmt);
+    converted = CoreImage(src.img->width(), src.img->height(), dst.fmt);
 
     // https://stackoverflow.com/a/4494004
     for (uint32_t y = 0; y < src.img->height(); y++) {
@@ -337,7 +337,7 @@ bool ImageConverter::convert(const Source &src, Target &dst) {
     return conv.function(src, dst);
 }
 
-bool ImageConverter::convert(const Image &src, BufferedImage &dst, sph::Pixelformat::Enum fmt) {
+bool ImageConverter::convert(const Image &src, CoreImage &dst, sph::Pixelformat::Enum fmt) {
     Source src_;
     Target dst_;
 
