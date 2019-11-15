@@ -327,26 +327,6 @@ public:
     }
 
     /**
-     * @brief Transpose the matrix.
-     *
-     * Very primitive approach, possible target for future optimization.
-     */
-    Matrix transposed() {
-        Matrix t(*this);
-
-        // reshape to target dimensions
-        t.reshape(m_cols, m_rows);
-
-        for (size_t i = 1; i <= t.rows(); i++) {
-            for (size_t j = 1; j <= t.cols(); j++) {
-                t(i, j) = (*this)(j, i);
-            }
-        }
-
-        return t;
-    }
-
-    /**
      * @brief Copy matrix elements into another matrix.
      *        Each element of the current instance is copied into the new instance.
      * @param target Target instance which assumes element ownership.

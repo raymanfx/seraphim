@@ -383,26 +383,6 @@ TEST_CASE( "Matrix runtime behavior", "[Matrix<T>]" ) {
         REQUIRE( m1(3, 3) == 1 );
         REQUIRE( m1(3, 4) == 1 );
     }
-    SECTION( "transpose() transposes the matrix" ) {
-        int data[] = {
-            9, 4,
-            3, 5,
-            2, 4
-        };
-        Matrix<int> m1(data, 3, 2);
-        Matrix<int> m2;
-
-        m2 = m1.transposed();
-
-        REQUIRE( m2.rows() == 2 );
-        REQUIRE( m2.cols() == 3 );
-        REQUIRE( m2(1, 1) == 9 );
-        REQUIRE( m2(1, 2) == 3 );
-        REQUIRE( m2(1, 3) == 2 );
-        REQUIRE( m2(2, 1) == 4 );
-        REQUIRE( m2(2, 2) == 5 );
-        REQUIRE( m2(2, 3) == 4 );
-    }
     SECTION( "copy() copies matrix elements into another instance" ) {
         int data[] = {
             3, 4, 0 ,
