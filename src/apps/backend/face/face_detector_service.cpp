@@ -55,7 +55,7 @@ bool FaceDetectorService::handle_detection_request(
     }
 
     mat = mat(roi);
-    image = sph::iop::cv::MatFacility::to_image(mat);
+    image = sph::iop::cv::to_image(mat);
     if (image.empty()) {
         return false;
     }

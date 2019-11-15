@@ -79,7 +79,7 @@ bool DNNDetector::predict(const Image &img, std::vector<Prediction> &preds) {
     std::vector<cv::Rect> boxes;
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
-    mat = sph::iop::cv::MatFacility::from_image(img);
+    mat = sph::iop::cv::from_image(img);
     if (mat.empty()) {
         return false;
     }

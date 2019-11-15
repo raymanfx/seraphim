@@ -22,7 +22,7 @@ void LBPFaceRecognizer::train(const std::vector<sph::CoreImage> &imgs,
 
     // deep copy of new faces
     for (size_t i = 0; i < labels.size(); i++) {
-        cv::Mat tmp = sph::iop::cv::MatFacility::from_image(imgs[i]);
+        cv::Mat tmp = sph::iop::cv::from_image(imgs[i]);
         if (tmp.empty()) {
             return;
         }
@@ -50,7 +50,7 @@ void LBPFaceRecognizer::update(const std::vector<sph::CoreImage> &imgs,
 
     // convert to 8-bit single channel if necessary
     for (const auto &face_img : imgs) {
-        cv::Mat mat = sph::iop::cv::MatFacility::from_image(face_img);
+        cv::Mat mat = sph::iop::cv::from_image(face_img);
         if (mat.empty()) {
             return;
         }
@@ -102,7 +102,7 @@ bool LBPFaceRecognizer::predict(const sph::Image &img, std::vector<Prediction> &
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
     // preprocessing stage: create the appropriate input buffer
-    gray = sph::iop::cv::MatFacility::from_image(img);
+    gray = sph::iop::cv::from_image(img);
     if (gray.empty()) {
         return false;
     }

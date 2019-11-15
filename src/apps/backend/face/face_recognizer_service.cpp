@@ -64,7 +64,7 @@ bool FaceRecognizerService::handle_training_request(
         return false;
     }
 
-    image = sph::iop::cv::MatFacility::to_image(mat);
+    image = sph::iop::cv::to_image(mat);
     if (image.empty()) {
         return false;
     }
@@ -139,7 +139,7 @@ bool FaceRecognizerService::handle_training_request(
         // bounding rect
         alignedFace = alignedFace(alignedROI.boundingRect());
 
-        CoreImage buf = sph::iop::cv::MatFacility::to_image(alignedFace);
+        CoreImage buf = sph::iop::cv::to_image(alignedFace);
         if (image.empty()) {
             return false;
         }
@@ -174,7 +174,7 @@ bool FaceRecognizerService::handle_recognition_request(
     }
 
     mat = mat(roi);
-    image = sph::iop::cv::MatFacility::to_image(mat);
+    image = sph::iop::cv::to_image(mat);
     if (image.empty()) {
         return false;
     }
@@ -182,7 +182,7 @@ bool FaceRecognizerService::handle_recognition_request(
     m_face_detector->detect(image, faces);
     for (size_t i = 0; i < faces.size(); i++) {
         cv::Rect face_region(faces[i].bl().x, faces[i].bl().y, faces[i].width(), faces[i].height());
-        image = sph::iop::cv::MatFacility::to_image(mat(face_region));
+        image = sph::iop::cv::to_image(mat(face_region));
         if (image.empty()) {
             return false;
         }

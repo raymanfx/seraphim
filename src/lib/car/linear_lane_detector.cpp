@@ -73,7 +73,7 @@ bool LinearLaneDetector::detect(const Image &img, std::vector<Polygon<int>> &lan
     double slope_thresh = 0.3;
     std::unique_lock<std::mutex> lock(m_target_mutex);
 
-    mat = sph::iop::cv::MatFacility::from_image(img);
+    mat = sph::iop::cv::from_image(img);
     if (mat.empty()) {
         return false;
     }

@@ -79,7 +79,7 @@ bool LBPFaceDetector::detect(const Image &img, std::vector<Polygon<int>> &faces)
         return false;
     }
 
-    mat = sph::iop::cv::MatFacility::from_image(img);
+    mat = sph::iop::cv::from_image(img);
     cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
     if (mat.empty()) {
         return false;

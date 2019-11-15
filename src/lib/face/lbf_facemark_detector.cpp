@@ -49,7 +49,7 @@ bool LBFFacemarkDetector::detect(const sph::Image &img, const std::vector<sph::P
         return false;
     }
 
-    mat = sph::iop::cv::MatFacility::from_image(img);
+    mat = sph::iop::cv::from_image(img);
     if (mat.empty()) {
         return false;
     }

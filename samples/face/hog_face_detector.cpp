@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
                          .count();
 
         faces.clear();
-        image = sph::iop::cv::MatFacility::to_image(frame);
+        image = sph::iop::cv::to_image(frame);
         if (image.empty()) {
             std::cout << "[ERROR] Failed to convert Mat to Image" << std::endl;
             continue;

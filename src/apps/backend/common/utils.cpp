@@ -36,6 +36,6 @@ bool sph::backend::Image2DtoMat(const Seraphim::Types::Image2D &src, cv::Mat &ds
         return false;
     }
 
-    dst = sph::iop::cv::MatFacility::from_image(img);
+    dst = sph::iop::cv::from_image(img);
     return !dst.empty();
 }

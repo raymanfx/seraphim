@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
                          std::chrono::high_resolution_clock::now() - t_loop_start)
                          .count();
 
-        rgb_image = sph::iop::cv::MatFacility::to_image(frame);
+        rgb_image = sph::iop::cv::to_image(frame);
         if (rgb_image.empty()) {
             std::cout << "[ERROR] Failed to convert Mat to Image" << std::endl;
             continue;

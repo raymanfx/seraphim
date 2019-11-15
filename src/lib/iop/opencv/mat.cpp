@@ -8,9 +8,7 @@
 #include <opencv2/imgproc.hpp>
 #include <seraphim/iop/opencv/mat.h>
 
-using namespace sph::iop::cv;
-
-::cv::Mat MatFacility::from_image(const sph::Image &img) {
+::cv::Mat sph::iop::cv::from_image(const sph::Image &img) {
     ::cv::Mat mat;
 
     if (img.empty()) {
@@ -44,7 +42,7 @@ using namespace sph::iop::cv;
     return mat;
 }
 
-sph::CoreImage MatFacility::to_image(const ::cv::Mat &mat) {
+sph::CoreImage sph::iop::cv::to_image(const ::cv::Mat &mat) {
     uint32_t width;
     uint32_t height;
     size_t stride;
