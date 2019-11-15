@@ -193,4 +193,37 @@ TEST_CASE( "CoreImage runtime behavior", "[CoreImage]" ) {
         REQUIRE( i1.width() == 2 );
         REQUIRE( i1.height() == 1 );
     }
+    SECTION( "forward iterator moves through all elements" ) {
+        unsigned char bytes_gray8[] = {
+            1, 2,
+            4, 5,
+            1, 3
+        };
+        unsigned char bytes_rgb24[] = {
+            1, 2, 7, 0,
+            4, 5, 9, 0,
+            1, 3, 2, 0
+        };
+        CoreImage i1(bytes_gray8, 2, 3, Pixelformat::Enum::GRAY8);
+        CoreImage i2(bytes_rgb24, 1, 3, Pixelformat::Enum::RGB24, 4);
+
+        size_t index = 0;
+        for (auto it = i1.begin(); it != i1.end(); ++it) {
+
+            REQUIRE( *it == bytes_gray8 + index );
+
+            index++;
+        }
+
+        index = 0;
+        for (const auto elem : i2) {
+
+            REQUIRE( elem == bytes_rgb24 + index );
+
+            index += 3;
+            if (bytes_rgb24[index] == 0) {
+                index++;
+            }
+        }
+    }
 }

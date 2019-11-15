@@ -159,6 +159,132 @@ public:
         return m_buffer.data(y) + x * Pixelformat::bits(m_pixfmt) / 8;
     }
 
+    /**
+     * @brief Subscript operator retrieving a single matrix element reference.
+     *
+     * Note that element indexing is used, i.e. the first element is at (1, 1).
+     *
+     * @param i Matrix row index.
+     * @param j Matrix column index.
+     * @return The Matrix element at the specified offsets.
+     */
+    unsigned char *operator()(uint32_t x, uint32_t y) {
+        assert(x < m_width && y < m_height);
+        return m_buffer.data(y) + x * Pixelformat::bits(m_pixfmt) / 8;
+    }
+
+    /**
+     * @brief Subscript operator retrieving a single matrix element reference.
+     *
+     * Note that element indexing is used, i.e. the first element is at (1, 1).
+     *
+     * @param i Matrix row index.
+     * @param j Matrix column index.
+     * @return The Matrix element at the specified offsets.
+     */
+    unsigned char *operator()(uint32_t x, uint32_t y) const {
+        assert(x < m_width && y < m_height);
+        return m_buffer.data(y) + x * Pixelformat::bits(m_pixfmt) / 8;
+    }
+
+    class iterator {
+    public:
+        typedef iterator self_type;
+        typedef unsigned char value_type;
+        typedef unsigned char &reference;
+        typedef unsigned char *pointer;
+        typedef std::forward_iterator_tag iterator_category;
+        iterator(CoreImage &img, uint32_t x, uint32_t y) : m_img(img), m_x(x), m_y(y) {}
+        self_type operator++() {
+            m_x++;
+            if (m_x >= m_img.width()) {
+                m_x = 0;
+                m_y++;
+            }
+            assert(m_x <= m_img.width() && m_y <= m_img.height());
+            return *this;
+        }
+        self_type operator++(int) {
+            self_type i = *this;
+            m_x++;
+            if (m_x >= m_img.width()) {
+                m_x = 0;
+                m_y++;
+            }
+            assert(m_x <= m_img.width() && m_y <= m_img.height());
+            return i;
+        }
+        value_type *operator*() { return m_img(m_x, m_y); }
+        bool operator==(const self_type &rhs) { return m_x == rhs.m_x && m_y == rhs.m_y; }
+        bool operator!=(const self_type &rhs) { return m_x != rhs.m_x || m_y != rhs.m_y; }
+
+    private:
+        CoreImage &m_img;
+        uint32_t m_x;
+        uint32_t m_y;
+    };
+
+    class const_iterator {
+    public:
+        typedef const_iterator self_type;
+        typedef unsigned char value_type;
+        typedef unsigned char &reference;
+        typedef unsigned char *pointer;
+        typedef std::forward_iterator_tag iterator_category;
+        const_iterator(const CoreImage &img, uint32_t x, uint32_t y) : m_img(img), m_x(x), m_y(y) {}
+        self_type operator++() {
+            m_x++;
+            if (m_x >= m_img.width()) {
+                m_x = 0;
+                m_y++;
+            }
+            assert(m_x <= m_img.width() && m_y <= m_img.height());
+            return *this;
+        }
+        self_type operator++(int) {
+            self_type i = *this;
+            m_x++;
+            if (m_x >= m_img.width()) {
+                m_x = 0;
+                m_y++;
+            }
+            assert(m_x <= m_img.width() && m_y <= m_img.height());
+            return i;
+        }
+        const value_type *operator*() { return m_img(m_x, m_y); }
+        bool operator==(const self_type &rhs) { return m_x == rhs.m_x && m_y == rhs.m_y; }
+        bool operator!=(const self_type &rhs) { return m_x != rhs.m_x || m_y != rhs.m_y; }
+
+    private:
+        const CoreImage &m_img;
+        uint32_t m_x;
+        uint32_t m_y;
+    };
+
+    /**
+     * @brief Begin of the image, points to its first pixel.
+     * @return Forward iterator.
+     */
+    iterator begin() { return iterator(*this, 0, 0); }
+
+    /**
+     * @brief End of the image, points to its last pixel.
+     * @return Forward iterator.
+     */
+    iterator end() { return iterator(*this, width() - 1, height() - 1); }
+
+    /**
+     * @brief Begin of the image, points to its first pixel.
+     * @return Constant forward iterator.
+     */
+    const_iterator begin() const { return const_iterator(*this, 0, 0); }
+
+    /**
+     * @brief End of the image, points to its last pixel.
+     * @return Constant forward iterator.
+     */
+    const_iterator end() const { return const_iterator(*this, width() - 1, height() - 1); }
+
 private:
     /// matrix back buffer holding pixel data
     Matrix<unsigned char> m_buffer;
