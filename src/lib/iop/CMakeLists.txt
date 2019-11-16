@@ -31,7 +31,7 @@ if (OpenCV_FOUND)
         opencv/mat.cpp
         include/seraphim/iop/opencv/mat.h)
     target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_imgproc)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWITH_OPENCV")
+    set_target_properties(${MODULE_NAME} PROPERTIES COMPILE_FLAGS "-DWITH_OPENCV")
 endif ()
 
 target_link_libraries(${MODULE_NAME} PUBLIC seraphim::core)

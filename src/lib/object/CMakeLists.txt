@@ -37,7 +37,7 @@ find_package(OpenCV COMPONENTS opencv_core REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_dnn)
 if (${OpenCV_VERSION} GREATER_EQUAL 4)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWITH_VULKAN")
+    set_target_properties(${MODULE_NAME} PROPERTIES COMPILE_FLAGS "-DWITH_VULKAN")
 endif ()
 
 target_link_libraries(${MODULE_NAME} PUBLIC seraphim::core seraphim::iop)
