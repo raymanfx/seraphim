@@ -128,15 +128,36 @@ int main(int argc, char **argv) {
 
     sph::gui::GLWindow viewer("DNN classifier");
 
-    // set parameters for MobileNet V2 (2018_03_29)
-    // see https://github.com/opencv/opencv/wiki/TensorFlow-Object-Detection-API
-    // see https://github.com/opencv/opencv/blob/master/samples/dnn/models.yml
+    // set default parameters
     sph::object::DNNDetector::BlobParameters params = {};
     params.scalefactor = 1.0;
-    params.size = cv::Size(300, 300);
+    params.size = cv::Size();
     params.mean = cv::Scalar();
     params.swap_rb = true;
     params.crop = false;
+
+    if (model_path.find("yolov2") != std::string::npos
+        && model_config_path.find("yolov2") != std::string::npos) {
+        // assume YOLO v2
+        params.scalefactor = 1.0 / 255;
+        params.size = cv::Size(608, 608);
+    } else if (model_path.find("yolov3") != std::string::npos
+        && model_config_path.find("yolov3") != std::string::npos) {
+        // assume YOLO v3
+        params.scalefactor = 1.0 / 255;
+        params.size = cv::Size(416, 416);
+    } else if (model_path.find(".pb") != std::string::npos
+        && model_config_path.find(".pbtxt") != std::string::npos) {
+        // assume MobileNet v2
+        // see https://github.com/opencv/opencv/wiki/TensorFlow-Object-Detection-API
+        // see https://github.com/opencv/opencv/blob/master/samples/dnn/models.yml
+        params.scalefactor = 1;
+        params.size = cv::Size(300, 300);
+    } else {
+        std::cout << "[ERROR] Cannot handle network type" << std::endl;
+        return 1;
+    }
+
     detector.set_blob_parameters(params);
 
     while (main_loop) {
