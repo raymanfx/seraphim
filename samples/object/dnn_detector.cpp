@@ -38,7 +38,6 @@ int main(int argc, char **argv) {
     sph::CoreImage image;
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;
-    std::chrono::high_resolution_clock::time_point t_frame_captured;
     long frame_time;
     long process_time;
     long fps;
@@ -160,6 +159,46 @@ int main(int argc, char **argv) {
 
     detector.set_blob_parameters(params);
 
+    // fetch the first frame
+    if (!cap.read(frame)) {
+        std::cout << "[ERROR] Failed to read frame" << std::endl;
+        return 1;
+    }
+
+    std::mutex frame_mutex;
+    std::mutex overlay_mutex;
+
+    auto process_thread = std::thread([&] {
+        sph::CoreImage img;
+        std::vector<sph::object::Classifier::Prediction> preds;
+        std::chrono::high_resolution_clock::time_point t0;
+
+        while (main_loop) {
+            {
+                std::unique_lock<std::mutex> lock(frame_mutex);
+                img = sph::CoreImage(image);
+                if (image.empty()) {
+                    std::cout << "[ERROR] Failed to convert Mat to Image" << std::endl;
+                    continue;
+                }
+            }
+
+            preds.clear();
+
+            t0 = std::chrono::high_resolution_clock::now();
+            detector.predict(image, preds);
+            process_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                               std::chrono::high_resolution_clock::now() - t0)
+                               .count();
+
+            {
+                std::unique_lock<std::mutex> lock(overlay_mutex);
+                std::cout << "NUM PREDS: " << preds.size() << std::endl;
+                predictions = preds;
+            }
+        }
+    });
+
     while (main_loop) {
         t_loop_start = std::chrono::high_resolution_clock::now();
 
@@ -168,25 +207,27 @@ int main(int argc, char **argv) {
             break;
         }
 
-        t_frame_captured = std::chrono::high_resolution_clock::now();
         frame_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                          std::chrono::high_resolution_clock::now() - t_loop_start)
                          .count();
 
-        predictions.clear();
-        image = sph::iop::cv::to_image(frame);
-        if (image.empty()) {
-            std::cout << "[ERROR] Failed to convert Mat to Image" << std::endl;
-            continue;
+        {
+            std::unique_lock<std::mutex> lock(frame_mutex);
+            image = sph::iop::cv::to_image(frame);
+            if (image.empty()) {
+                std::cout << "[ERROR] Failed to convert Mat to Image" << std::endl;
+                continue;
+            }
         }
 
-        detector.predict(image, predictions);
-        process_time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                           std::chrono::high_resolution_clock::now() - t_frame_captured)
-                           .count();
+        std::vector<sph::object::Classifier::Prediction> preds;
+        {
+            std::unique_lock<std::mutex> lock(overlay_mutex);
+            preds = predictions;
+        }
 
-        if (predictions.size() > 0) {
-            for (auto &pred : predictions) {
+        if (preds.size() > 0) {
+            for (auto &pred : preds) {
                 if (pred.confidence < confidence_threshold) {
                     continue;
                 }
@@ -244,5 +285,9 @@ int main(int argc, char **argv) {
         }
 
         viewer.show(image);
+    }
+
+    if (process_thread.joinable()) {
+        process_thread.join();
     }
 }
