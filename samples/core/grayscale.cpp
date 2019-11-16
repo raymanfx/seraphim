@@ -105,14 +105,8 @@ int main(int argc, char **argv) {
         }
 
         // convert to grayscale
-        if (!sph::ImageConverter::Instance().convert(rgb_image, gray_image, sph::Pixelformat::Enum::GRAY16)) {
+        if (!sph::ImageConverter::Instance().convert(rgb_image, gray_image, sph::Pixelformat::Enum::GRAY8)) {
             std::cout << "[ERROR] Failed to convert Image buffer to Y16" << std::endl;
-            continue;
-        }
-
-        // back to RGB because our GL viewer does not support Y16 right now
-        if (!sph::ImageConverter::Instance().convert(gray_image, gray_image, sph::Pixelformat::Enum::BGR24)) {
-            std::cout << "[ERROR] Failed to convert Image buffer to BGR24" << std::endl;
             continue;
         }
 
