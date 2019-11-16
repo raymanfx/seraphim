@@ -31,6 +31,7 @@ public:
      * Points have to be added manually via @ref add_point.
      */
     Polygon() = default;
+
     /**
      * @brief Create a new polygon shape.
      * @param points List of points defining the polygon.
@@ -42,6 +43,7 @@ public:
      * @return True if there are less than three points, false otherwise.
      */
     bool empty() const { return m_points.size() < 3; }
+
     /**
      * @brief Clear the polygon, removing all its points.
      */
@@ -52,11 +54,19 @@ public:
      * @return Set of points in order of appearance.
      */
     std::vector<Point2<T>> points() const { return m_points; }
+
     /**
      * @brief Add a point to the polygon.
      * @param p Point with type T.
      */
     void add_point(const Point2<T> &p) { m_points.push_back(p); }
+
+    /**
+     * @brief operator ==
+     * @param rhs Right hand side.
+     * @return True if equal, false otherwise.
+     */
+    bool operator==(const Polygon &rhs) const { return m_points == rhs.m_points; }
 
     /**
      * @brief Bottom left point.
@@ -80,6 +90,7 @@ public:
 
         return p;
     }
+
     /**
      * @brief Top left point.
      * @return Point as set of coordinates with type T.
@@ -102,6 +113,7 @@ public:
 
         return p;
     }
+
     /**
      * @brief Top right point.
      * @return Point as set of coordinates with type T.
@@ -124,6 +136,7 @@ public:
 
         return p;
     }
+
     /**
      * @brief Bottom right point.
      * @return Point as set of coordinates with type T.
@@ -152,6 +165,7 @@ public:
      * @return Width as type T.
      */
     T width() const { return br().x - bl().x; }
+
     /**
      * @brief Height of the polygon.
      * @return Height as type T.

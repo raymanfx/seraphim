@@ -140,6 +140,13 @@ public:
     }
 
     /**
+     * @brief operator ==
+     * @param rhs Right hand side.
+     * @return True if equal, false otherwise.
+     */
+    bool operator==(const Matrix &rhs) const { return m_data == rhs.m_data; }
+
+    /**
      * @brief Subscript operator retrieving a single matrix element reference.
      *
      * Note that element indexing is used, i.e. the first element is at (1, 1).
@@ -404,8 +411,8 @@ public:
         }
         value_type &operator*() { return m_mat(m_row, m_col); }
         value_type *operator->() { return m_mat.data(m_row - 1) + (m_col - 1); }
-        bool operator==(const self_type &rhs) { return m_row == rhs.m_row && m_col == rhs.m_col; }
-        bool operator!=(const self_type &rhs) { return m_row != rhs.m_row || m_col != rhs.m_col; }
+        bool operator==(const self_type &rhs) { return m_mat == rhs.m_mat; }
+        bool operator!=(const self_type &rhs) { return !(m_mat == rhs.m_mat); }
 
     private:
         Matrix &m_mat;
@@ -444,8 +451,8 @@ public:
         }
         const value_type &operator*() { return m_mat(m_row, m_col); }
         const value_type *operator->() { return m_mat.data(m_row - 1) + (m_col - 1); }
-        bool operator==(const self_type &rhs) { return m_row == rhs.m_row && m_col == rhs.m_col; }
-        bool operator!=(const self_type &rhs) { return m_row != rhs.m_row || m_col != rhs.m_col; }
+        bool operator==(const self_type &rhs) { return m_mat == rhs.m_mat; }
+        bool operator!=(const self_type &rhs) { return !(m_mat == rhs.m_mat); }
 
     private:
         const Matrix &m_mat;

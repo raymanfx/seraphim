@@ -53,7 +53,7 @@ public:
      * @param rhs Right hand side.
      * @return True if equal, false otherwise.
      */
-    bool operator==(const Size &rhs) const { return m_values == rhs.values(); }
+    bool operator==(const Size &rhs) const { return m_values == rhs.m_values; }
 
 protected:
     /// Values of the size in n-dimensional space, where n = array size.

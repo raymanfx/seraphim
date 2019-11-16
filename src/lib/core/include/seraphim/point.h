@@ -44,6 +44,13 @@ public:
     }
 
     /**
+     * @brief operator ==
+     * @param rhs Right hand side.
+     * @return True if equal, false otherwise.
+     */
+    bool operator==(const Point &rhs) const { return m_coords == rhs.m_coords; }
+
+    /**
      * @brief Read-only access to the coordinate list.
      * @return Fixed-size iterable array.
      */

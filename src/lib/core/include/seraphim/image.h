@@ -149,6 +149,13 @@ public:
     bool operator!() const { return !valid(); }
 
     /**
+     * @brief operator ==
+     * @param rhs Right hand side.
+     * @return True if equal, false otherwise.
+     */
+    bool operator==(const CoreImage &rhs) const { return m_buffer == rhs.m_buffer; }
+
+    /**
      * @brief Get the pixel position in memory.
      * @param x X offset.
      * @param y Y offset.
@@ -215,8 +222,8 @@ public:
             return i;
         }
         value_type *operator*() { return m_img(m_x, m_y); }
-        bool operator==(const self_type &rhs) { return m_x == rhs.m_x && m_y == rhs.m_y; }
-        bool operator!=(const self_type &rhs) { return m_x != rhs.m_x || m_y != rhs.m_y; }
+        bool operator==(const self_type &rhs) { return m_img == rhs.m_img; }
+        bool operator!=(const self_type &rhs) { return !(m_img == rhs.m_img); }
 
     private:
         CoreImage &m_img;
@@ -252,8 +259,8 @@ public:
             return i;
         }
         const value_type *operator*() { return m_img(m_x, m_y); }
-        bool operator==(const self_type &rhs) { return m_x == rhs.m_x && m_y == rhs.m_y; }
-        bool operator!=(const self_type &rhs) { return m_x != rhs.m_x || m_y != rhs.m_y; }
+        bool operator==(const self_type &rhs) { return m_img == rhs.m_img; }
+        bool operator!=(const self_type &rhs) { return !(m_img == rhs.m_img); }
 
     private:
         const CoreImage &m_img;
