@@ -9,6 +9,7 @@ set(SOURCES
 
 set(HEADERS
     include/seraphim/computable.h
+    include/seraphim/core.h
     include/seraphim/except.h
     include/seraphim/image.h
     include/seraphim/image_converter.h
