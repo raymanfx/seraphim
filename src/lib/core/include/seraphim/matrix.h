@@ -14,6 +14,8 @@
 #include <memory>
 #include <vector>
 
+#include "size.h"
+
 namespace sph {
 
 /**
@@ -230,9 +232,9 @@ public:
 
     /**
      * @brief Number of elements.
-     * @return Byte count.
+     * @return 2D size of the matrix.
      */
-    size_t size() const { return m_rows * m_cols; }
+    sph::Size2s size() const { return sph::Size2s(m_cols, m_rows); }
 
     /**
      * @brief Number of elements that the matrix instance can hold in its backing buffer.
@@ -299,20 +301,26 @@ public:
     /**
      * @brief Resize the backing memory store to the specified size.
      *        Causes a reallocation if the current size does not match the requested one.
-     * @param rows Number of rows.
-     * @param cols Number of columns.
+     * @param size The new size.
      */
-    void resize(size_t rows, size_t cols) {
-        if (capacity() > 0 && (rows * cols == m_rows * m_cols)) {
+    void resize(const sph::Size2s &size) {
+        if (capacity() > 0 && (size.height * size.width == m_rows * m_cols)) {
             return;
         }
 
         clear();
-        reserve(rows, cols);
-        m_rows = rows;
-        m_cols = cols;
-        m_step = cols * sizeof(T);
+        reserve(size.height, size.width);
+        m_rows = size.height;
+        m_cols = size.width;
+        m_step = size.width * sizeof(T);
     }
+
+    /**
+     * @brief Resize the backing memory store to the specified size.
+     *        Causes a reallocation if the current size does not match the requested one.
+     * @param size The new size.
+     */
+    inline void resize(size_t rows, size_t cols) { resize(sph::Size2s(cols, rows)); }
 
     /**
      * @brief Reshape the matrix.

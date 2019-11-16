@@ -18,6 +18,7 @@ set(HEADERS
     include/seraphim/pixelformat.h
     include/seraphim/point.h
     include/seraphim/polygon.h
+    include/seraphim/size.h
     include/seraphim/threading.h)
 
 add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})

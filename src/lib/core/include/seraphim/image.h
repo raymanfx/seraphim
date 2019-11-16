@@ -80,10 +80,10 @@ public:
     virtual uint32_t depth() const = 0;
 
     /**
-     * @brief Image size in bytes.
-     * @return Height * stride.
+     * @brief Image size in 2D.
+     * @return Width, height tuple.
      */
-    size_t size() const { return height() * stride(); }
+    sph::Size2s size() const { return sph::Size2s(stride(), height()); }
 };
 
 /**

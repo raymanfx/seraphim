@@ -179,7 +179,7 @@ TEST_CASE( "CoreImage runtime behavior", "[CoreImage]" ) {
         };
         CoreImage i1(bytes, 2, 3, Pixelformat::Enum::GRAY8);
 
-        REQUIRE( i1.size() == 6 );
+        REQUIRE( i1.size() == sph::Size2s(2, 3) );
     }
     SECTION( "resize() resizes the image" ) {
         unsigned char bytes[] = {
