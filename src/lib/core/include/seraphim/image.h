@@ -33,7 +33,7 @@ public:
      * @param i The index of the image row.
      * @return Start of the first row of the image.
      */
-    virtual const unsigned char *data(size_t i = 0) const = 0;
+    virtual const std::byte *data(size_t i = 0) const = 0;
 
     /**
      * @brief Check whether the buffer is empty.
@@ -112,10 +112,22 @@ public:
      * @param pixfmt Pixelformat of the input data.
      * @param stride Number of bytes per pixel row (default: auto).
      */
-    CoreImage(unsigned char *data, uint32_t width, uint32_t height, Pixelformat::Enum pixfmt,
+    CoreImage(std::byte *data, uint32_t width, uint32_t height, Pixelformat::Enum pixfmt,
               size_t stride = 0);
 
-    const unsigned char *data(size_t i = 0) const override { return m_buffer.data(i); }
+    /**
+     * @brief Image with buffered data.
+     * @param data The raw data to use.
+     * @param width Width of the input data.
+     * @param height Height of the input data.
+     * @param pixfmt Pixelformat of the input data.
+     * @param stride Number of bytes per pixel row (default: auto).
+     */
+    CoreImage(unsigned char *data, uint32_t width, uint32_t height, Pixelformat::Enum pixfmt,
+              size_t stride = 0)
+        : CoreImage(reinterpret_cast<std::byte *>(data), width, height, pixfmt, stride) {}
+
+    const std::byte *data(size_t i = 0) const override { return m_buffer.data(i); }
     bool empty() const override { return m_buffer.empty(); }
     uint32_t width() const override { return m_width; }
     uint32_t height() const override { return m_height; }
@@ -163,7 +175,8 @@ public:
      */
     unsigned char *pixel(uint32_t x, uint32_t y) {
         assert(x < m_width && y < m_height);
-        return m_buffer.data(y) + x * Pixelformat::bits(m_pixfmt) / 8;
+        return reinterpret_cast<unsigned char *>(m_buffer.data(y)) +
+               x * Pixelformat::bits(m_pixfmt) / 8;
     }
 
     /**
@@ -177,7 +190,8 @@ public:
      */
     unsigned char *operator()(uint32_t x, uint32_t y) {
         assert(x < m_width && y < m_height);
-        return m_buffer.data(y) + x * Pixelformat::bits(m_pixfmt) / 8;
+        return reinterpret_cast<unsigned char *>(m_buffer.data(y)) +
+               x * Pixelformat::bits(m_pixfmt) / 8;
     }
 
     /**
@@ -191,7 +205,8 @@ public:
      */
     unsigned char *operator()(uint32_t x, uint32_t y) const {
         assert(x < m_width && y < m_height);
-        return m_buffer.data(y) + x * Pixelformat::bits(m_pixfmt) / 8;
+        return reinterpret_cast<unsigned char *>(m_buffer.data(y)) +
+               x * Pixelformat::bits(m_pixfmt) / 8;
     }
 
     class iterator {
@@ -294,7 +309,7 @@ public:
 
 private:
     /// matrix back buffer holding pixel data
-    Matrix<unsigned char> m_buffer;
+    Matrix<std::byte> m_buffer;
 
     /// width in pixels
     uint32_t m_width = 0;

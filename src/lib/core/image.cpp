@@ -9,10 +9,10 @@ CoreImage::CoreImage(uint32_t width, uint32_t height, Pixelformat::Enum pixfmt)
         SPH_THROW(LogicException, "CoreImage must have a defined pixel format");
     }
 
-    Matrix<unsigned char>(m_height, m_width * Pixelformat::bits(m_pixfmt) / 8).copy(m_buffer);
+    Matrix<std::byte>(m_height, m_width * Pixelformat::bits(m_pixfmt) / 8).copy(m_buffer);
 }
 
-CoreImage::CoreImage(unsigned char *data, uint32_t width, uint32_t height, Pixelformat::Enum pixfmt,
+CoreImage::CoreImage(std::byte *data, uint32_t width, uint32_t height, Pixelformat::Enum pixfmt,
                      size_t stride)
     : m_width(width), m_height(height), m_pixfmt(pixfmt) {
     if (stride == 0) {
@@ -23,8 +23,7 @@ CoreImage::CoreImage(unsigned char *data, uint32_t width, uint32_t height, Pixel
         SPH_THROW(LogicException, "CoreImage must have a defined pixel format");
     }
 
-    m_buffer =
-        Matrix<unsigned char>(data, m_height, m_width * Pixelformat::bits(m_pixfmt) / 8, stride);
+    m_buffer = Matrix<std::byte>(data, m_height, m_width * Pixelformat::bits(m_pixfmt) / 8, stride);
 }
 
 void CoreImage::clear() {

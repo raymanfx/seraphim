@@ -28,8 +28,8 @@ TEST_CASE( "CoreImage constructor", "[CoreImage]" ) {
         CoreImage i1(bytes1, 3, 3, Pixelformat::Enum::GRAY8);
         CoreImage i2(bytes2, 2, 4, Pixelformat::Enum::RGB24, 8);
 
-        REQUIRE( i1.data() == bytes1 );
-        REQUIRE( i2.data() == bytes2 );
+        REQUIRE( i1.data() == reinterpret_cast<std::byte*>(bytes1) );
+        REQUIRE( i2.data() == reinterpret_cast<std::byte*>(bytes2) );
 
         REQUIRE( i1.pixel(0, 0)[0] == 10 );
         REQUIRE( i1.pixel(1, 0)[0] == 50 );
@@ -77,8 +77,8 @@ TEST_CASE( "CoreImage runtime behavior", "[CoreImage]" ) {
         };
         CoreImage i1(bytes, 2, 3, Pixelformat::Enum::GRAY8);
 
-        REQUIRE( i1.data(0) == bytes );
-        REQUIRE( i1.data(1) == bytes + 2 );
+        REQUIRE( i1.data(0) == reinterpret_cast<std::byte*>(bytes) );
+        REQUIRE( i1.data(1) == reinterpret_cast<std::byte*>(bytes + 2) );
     }
     SECTION( "empty() checks whether the image contains pixel data" ) {
         unsigned char bytes[] = {
@@ -116,22 +116,22 @@ TEST_CASE( "CoreImage runtime behavior", "[CoreImage]" ) {
         REQUIRE( i1.stride() == 3 );
     }
     SECTION( "pixfmt() returns pixelformat of the image" ) {
-        CoreImage i1(nullptr, 0, 0, Pixelformat::Enum::BGR24);
+        CoreImage i1(0, 0, Pixelformat::Enum::BGR24);
         CoreImage i2;
 
         REQUIRE( i1.pixfmt() == Pixelformat::Enum::BGR24 );
         REQUIRE( i2.pixfmt() == Pixelformat::Enum::UNKNOWN );
     }
     SECTION( "channels() returns the number of channels per pixel" ) {
-        CoreImage i1(nullptr, 0, 0, Pixelformat::Enum::BGR32);
-        CoreImage i2(nullptr, 0, 0, Pixelformat::Enum::GRAY16);
+        CoreImage i1(0, 0, Pixelformat::Enum::BGR32);
+        CoreImage i2(0, 0, Pixelformat::Enum::GRAY16);
 
         REQUIRE( i1.channels() == 3 );
         REQUIRE( i2.channels() == 1 );
     }
     SECTION( "depth() returns the number of bits per pixel" ) {
-        CoreImage i1(nullptr, 0, 0, Pixelformat::Enum::GRAY8);
-        CoreImage i2(nullptr, 0, 0, Pixelformat::Enum::RGB32);
+        CoreImage i1(0, 0, Pixelformat::Enum::GRAY8);
+        CoreImage i2(0, 0, Pixelformat::Enum::RGB32);
 
         REQUIRE( i1.depth() == 8 );
         REQUIRE( i2.depth() == 32 );
@@ -155,7 +155,7 @@ TEST_CASE( "CoreImage runtime behavior", "[CoreImage]" ) {
             1, 2, 3
         };
         CoreImage i1(bytes, 3, 1, Pixelformat::Enum::GRAY8);
-        CoreImage i2(nullptr, 0, 0, Pixelformat::Enum::RGB24);
+        CoreImage i2(0, 0, Pixelformat::Enum::RGB24);
 
         REQUIRE( i1.valid() );
         REQUIRE( !i2.valid() );

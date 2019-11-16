@@ -39,8 +39,9 @@ bool KazemiFacemarkDetector::detect(const sph::Image &img,
     // convert from sph to dlib image
     switch (img.channels()) {
     case 1:
-        dlib::assign_image(dlib_gray_image,
-                           dlib::mat<unsigned char>(img.data(), img.height(), img.width()));
+        dlib::assign_image(dlib_gray_image, dlib::mat<unsigned char>(
+                                                reinterpret_cast<const unsigned char *>(img.data()),
+                                                img.height(), img.width()));
         break;
     case 3:
         dlib::assign_image(

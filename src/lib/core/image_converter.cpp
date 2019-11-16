@@ -55,9 +55,10 @@ static bool rgb_to_bgr(const ImageConverter::Source &src, ImageConverter::Target
         for (uint32_t x = 0; x < src.img->width(); x++) {
             src_offset = y * src.img->stride() + x * src.img->depth() / 8;
             /* each pixel is three bytes */
-            converted.pixel(x, y)[0] = src.img->data()[src_offset + 2];
-            converted.pixel(x, y)[1] = src.img->data()[src_offset + 1];
-            converted.pixel(x, y)[2] = src.img->data()[src_offset + 0];
+            auto data = reinterpret_cast<const unsigned char *>(src.img->data());
+            converted.pixel(x, y)[0] = data[src_offset + 2];
+            converted.pixel(x, y)[1] = data[src_offset + 1];
+            converted.pixel(x, y)[2] = data[src_offset + 0];
         }
     }
 
@@ -95,19 +96,20 @@ static size_t rgb_to_y(const ImageConverter::Source &src, ImageConverter::Target
             src_offset = y * src.img->stride() + x * src.img->depth() / 8;
 
             // locate the src.img->data() pixels
+            auto data = reinterpret_cast<const unsigned char *>(src.img->data());
             const unsigned char *r, *g, *b;
             switch (src.fourcc) {
             case fourcc('B', 'G', 'R', '3'):
             case fourcc('B', 'G', 'R', '4'):
-                r = src.img->data() + src_offset + 2;
-                g = src.img->data() + src_offset + 1;
-                b = src.img->data() + src_offset + 0;
+                r = data + src_offset + 2;
+                g = data + src_offset + 1;
+                b = data + src_offset + 0;
                 break;
             case fourcc('R', 'G', 'B', '3'):
             case fourcc('R', 'G', 'B', '4'):
-                r = src.img->data() + src_offset + 0;
-                g = src.img->data() + src_offset + 1;
-                b = src.img->data() + src_offset + 2;
+                r = data + src_offset + 0;
+                g = data + src_offset + 1;
+                b = data + src_offset + 2;
                 break;
             default:
                 return false;
@@ -168,13 +170,14 @@ static bool y_to_rgb(const ImageConverter::Source &src, ImageConverter::Target &
         for (uint32_t x = 0; x < src.img->width(); x++) {
             src_offset = y * src.img->stride() + x * src.img->depth() / 8;
 
+            auto data = reinterpret_cast<const unsigned char *>(src.img->data());
             uint16_t y16;
             switch (src.fourcc) {
             case fourcc('G', 'R', 'E', 'Y'):
-                y16 = *(reinterpret_cast<const uint8_t *>(src.img->data() + src_offset));
+                y16 = *(reinterpret_cast<const uint8_t *>(data + src_offset));
                 break;
             case fourcc('Y', '1', '6', ' '):
-                y16 = *(reinterpret_cast<const uint16_t *>(src.img->data() + src_offset));
+                y16 = *(reinterpret_cast<const uint16_t *>(data + src_offset));
                 break;
             default:
                 return false;
@@ -221,10 +224,11 @@ static size_t yuy2_to_rgb(const ImageConverter::Source &src, ImageConverter::Tar
             src_offset = y * src.img->stride() + x * src.img->depth() / 8;
 
             /* each pixel is two bytes, each macropixel (YUYV) is two image pixels */
-            const unsigned char *y0 = src.img->data() + src_offset + 0;
-            const unsigned char *u0 = src.img->data() + src_offset + 1;
-            const unsigned char *y1 = src.img->data() + src_offset + 2;
-            const unsigned char *v0 = src.img->data() + src_offset + 3;
+            auto data = reinterpret_cast<const unsigned char *>(src.img->data());
+            const unsigned char *y0 = data + src_offset + 0;
+            const unsigned char *u0 = data + src_offset + 1;
+            const unsigned char *y1 = data + src_offset + 2;
+            const unsigned char *v0 = data + src_offset + 3;
             uint8_t c = *y0 - 16;
             uint8_t d = *u0 - 128;
             uint8_t e = *v0 - 128;

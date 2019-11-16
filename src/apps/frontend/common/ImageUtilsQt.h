@@ -15,7 +15,7 @@ namespace sph {
 namespace frontend {
 
 bool Image2QImage(const sph::Image &src, QImage &dst) {
-    const uchar *bytes = src.data();
+    auto bytes = reinterpret_cast<const uchar *>(src.data());
     uint32_t row_alignment;
 
     if (src.empty()) {

@@ -15,25 +15,27 @@
         return ::cv::Mat();
     }
 
+    auto data = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(img.data()));
+
     // https://github.com/opencv/opencv/blob/master/modules/videoio/src/cap_v4l.cpp
     switch (img.pixfmt()) {
     case sph::Pixelformat::Enum::BGR24:
         mat = ::cv::Mat(static_cast<int>(img.height()), static_cast<int>(img.width()), CV_8UC3,
-                        const_cast<unsigned char *>(img.data()), img.stride());
+                        data, img.stride());
         break;
     case sph::Pixelformat::Enum::RGB24:
         mat = ::cv::Mat(static_cast<int>(img.height()), static_cast<int>(img.width()), CV_8UC3,
-                        const_cast<unsigned char *>(img.data()), img.stride())
+                        data, img.stride())
                   .clone();
         ::cv::cvtColor(mat, mat, ::cv::COLOR_RGB2BGR);
         break;
     case sph::Pixelformat::Enum::GRAY8:
         mat = ::cv::Mat(static_cast<int>(img.height()), static_cast<int>(img.width()), CV_8UC1,
-                        const_cast<unsigned char *>(img.data()), img.stride());
+                        data, img.stride());
         break;
     case sph::Pixelformat::Enum::GRAY16:
         mat = ::cv::Mat(static_cast<int>(img.height()), static_cast<int>(img.width()), CV_16UC1,
-                        const_cast<unsigned char *>(img.data()), img.stride());
+                        data, img.stride());
         break;
     default:
         break;
@@ -80,5 +82,5 @@ sph::CoreImage sph::iop::cv::to_image(const ::cv::Mat &mat) {
     height = static_cast<uint32_t>(mat.rows);
     stride = mat.step;
 
-    return sph::CoreImage(mat.data, width, height, pixfmt, stride);
+    return sph::CoreImage(reinterpret_cast<std::byte *>(mat.data), width, height, pixfmt, stride);
 }

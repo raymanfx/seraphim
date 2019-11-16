@@ -263,7 +263,7 @@ public:
         if (i > 0) {
             assert(i < m_rows);
         }
-        return reinterpret_cast<T *>(reinterpret_cast<unsigned char *>(m_data) + i * m_step);
+        return reinterpret_cast<T *>(reinterpret_cast<std::byte *>(m_data) + i * m_step);
     }
 
     /**
@@ -357,10 +357,11 @@ public:
 
         // otherwise, we have to fallback to row copying (which works because padding is only ever
         // present at the end of a row, so we can just copy the data and leave out the padding)
-        auto bytes = reinterpret_cast<unsigned char *>(m_data);
+        auto src_data = reinterpret_cast<unsigned char *>(m_data);
+        auto dst_data = reinterpret_cast<unsigned char *>(target.m_data);
         for (size_t i = 0; i < m_rows; i++) {
-            std::copy(bytes + i * m_step, bytes + i * m_step + m_cols * sizeof(T),
-                      target.m_data + i * m_cols);
+            std::copy(src_data + i * m_step, src_data + i * m_step + m_cols * sizeof(T),
+                      dst_data + i * m_cols);
         }
     }
 
