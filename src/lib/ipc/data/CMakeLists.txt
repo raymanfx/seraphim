@@ -1,9 +1,5 @@
 set(MODULE_NAME ipc_messages)
 
-# compile protobuf code as C++11
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 # find the protobuf compiler and libraries
 find_package(Protobuf REQUIRED)
 

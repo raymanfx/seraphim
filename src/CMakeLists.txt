@@ -1,6 +1,3 @@
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 project(Seraphim)
 
 # macOS relies on homebrew to satisfy dependencies.
