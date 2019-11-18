@@ -134,7 +134,7 @@ public:
     size_t stride() const override { return m_buffer.step(); }
     Pixelformat::Enum pixfmt() const override { return m_pixfmt; }
     uint32_t channels() const override { return Pixelformat::channels(m_pixfmt); }
-    uint32_t depth() const override { return Pixelformat::bits(m_pixfmt); }
+    uint32_t depth() const override { return Pixelformat::depth(m_pixfmt); }
 
     /**
      * @brief Clear the internal buffer contents.
@@ -176,7 +176,7 @@ public:
     unsigned char *pixel(uint32_t x, uint32_t y) {
         assert(x < m_width && y < m_height);
         return reinterpret_cast<unsigned char *>(m_buffer.data(y)) +
-               x * Pixelformat::bits(m_pixfmt) / 8;
+               x * Pixelformat::size(m_pixfmt);
     }
 
     /**
@@ -191,7 +191,7 @@ public:
     unsigned char *operator()(uint32_t x, uint32_t y) {
         assert(x < m_width && y < m_height);
         return reinterpret_cast<unsigned char *>(m_buffer.data(y)) +
-               x * Pixelformat::bits(m_pixfmt) / 8;
+               x * Pixelformat::size(m_pixfmt);
     }
 
     /**
@@ -206,7 +206,7 @@ public:
     unsigned char *operator()(uint32_t x, uint32_t y) const {
         assert(x < m_width && y < m_height);
         return reinterpret_cast<unsigned char *>(m_buffer.data(y)) +
-               x * Pixelformat::bits(m_pixfmt) / 8;
+               x * Pixelformat::size(m_pixfmt);
     }
 
     class iterator {

@@ -45,7 +45,7 @@ struct Pixelformat {
      * @param fourcc Fourc character code integer representationr.
      * @return The @ref Pixelformat identifier.
      */
-    static Pixelformat::Enum uid(uint32_t fourcc) {
+    static constexpr Pixelformat::Enum uid(uint32_t fourcc) {
         switch (fourcc) {
         case sph::fourcc('G', 'R', 'E', 'Y'):
             return Pixelformat::Enum::GRAY8;
@@ -69,7 +69,7 @@ struct Pixelformat {
      * @param uid The @ref Pixelformat identifier.
      * @return Fourc character code integer representation.
      */
-    static uint32_t fourcc(Pixelformat::Enum uid) {
+    static constexpr uint32_t fourcc(Pixelformat::Enum uid) {
         switch (uid) {
         case Pixelformat::Enum::GRAY8:
             return sph::fourcc('G', 'R', 'E', 'Y');
@@ -89,35 +89,42 @@ struct Pixelformat {
     }
 
     /**
-     * @brief Number of bits allocated for each pixel.
+     * @brief Number of bytes allocated for each pixel.
      * @param uid The @ref Pixelformat identifier.
-     * @return The amount of bits. Usually a multiple of eight.
+     * @return The amount of bytes.
      */
-    static uint32_t bits(Pixelformat::Enum uid) {
+    static constexpr uint32_t size(Pixelformat::Enum uid) {
         switch (uid) {
         case Pixelformat::Enum::GRAY8:
-            return 8;
+            return 1;
         case Pixelformat::Enum::GRAY16:
-            return 16;
+            return 2;
         case Pixelformat::Enum::BGR24:
-            return 24;
+            return 3;
         case Pixelformat::Enum::BGR32:
-            return 32;
+            return 4;
         case Pixelformat::Enum::RGB24:
-            return 24;
+            return 3;
         case Pixelformat::Enum::RGB32:
-            return 32;
+            return 4;
         default:
             return 0;
         }
     }
 
     /**
+     * @brief Number of bits allocated for each pixel.
+     * @param uid The @ref Pixelformat identifier.
+     * @return The amount of bits. Equals size * 8.
+     */
+    static constexpr uint32_t depth(Pixelformat::Enum uid) { return size(uid) * 8; }
+
+    /**
      * @brief Number of channels in the format.
      * @param uid The @ref Pixelformat identifier.
      * @return The amount of channels.
      */
-    static uint32_t channels(Pixelformat::Enum uid) {
+    static constexpr uint32_t channels(Pixelformat::Enum uid) {
         switch (uid) {
         case Pixelformat::Enum::GRAY8:
         case Pixelformat::Enum::GRAY16:
