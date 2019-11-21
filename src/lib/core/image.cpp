@@ -18,6 +18,11 @@ CoreImage::CoreImage(std::byte *data, uint32_t width, uint32_t height, const Pix
     m_buffer = Matrix<std::byte>(data, m_height, m_width * m_pixfmt.size, stride);
 }
 
+CoreImage::CoreImage(const Image &img) {
+    m_buffer =
+        Matrix<std::byte>(img.data(), img.height(), img.width() * img.pixfmt().size, img.stride());
+}
+
 void CoreImage::clear() {
     m_width = 0;
     m_height = 0;

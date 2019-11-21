@@ -120,6 +120,12 @@ public:
               size_t stride = 0)
         : CoreImage(reinterpret_cast<std::byte *>(data), width, height, pixfmt, stride) {}
 
+    /**
+     * @brief CoreImage
+     * @param img Source image to copy.
+     */
+    CoreImage(const Image &img);
+
     std::byte *data(size_t i = 0) const override { return m_buffer.data(i); }
     bool empty() const override { return m_buffer.empty(); }
     uint32_t width() const override { return m_width; }

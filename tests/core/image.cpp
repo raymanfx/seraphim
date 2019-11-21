@@ -66,6 +66,22 @@ TEST_CASE( "CoreImage constructor", "[CoreImage]" ) {
         REQUIRE( i2.pixel(1, 3)[1] == 0 );
         REQUIRE( i2.pixel(1, 3)[2] == 255 );
     }
+
+    SECTION( "images can be created from other images" ) {
+        // 3x3 grayscale image
+        unsigned char bytes1[] = {
+            10, 50, 10,
+            50, 100, 50,
+            10, 50, 10
+        };
+
+        CoreImage i1(bytes1, 3, 3, Pixelformat::Enum::GRAY8);
+        CoreImage i2(i1);
+
+        REQUIRE( i2.size() == i1.size() );
+        REQUIRE( i2.pixel(0, 0)[0] == i1.pixel(0, 0)[0] );
+        REQUIRE( i2.pixel(2, 2)[0] == i1.pixel(2, 2)[0] );
+    }
 }
 
 TEST_CASE( "CoreImage runtime behavior", "[CoreImage]" ) {
