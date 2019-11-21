@@ -33,7 +33,7 @@ public:
      * @param i The index of the image row.
      * @return Start of the first row of the image.
      */
-    virtual const std::byte *data(size_t i = 0) const = 0;
+    virtual std::byte *data(size_t i = 0) const = 0;
 
     /**
      * @brief Check whether the buffer is empty.
@@ -127,7 +127,7 @@ public:
               size_t stride = 0)
         : CoreImage(reinterpret_cast<std::byte *>(data), width, height, pixfmt, stride) {}
 
-    const std::byte *data(size_t i = 0) const override { return m_buffer.data(i); }
+    std::byte *data(size_t i = 0) const override { return m_buffer.data(i); }
     bool empty() const override { return m_buffer.empty(); }
     uint32_t width() const override { return m_width; }
     uint32_t height() const override { return m_height; }
@@ -180,13 +180,10 @@ public:
     }
 
     /**
-     * @brief Subscript operator retrieving a single matrix element reference.
-     *
-     * Note that element indexing is used, i.e. the first element is at (1, 1).
-     *
-     * @param i Matrix row index.
-     * @param j Matrix column index.
-     * @return The Matrix element at the specified offsets.
+     * @brief Subscript operator retrieving a single pixel.
+     * @param i Image width index.
+     * @param j Image height index.
+     * @return The pixel at the specified offsets.
      */
     unsigned char *operator()(uint32_t x, uint32_t y) {
         assert(x < m_width && y < m_height);
@@ -195,13 +192,10 @@ public:
     }
 
     /**
-     * @brief Subscript operator retrieving a single matrix element reference.
-     *
-     * Note that element indexing is used, i.e. the first element is at (1, 1).
-     *
-     * @param i Matrix row index.
-     * @param j Matrix column index.
-     * @return The Matrix element at the specified offsets.
+     * @brief Subscript operator retrieving a single pixel.
+     * @param i Image width index.
+     * @param j Image height index.
+     * @return The pixel at the specified offsets.
      */
     unsigned char *operator()(uint32_t x, uint32_t y) const {
         assert(x < m_width && y < m_height);
