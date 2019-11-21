@@ -39,11 +39,9 @@ static bool rgb_to_bgr(const ImageConverter::Source &src, ImageConverter::Target
         return false;
     }
 
-    switch (dst.fmt) {
-    case Pixelformat::Enum::BGR24:
-    case Pixelformat::Enum::BGR32:
-    case Pixelformat::Enum::RGB24:
-    case Pixelformat::Enum::RGB32:
+    switch (dst.fmt.color) {
+    case Pixelformat::Color::BGR:
+    case Pixelformat::Color::RGB:
         break;
     default:
         return false;
@@ -53,7 +51,7 @@ static bool rgb_to_bgr(const ImageConverter::Source &src, ImageConverter::Target
 
     for (uint32_t y = 0; y < src.img->height(); y++) {
         for (uint32_t x = 0; x < src.img->width(); x++) {
-            src_offset = y * src.img->stride() + x * src.img->depth() / 8;
+            src_offset = y * src.img->stride() + x * src.img->pixfmt().size;
             /* each pixel is three bytes */
             auto data = reinterpret_cast<const unsigned char *>(src.img->data());
             converted.pixel(x, y)[0] = data[src_offset + 2];
@@ -81,9 +79,8 @@ static size_t rgb_to_y(const ImageConverter::Source &src, ImageConverter::Target
         return false;
     }
 
-    switch (dst.fmt) {
-    case Pixelformat::Enum::GRAY8:
-    case Pixelformat::Enum::GRAY16:
+    switch (dst.fmt.color) {
+    case Pixelformat::Color::GRAY:
         break;
     default:
         return false;
@@ -93,7 +90,7 @@ static size_t rgb_to_y(const ImageConverter::Source &src, ImageConverter::Target
 
     for (uint32_t y = 0; y < src.img->height(); y++) {
         for (uint32_t x = 0; x < src.img->width(); x++) {
-            src_offset = y * src.img->stride() + x * src.img->depth() / 8;
+            src_offset = y * src.img->stride() + x * src.img->pixfmt().size;
 
             // locate the src.img->data() pixels
             auto data = reinterpret_cast<const unsigned char *>(src.img->data());
@@ -119,13 +116,13 @@ static size_t rgb_to_y(const ImageConverter::Source &src, ImageConverter::Target
             // http://www.fourcc.org/fccyvrgb.php
             uint8_t *y8;
             uint16_t *y16;
-            switch (dst.fmt) {
-            case Pixelformat::Enum::GRAY8:
+            switch (dst.fmt.size) {
+            case 1:
                 y8 = reinterpret_cast<uint8_t *>(converted.pixel(x, y));
                 *y8 = static_cast<uint8_t>(
                     clamp(0.299f * *r + 0.587f * *g + 0.114f * *b, 0.0f, 255.0f));
                 break;
-            case Pixelformat::Enum::GRAY16:
+            case 2:
                 y16 = reinterpret_cast<uint16_t *>(converted.pixel(x, y));
                 *y16 = static_cast<uint16_t>(
                     clamp(0.299f * *r + 0.587f * *g + 0.114f * *b, 0.0f, 65535.0f));
@@ -153,11 +150,9 @@ static bool y_to_rgb(const ImageConverter::Source &src, ImageConverter::Target &
         return false;
     }
 
-    switch (dst.fmt) {
-    case Pixelformat::Enum::BGR24:
-    case Pixelformat::Enum::BGR32:
-    case Pixelformat::Enum::RGB24:
-    case Pixelformat::Enum::RGB32:
+    switch (dst.fmt.color) {
+    case Pixelformat::Color::BGR:
+    case Pixelformat::Color::RGB:
         break;
     default:
         return false;
@@ -168,7 +163,7 @@ static bool y_to_rgb(const ImageConverter::Source &src, ImageConverter::Target &
     // https://stackoverflow.com/a/4494004
     for (uint32_t y = 0; y < src.img->height(); y++) {
         for (uint32_t x = 0; x < src.img->width(); x++) {
-            src_offset = y * src.img->stride() + x * src.img->depth() / 8;
+            src_offset = y * src.img->stride() + x * src.img->pixfmt().size;
 
             auto data = reinterpret_cast<const unsigned char *>(src.img->data());
             uint16_t y16;
@@ -206,11 +201,9 @@ static size_t yuy2_to_rgb(const ImageConverter::Source &src, ImageConverter::Tar
         return false;
     }
 
-    switch (dst.fmt) {
-    case Pixelformat::Enum::BGR24:
-    case Pixelformat::Enum::BGR32:
-    case Pixelformat::Enum::RGB24:
-    case Pixelformat::Enum::RGB32:
+    switch (dst.fmt.color) {
+    case Pixelformat::Color::BGR:
+    case Pixelformat::Color::RGB:
         break;
     default:
         return false;
@@ -221,7 +214,7 @@ static size_t yuy2_to_rgb(const ImageConverter::Source &src, ImageConverter::Tar
     // https://stackoverflow.com/a/4494004
     for (uint32_t y = 0; y < src.img->height(); y++) {
         for (uint32_t x = 0; x < src.img->width(); x += 2) {
-            src_offset = y * src.img->stride() + x * src.img->depth() / 8;
+            src_offset = y * src.img->stride() + x * src.img->pixfmt().size;
 
             /* each pixel is two bytes, each macropixel (YUYV) is two image pixels */
             auto data = reinterpret_cast<const unsigned char *>(src.img->data());
@@ -248,9 +241,8 @@ static size_t yuy2_to_rgb(const ImageConverter::Source &src, ImageConverter::Tar
 
             // swap B/R for BGR
             unsigned char byte;
-            switch (dst.fmt) {
-            case Pixelformat::Enum::BGR24:
-            case Pixelformat::Enum::BGR32:
+            switch (dst.fmt.color) {
+            case Pixelformat::Color::BGR:
                 // first pixel
                 byte = converted.pixel(x, y)[0];
                 converted.pixel(x, y)[0] = converted.pixel(x, y)[2];
@@ -307,7 +299,7 @@ static inline bool validate_source(const ImageConverter::Source &src) {
 }
 
 static inline bool validate_target(const ImageConverter::Target &dst) {
-    return dst.img && dst.fmt != Pixelformat::Enum::UNKNOWN;
+    return dst.img;
 }
 
 bool ImageConverter::convert(const Source &src, Target &dst) {
@@ -327,7 +319,7 @@ bool ImageConverter::convert(const Source &src, Target &dst) {
         if (std::find(candidate.second.source_fmts.begin(), candidate.second.source_fmts.end(),
                       src.fourcc) != candidate.second.source_fmts.end() &&
             std::find(candidate.second.target_fmts.begin(), candidate.second.target_fmts.end(),
-                      Pixelformat::fourcc(dst.fmt)) != candidate.second.target_fmts.end()) {
+                      dst.fmt.fourcc()) != candidate.second.target_fmts.end()) {
             if (!conv.function || prio < candidate.first) {
                 conv = candidate.second;
             }
@@ -341,16 +333,12 @@ bool ImageConverter::convert(const Source &src, Target &dst) {
     return conv.function(src, dst);
 }
 
-bool ImageConverter::convert(const Image &src, CoreImage &dst, sph::Pixelformat::Enum fmt) {
+bool ImageConverter::convert(const Image &src, CoreImage &dst, const sph::Pixelformat &fmt) {
     Source src_;
     Target dst_;
 
-    if (src.pixfmt() == sph::Pixelformat::Enum::UNKNOWN) {
-        SPH_THROW(LogicException, "Source pixelformat must not be unknown");
-    }
-
     src_.img = &src;
-    src_.fourcc = Pixelformat::fourcc(src.pixfmt());
+    src_.fourcc = src.pixfmt().fourcc();
     dst_.img = &dst;
     dst_.fmt = fmt;
 

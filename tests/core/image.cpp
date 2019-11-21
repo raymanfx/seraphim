@@ -119,22 +119,15 @@ TEST_CASE( "CoreImage runtime behavior", "[CoreImage]" ) {
         CoreImage i1(0, 0, Pixelformat::Enum::BGR24);
         CoreImage i2;
 
-        REQUIRE( i1.pixfmt() == Pixelformat::Enum::BGR24 );
-        REQUIRE( i2.pixfmt() == Pixelformat::Enum::UNKNOWN );
-    }
-    SECTION( "channels() returns the number of channels per pixel" ) {
-        CoreImage i1(0, 0, Pixelformat::Enum::BGR32);
-        CoreImage i2(0, 0, Pixelformat::Enum::GRAY16);
-
-        REQUIRE( i1.channels() == 3 );
-        REQUIRE( i2.channels() == 1 );
-    }
-    SECTION( "depth() returns the number of bits per pixel" ) {
-        CoreImage i1(0, 0, Pixelformat::Enum::GRAY8);
-        CoreImage i2(0, 0, Pixelformat::Enum::RGB32);
-
-        REQUIRE( i1.depth() == 8 );
-        REQUIRE( i2.depth() == 32 );
+        REQUIRE( i1.pixfmt().color == Pixelformat::Color::BGR );
+        REQUIRE( i1.pixfmt().size == 3 );
+        REQUIRE( i1.pixfmt().channels() == 3 );
+        REQUIRE( i1.pixfmt().depth() == 24 );
+        REQUIRE( i1.pixfmt().valid() == true );
+        REQUIRE( i2.pixfmt().size == 0 );
+        REQUIRE( i2.pixfmt().channels() == 0 );
+        REQUIRE( i2.pixfmt().depth() == 0 );
+        REQUIRE( i2.pixfmt().valid() == false );
     }
     SECTION( "clear() clears the image back buffer" ) {
         unsigned char bytes[] = {

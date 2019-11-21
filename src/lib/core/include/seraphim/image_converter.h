@@ -56,7 +56,7 @@ public:
         /// image representation
         CoreImage *img = nullptr;
         /// pixelformat
-        sph::Pixelformat::Enum fmt = sph::Pixelformat::Enum::UNKNOWN;
+        sph::Pixelformat fmt;
     };
 
     /**
@@ -100,7 +100,7 @@ public:
      * @param fmt Target image format.
      * @return True on success, false otherwise.
      */
-    bool convert(const Image &src, CoreImage &dst, sph::Pixelformat::Enum fmt);
+    bool convert(const Image &src, CoreImage &dst, const sph::Pixelformat &fmt);
 
 private:
     ImageConverter();

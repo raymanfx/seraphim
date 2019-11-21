@@ -62,22 +62,9 @@ public:
 
     /**
      * @brief Format of each pixel in the image.
-     * @return Pixelformat UID, see @ref Pixelformat.
+     * @return Pixelformat description, see @ref Pixelformat.
      */
-    virtual Pixelformat::Enum pixfmt() const = 0;
-
-    /**
-     * @brief The number of channels of the image.
-     * @return 1 for grayscale, 3 for BGR, 4 for BGRA.
-     */
-    virtual uint32_t channels() const = 0;
-
-    /**
-     * @brief The number of bits for each channel.
-     *        E.g. for RGB32 this would return 32.
-     * @return Depth as bits.
-     */
-    virtual uint32_t depth() const = 0;
+    virtual Pixelformat pixfmt() const = 0;
 
     /**
      * @brief Image size in 2D.
@@ -102,7 +89,7 @@ public:
      * @param height Height of the input data.
      * @param pixfmt Pixelformat of the input data.
      */
-    CoreImage(uint32_t width, uint32_t height, Pixelformat::Enum pixfmt);
+    CoreImage(uint32_t width, uint32_t height, const Pixelformat &pixfmt);
 
     /**
      * @brief Image with buffered data.
@@ -112,7 +99,7 @@ public:
      * @param pixfmt Pixelformat of the input data.
      * @param stride Number of bytes per pixel row (default: auto).
      */
-    CoreImage(std::byte *data, uint32_t width, uint32_t height, Pixelformat::Enum pixfmt,
+    CoreImage(std::byte *data, uint32_t width, uint32_t height, const Pixelformat &pixfmt,
               size_t stride = 0);
 
     /**
@@ -123,7 +110,7 @@ public:
      * @param pixfmt Pixelformat of the input data.
      * @param stride Number of bytes per pixel row (default: auto).
      */
-    CoreImage(unsigned char *data, uint32_t width, uint32_t height, Pixelformat::Enum pixfmt,
+    CoreImage(unsigned char *data, uint32_t width, uint32_t height, const Pixelformat &pixfmt,
               size_t stride = 0)
         : CoreImage(reinterpret_cast<std::byte *>(data), width, height, pixfmt, stride) {}
 
@@ -132,9 +119,7 @@ public:
     uint32_t width() const override { return m_width; }
     uint32_t height() const override { return m_height; }
     size_t stride() const override { return m_buffer.step(); }
-    Pixelformat::Enum pixfmt() const override { return m_pixfmt; }
-    uint32_t channels() const override { return Pixelformat::channels(m_pixfmt); }
-    uint32_t depth() const override { return Pixelformat::depth(m_pixfmt); }
+    Pixelformat pixfmt() const override { return m_pixfmt; }
 
     /**
      * @brief Clear the internal buffer contents.
@@ -156,7 +141,7 @@ public:
      * @brief Checks whether the instance is valid.
      * @return True if not empty and the pixelformat is known.
      */
-    bool valid() const { return !empty() && m_pixfmt != Pixelformat::Enum::UNKNOWN; }
+    bool valid() const { return !empty() && m_pixfmt.size > 0; }
 
     bool operator!() const { return !valid(); }
 
@@ -175,8 +160,7 @@ public:
      */
     unsigned char *pixel(uint32_t x, uint32_t y) {
         assert(x < m_width && y < m_height);
-        return reinterpret_cast<unsigned char *>(m_buffer.data(y)) +
-               x * Pixelformat::size(m_pixfmt);
+        return reinterpret_cast<unsigned char *>(m_buffer.data(y)) + x * m_pixfmt.size;
     }
 
     /**
@@ -187,8 +171,7 @@ public:
      */
     unsigned char *operator()(uint32_t x, uint32_t y) {
         assert(x < m_width && y < m_height);
-        return reinterpret_cast<unsigned char *>(m_buffer.data(y)) +
-               x * Pixelformat::size(m_pixfmt);
+        return reinterpret_cast<unsigned char *>(m_buffer.data(y)) + x * m_pixfmt.size;
     }
 
     /**
@@ -199,8 +182,7 @@ public:
      */
     unsigned char *operator()(uint32_t x, uint32_t y) const {
         assert(x < m_width && y < m_height);
-        return reinterpret_cast<unsigned char *>(m_buffer.data(y)) +
-               x * Pixelformat::size(m_pixfmt);
+        return reinterpret_cast<unsigned char *>(m_buffer.data(y)) + x * m_pixfmt.size;
     }
 
     class iterator {
@@ -312,7 +294,7 @@ private:
     uint32_t m_height = 0;
 
     /// pixelformat
-    Pixelformat::Enum m_pixfmt = Pixelformat::Enum::UNKNOWN;
+    Pixelformat m_pixfmt;
 };
 
 } // namespace sph

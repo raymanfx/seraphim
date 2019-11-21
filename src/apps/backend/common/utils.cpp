@@ -15,11 +15,11 @@
 
 bool sph::backend::Image2DtoImage(const Seraphim::Types::Image2D &src, sph::CoreImage &dst) {
     sph::CoreImage img;
-    sph::Pixelformat::Enum pixfmt;
+    sph::Pixelformat pixfmt;
     unsigned char *data;
 
-    pixfmt = sph::Pixelformat::uid(src.fourcc());
-    if (pixfmt == sph::Pixelformat::Enum::UNKNOWN) {
+    pixfmt = sph::Pixelformat(src.fourcc());
+    if (pixfmt.size == 0) {
         return false;
     }
 

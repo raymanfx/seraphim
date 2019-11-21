@@ -170,10 +170,10 @@ void MainWindow::updateBuffer(const ICaptureStream::Buffer &buf) {
 
     // get the QImage wrapper representation
     sph::CoreImage img;
-    sph::Pixelformat::Enum pixfmt;
+    sph::Pixelformat pixfmt;
 
-    pixfmt = sph::Pixelformat::uid(buf.format.fourcc);
-    if (pixfmt == sph::Pixelformat::Enum::UNKNOWN) {
+    pixfmt = sph::Pixelformat(buf.format.fourcc);
+    if (!pixfmt) {
         return;
     }
 

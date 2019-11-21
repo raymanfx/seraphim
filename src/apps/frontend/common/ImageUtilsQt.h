@@ -17,6 +17,7 @@ namespace frontend {
 bool Image2QImage(const sph::Image &src, QImage &dst) {
     auto bytes = reinterpret_cast<const uchar *>(src.data());
     uint32_t row_alignment;
+    QImage::Format fmt = QImage::Format_Invalid;
 
     if (src.empty()) {
         return false;
@@ -30,20 +31,37 @@ bool Image2QImage(const sph::Image &src, QImage &dst) {
     }
 
     // https://doc.qt.io/qt-5/qvideoframe.html#PixelFormat-enum
-    switch (src.pixfmt()) {
-    case sph::Pixelformat::Enum::BGR24:
-    case sph::Pixelformat::Enum::BGR32:
-        dst = QImage(bytes, static_cast<int>(src.width()), static_cast<int>(src.height()),
-                     QImage::Format_RGB888)
-                  .rgbSwapped();
+    switch (src.pixfmt().color) {
+    case Pixelformat::Color::GRAY:
+        switch (src.pixfmt().size) {
+        case 1:
+            fmt = QImage::Format_Grayscale8;
+            break;
+            // case 2:
+            //    fmt = QImage::Format_Grayscale16;
+            //    break;
+        }
         break;
-    case sph::Pixelformat::Enum::RGB24:
-    case sph::Pixelformat::Enum::RGB32:
-        dst = QImage(bytes, static_cast<int>(src.width()), static_cast<int>(src.height()),
-                     QImage::Format_RGB888);
+    case Pixelformat::Color::BGR:
+    case Pixelformat::Color::RGB:
+        switch (src.pixfmt().size) {
+        case 1:
+            fmt = QImage::Format_RGB888;
+            break;
+        case 3:
+            fmt = QImage::Format_RGB888;
+            break;
+        }
         break;
-    default:
+    }
+
+    if (fmt == QImage::Format_Invalid) {
         return false;
+    }
+
+    dst = QImage(bytes, static_cast<int>(src.width()), static_cast<int>(src.height()), fmt);
+    if (src.pixfmt().color == Pixelformat::Color::BGR) {
+        dst = dst.rgbSwapped();
     }
 
     return true;

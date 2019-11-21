@@ -23,7 +23,7 @@ bool HOGFaceDetector::detect(const Image &img, std::vector<Polygon<int>> &faces)
     std::vector<dlib::rectangle> dets;
 
     // convert from sph to dlib image
-    switch (img.channels()) {
+    switch (img.pixfmt().channels()) {
     case 1:
         dlib::assign_image(dlib_gray_image, dlib::mat<unsigned char>(
                                                 reinterpret_cast<const unsigned char *>(img.data()),

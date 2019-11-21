@@ -8,6 +8,7 @@
 #ifndef SPH_CORE_PIXELFORMAT_H
 #define SPH_CORE_PIXELFORMAT_H
 
+#include <array>
 #include <cstdint>
 
 namespace sph {
@@ -27,8 +28,6 @@ struct Pixelformat {
      * @brief Unique pixelformat identifiers.
      */
     enum class Enum {
-        /* Unspecified format */
-        UNKNOWN,
         /* Grayscale formats */
         GRAY8,
         GRAY16,
@@ -41,103 +40,168 @@ struct Pixelformat {
     };
 
     /**
-     * @brief @ref Pixelformat UID for a given four character code.
-     * @param fourcc Fourc character code integer representationr.
-     * @return The @ref Pixelformat identifier.
+     * @brief Pixel color scheme.
      */
-    static constexpr Pixelformat::Enum uid(uint32_t fourcc) {
+    enum class Color {
+        /* Unspecified format */
+        UNKNOWN,
+        /* Defined formats */
+        GRAY,
+        BGR,
+        RGB
+    };
+
+    /// Color scheme of the pixel.
+    Color color = Color::UNKNOWN;
+
+    /// Size of one pixel (all channels).
+    size_t size = 0;
+
+    Pixelformat() = default;
+
+    /**
+     * @brief Pixelformat
+     * @param color Pixel color.
+     * @param size Size of a full pixel (all channels).
+     */
+    constexpr Pixelformat(Color color, size_t size) : color(color), size(size) {}
+
+    /**
+     * @brief Pixelformat
+     * @param fourcc Four character code.
+     */
+    constexpr Pixelformat(uint32_t fourcc) {
         switch (fourcc) {
         case sph::fourcc('G', 'R', 'E', 'Y'):
-            return Pixelformat::Enum::GRAY8;
+            color = Color::GRAY;
+            size = 1;
+            break;
         case sph::fourcc('Y', '1', '6', ' '):
-            return Pixelformat::Enum::GRAY16;
+            color = Color::GRAY;
+            size = 2;
+            break;
         case sph::fourcc('B', 'G', 'R', '3'):
-            return Pixelformat::Enum::BGR24;
+            color = Color::BGR;
+            size = 3;
+            break;
         case sph::fourcc('B', 'G', 'R', '4'):
-            return Pixelformat::Enum::BGR32;
+            color = Color::BGR;
+            size = 4;
+            break;
         case sph::fourcc('R', 'G', 'B', '3'):
-            return Pixelformat::Enum::RGB24;
+            color = Color::RGB;
+            size = 3;
+            break;
         case sph::fourcc('R', 'G', 'B', '4'):
-            return Pixelformat::Enum::RGB32;
-        default:
-            return Pixelformat::Enum::UNKNOWN;
+            color = Color::RGB;
+            size = 4;
+            break;
         }
     }
 
     /**
-     * @brief Four character codes for a given @ref Pixelformat UID.
-     * @param uid The @ref Pixelformat identifier.
+     * @brief Pixelformat
+     * @param fmt Composite format description.
+     */
+    constexpr Pixelformat(Enum fmt) {
+        switch (fmt) {
+        case Enum::GRAY8:
+            color = Color::GRAY;
+            size = 1;
+            break;
+        case Enum::GRAY16:
+            color = Color::GRAY;
+            size = 2;
+            break;
+        case Enum::BGR24:
+            color = Color::BGR;
+            size = 3;
+            break;
+        case Enum::BGR32:
+            color = Color::BGR;
+            size = 4;
+            break;
+        case Enum::RGB24:
+            color = Color::RGB;
+            size = 3;
+            break;
+        case Enum::RGB32:
+            color = Color::RGB;
+            size = 4;
+            break;
+        }
+    }
+
+    /**
+     * @brief Four character code.
      * @return Fourc character code integer representation.
      */
-    static constexpr uint32_t fourcc(Pixelformat::Enum uid) {
-        switch (uid) {
-        case Pixelformat::Enum::GRAY8:
-            return sph::fourcc('G', 'R', 'E', 'Y');
-        case Pixelformat::Enum::GRAY16:
-            return sph::fourcc('Y', '1', '6', ' ');
-        case Pixelformat::Enum::BGR24:
-            return sph::fourcc('B', 'G', 'R', '3');
-        case Pixelformat::Enum::BGR32:
-            return sph::fourcc('B', 'G', 'R', '4');
-        case Pixelformat::Enum::RGB24:
-            return sph::fourcc('R', 'G', 'B', '3');
-        case Pixelformat::Enum::RGB32:
-            return sph::fourcc('R', 'G', 'B', '4');
+    constexpr uint32_t fourcc() const {
+        switch (color) {
+        case Color::GRAY:
+            switch (size) {
+            case 1:
+                return sph::fourcc('G', 'R', 'E', 'Y');
+            case 2:
+                return sph::fourcc('Y', '1', '6', ' ');
+            }
+            break;
+        case Color::BGR:
+            switch (size) {
+            case 3:
+                return sph::fourcc('B', 'G', 'R', '3');
+            case 4:
+                return sph::fourcc('B', 'G', 'R', '4');
+            }
+            break;
+        case Color::RGB:
+            switch (size) {
+            case 3:
+                return sph::fourcc('R', 'G', 'B', '3');
+            case 4:
+                return sph::fourcc('R', 'G', 'B', '4');
+            }
+            break;
         default:
             return 0;
         }
-    }
 
-    /**
-     * @brief Number of bytes allocated for each pixel.
-     * @param uid The @ref Pixelformat identifier.
-     * @return The amount of bytes.
-     */
-    static constexpr uint32_t size(Pixelformat::Enum uid) {
-        switch (uid) {
-        case Pixelformat::Enum::GRAY8:
-            return 1;
-        case Pixelformat::Enum::GRAY16:
-            return 2;
-        case Pixelformat::Enum::BGR24:
-            return 3;
-        case Pixelformat::Enum::BGR32:
-            return 4;
-        case Pixelformat::Enum::RGB24:
-            return 3;
-        case Pixelformat::Enum::RGB32:
-            return 4;
-        default:
-            return 0;
-        }
+        return 0;
     }
 
     /**
      * @brief Number of bits allocated for each pixel.
-     * @param uid The @ref Pixelformat identifier.
      * @return The amount of bits. Equals size * 8.
      */
-    static constexpr uint32_t depth(Pixelformat::Enum uid) { return size(uid) * 8; }
+    constexpr size_t depth() const { return size * 8; }
 
     /**
      * @brief Number of channels in the format.
-     * @param uid The @ref Pixelformat identifier.
      * @return The amount of channels.
      */
-    static constexpr uint32_t channels(Pixelformat::Enum uid) {
-        switch (uid) {
-        case Pixelformat::Enum::GRAY8:
-        case Pixelformat::Enum::GRAY16:
+    constexpr uint32_t channels() const {
+        switch (color) {
+        case Color::GRAY:
             return 1;
-        case Pixelformat::Enum::BGR24:
-        case Pixelformat::Enum::BGR32:
-        case Pixelformat::Enum::RGB24:
-        case Pixelformat::Enum::RGB32:
+        case Color::BGR:
+        case Color::RGB:
             return 3;
         default:
             return 0;
         }
     }
+
+    /**
+     * @brief Check the validity of the format.
+     * @return True if the format is valid, i.e. size > 0.
+     */
+    bool valid() const { return size > 0; }
+
+    /**
+     * @brief operator !
+     * @return True if the format is valid, i.e. size > 0.
+     */
+    bool operator!() const { return !valid(); }
 };
 
 } // namespace sph
