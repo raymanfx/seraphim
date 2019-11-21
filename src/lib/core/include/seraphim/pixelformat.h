@@ -40,20 +40,23 @@ struct Pixelformat {
     };
 
     /**
-     * @brief Pixel color scheme.
+     * @brief Pixel pattern.
+     *
+     * Can be used in combination with the size attribute to specify arbitrary pixel formats.
+     * Other attributes like pixel depth, channels etc. are determined based on this pattern.
      */
-    enum class Color {
+    enum class Pattern {
         /* Unspecified format */
         UNKNOWN,
         /* Defined formats */
-        GRAY,
+        MONO,
         BGR,
         RGB,
-        YUV
+        YUYV
     };
 
-    /// Color scheme of the pixel.
-    Color color = Color::UNKNOWN;
+    /// Pattern of the pixel.
+    Pattern pattern = Pattern::UNKNOWN;
 
     /// Size of one pixel (all channels).
     size_t size = 0;
@@ -65,7 +68,7 @@ struct Pixelformat {
      * @param color Pixel color.
      * @param size Size of a full pixel (all channels).
      */
-    constexpr Pixelformat(Color color, size_t size) : color(color), size(size) {}
+    constexpr Pixelformat(Pattern pattern, size_t size) : pattern(pattern), size(size) {}
 
     /**
      * @brief Pixelformat
@@ -74,32 +77,32 @@ struct Pixelformat {
     constexpr Pixelformat(uint32_t fourcc) {
         switch (fourcc) {
         case sph::fourcc('G', 'R', 'E', 'Y'):
-            color = Color::GRAY;
+            pattern = Pattern::MONO;
             size = 1;
             break;
         case sph::fourcc('Y', '1', '6', ' '):
-            color = Color::GRAY;
+            pattern = Pattern::MONO;
             size = 2;
             break;
         case sph::fourcc('B', 'G', 'R', '3'):
-            color = Color::BGR;
+            pattern = Pattern::BGR;
             size = 3;
             break;
         case sph::fourcc('B', 'G', 'R', '4'):
-            color = Color::BGR;
+            pattern = Pattern::BGR;
             size = 4;
             break;
         case sph::fourcc('R', 'G', 'B', '3'):
-            color = Color::RGB;
+            pattern = Pattern::RGB;
             size = 3;
             break;
         case sph::fourcc('R', 'G', 'B', '4'):
-            color = Color::RGB;
+            pattern = Pattern::RGB;
             size = 4;
             break;
         case sph::fourcc('Y', 'U', 'Y', '2'):
         case sph::fourcc('Y', 'U', 'Y', 'V'):
-            color = Color::YUV;
+            pattern = Pattern::YUYV;
             size = 2;
             break;
         }
@@ -112,27 +115,27 @@ struct Pixelformat {
     constexpr Pixelformat(Enum fmt) {
         switch (fmt) {
         case Enum::GRAY8:
-            color = Color::GRAY;
+            pattern = Pattern::MONO;
             size = 1;
             break;
         case Enum::GRAY16:
-            color = Color::GRAY;
+            pattern = Pattern::MONO;
             size = 2;
             break;
         case Enum::BGR24:
-            color = Color::BGR;
+            pattern = Pattern::BGR;
             size = 3;
             break;
         case Enum::BGR32:
-            color = Color::BGR;
+            pattern = Pattern::BGR;
             size = 4;
             break;
         case Enum::RGB24:
-            color = Color::RGB;
+            pattern = Pattern::RGB;
             size = 3;
             break;
         case Enum::RGB32:
-            color = Color::RGB;
+            pattern = Pattern::RGB;
             size = 4;
             break;
         }
@@ -143,8 +146,8 @@ struct Pixelformat {
      * @return Fourc character code integer representation.
      */
     constexpr uint32_t fourcc() const {
-        switch (color) {
-        case Color::GRAY:
+        switch (pattern) {
+        case Pattern::MONO:
             switch (size) {
             case 1:
                 return sph::fourcc('G', 'R', 'E', 'Y');
@@ -152,7 +155,7 @@ struct Pixelformat {
                 return sph::fourcc('Y', '1', '6', ' ');
             }
             break;
-        case Color::BGR:
+        case Pattern::BGR:
             switch (size) {
             case 3:
                 return sph::fourcc('B', 'G', 'R', '3');
@@ -160,7 +163,7 @@ struct Pixelformat {
                 return sph::fourcc('B', 'G', 'R', '4');
             }
             break;
-        case Color::RGB:
+        case Pattern::RGB:
             switch (size) {
             case 3:
                 return sph::fourcc('R', 'G', 'B', '3');
@@ -168,7 +171,7 @@ struct Pixelformat {
                 return sph::fourcc('R', 'G', 'B', '4');
             }
             break;
-        case Color::YUV:
+        case Pattern::YUYV:
             switch (size) {
             case 2:
                 return sph::fourcc('Y', 'U', 'Y', 'V');
@@ -192,12 +195,12 @@ struct Pixelformat {
      * @return The amount of channels.
      */
     constexpr uint32_t channels() const {
-        switch (color) {
-        case Color::GRAY:
+        switch (pattern) {
+        case Pattern::MONO:
             return 1;
-        case Color::BGR:
-        case Color::RGB:
-        case Color::YUV:
+        case Pattern::BGR:
+        case Pattern::RGB:
+        case Pattern::YUYV:
             return 3;
         default:
             return 0;

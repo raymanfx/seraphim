@@ -84,22 +84,22 @@ void GLWindow::show(const sph::Image &img) {
     // see: https://stackoverflow.com/a/16812529
     glPixelStorei(GL_UNPACK_ROW_LENGTH, static_cast<GLint>(img.width()));
 
-    switch (img.pixfmt().color) {
-    case sph::Pixelformat::Color::RGB:
+    switch (img.pixfmt().pattern) {
+    case sph::Pixelformat::Pattern::RGB:
         input_internal_format = GL_RGB;
         input_format = GL_RGB;
         input_type = GL_UNSIGNED_BYTE;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_RED);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_BLUE);
         break;
-    case sph::Pixelformat::Color::BGR:
+    case sph::Pixelformat::Pattern::BGR:
         input_internal_format = GL_RGB;
         input_format = GL_RGB;
         input_type = GL_UNSIGNED_BYTE;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_BLUE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
         break;
-    case sph::Pixelformat::Color::GRAY:
+    case sph::Pixelformat::Pattern::MONO:
         input_internal_format = GL_R8;
         input_format = GL_RED;
         input_type = GL_UNSIGNED_BYTE;

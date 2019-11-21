@@ -50,9 +50,9 @@ public:
      */
     struct Converter {
         /// source color space
-        std::vector<Pixelformat::Color> src;
+        std::vector<Pixelformat::Pattern> src;
         /// target color space
-        std::vector<Pixelformat::Color> dst;
+        std::vector<Pixelformat::Pattern> dst;
         /// converter function that transforms images
         ConverterFunction function;
     };

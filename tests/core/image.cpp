@@ -135,7 +135,7 @@ TEST_CASE( "CoreImage runtime behavior", "[CoreImage]" ) {
         CoreImage i1(0, 0, Pixelformat::Enum::BGR24);
         CoreImage i2;
 
-        REQUIRE( i1.pixfmt().color == Pixelformat::Color::BGR );
+        REQUIRE( i1.pixfmt().pattern == Pixelformat::Pattern::BGR );
         REQUIRE( i1.pixfmt().size == 3 );
         REQUIRE( i1.pixfmt().channels() == 3 );
         REQUIRE( i1.pixfmt().depth() == 24 );

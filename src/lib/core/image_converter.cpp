@@ -34,13 +34,13 @@ static bool rgb_to_bgr(const Image &src, CoreImage &dst, const Pixelformat &fmt)
     uint8_t dst_g_off = 0;
     uint8_t dst_b_off = 0;
 
-    switch (src.pixfmt().color) {
-    case Pixelformat::Color::RGB:
+    switch (src.pixfmt().pattern) {
+    case Pixelformat::Pattern::RGB:
         src_r_off = 0;
         src_g_off = 1;
         src_b_off = 2;
         break;
-    case Pixelformat::Color::BGR:
+    case Pixelformat::Pattern::BGR:
         src_r_off = 2;
         src_g_off = 1;
         src_b_off = 0;
@@ -49,13 +49,13 @@ static bool rgb_to_bgr(const Image &src, CoreImage &dst, const Pixelformat &fmt)
         return false;
     }
 
-    switch (fmt.color) {
-    case Pixelformat::Color::RGB:
+    switch (fmt.pattern) {
+    case Pixelformat::Pattern::RGB:
         dst_r_off = 0;
         dst_g_off = 1;
         dst_b_off = 2;
         break;
-    case Pixelformat::Color::BGR:
+    case Pixelformat::Pattern::BGR:
         dst_r_off = 2;
         dst_g_off = 1;
         dst_b_off = 0;
@@ -93,13 +93,13 @@ static size_t rgb_to_y(const Image &src, CoreImage &dst, const Pixelformat &fmt)
     uint8_t src_g_off = 0;
     uint8_t src_b_off = 0;
 
-    switch (src.pixfmt().color) {
-    case Pixelformat::Color::RGB:
+    switch (src.pixfmt().pattern) {
+    case Pixelformat::Pattern::RGB:
         src_r_off = 0;
         src_g_off = 1;
         src_b_off = 2;
         break;
-    case Pixelformat::Color::BGR:
+    case Pixelformat::Pattern::BGR:
         src_r_off = 2;
         src_g_off = 1;
         src_b_off = 0;
@@ -108,8 +108,8 @@ static size_t rgb_to_y(const Image &src, CoreImage &dst, const Pixelformat &fmt)
         return false;
     }
 
-    switch (fmt.color) {
-    case Pixelformat::Color::GRAY:
+    switch (fmt.pattern) {
+    case Pixelformat::Pattern::MONO:
         break;
     default:
         return false;
@@ -154,20 +154,20 @@ static bool y_to_rgb(const Image &src, CoreImage &dst, const Pixelformat &fmt) {
     uint8_t dst_g_off = 0;
     uint8_t dst_b_off = 0;
 
-    switch (src.pixfmt().color) {
-    case Pixelformat::Color::GRAY:
+    switch (src.pixfmt().pattern) {
+    case Pixelformat::Pattern::MONO:
         break;
     default:
         return false;
     }
 
-    switch (fmt.color) {
-    case Pixelformat::Color::RGB:
+    switch (fmt.pattern) {
+    case Pixelformat::Pattern::RGB:
         dst_r_off = 0;
         dst_g_off = 1;
         dst_b_off = 2;
         break;
-    case Pixelformat::Color::BGR:
+    case Pixelformat::Pattern::BGR:
         dst_r_off = 2;
         dst_g_off = 1;
         dst_b_off = 0;
@@ -211,20 +211,20 @@ static size_t yuy2_to_rgb(const Image &src, CoreImage &dst, const Pixelformat &f
     uint8_t dst_g_off = 0;
     uint8_t dst_b_off = 0;
 
-    switch (src.pixfmt().color) {
-    case Pixelformat::Color::YUV:
+    switch (src.pixfmt().pattern) {
+    case Pixelformat::Pattern::YUYV:
         break;
     default:
         return false;
     }
 
-    switch (fmt.color) {
-    case Pixelformat::Color::RGB:
+    switch (fmt.pattern) {
+    case Pixelformat::Pattern::RGB:
         dst_r_off = 0;
         dst_g_off = 1;
         dst_b_off = 2;
         break;
-    case Pixelformat::Color::BGR:
+    case Pixelformat::Pattern::BGR:
         dst_r_off = 2;
         dst_g_off = 1;
         dst_b_off = 0;
@@ -282,23 +282,23 @@ static size_t yuy2_to_rgb(const Image &src, CoreImage &dst, const Pixelformat &f
 
 ImageConverter::ImageConverter() {
     Converter rgb_bgr;
-    rgb_bgr.src = { Pixelformat::Color::RGB, Pixelformat::Color::BGR };
-    rgb_bgr.dst = { Pixelformat::Color::RGB, Pixelformat::Color::BGR };
+    rgb_bgr.src = { Pixelformat::Pattern::RGB, Pixelformat::Pattern::BGR };
+    rgb_bgr.dst = { Pixelformat::Pattern::RGB, Pixelformat::Pattern::BGR };
     rgb_bgr.function = rgb_to_bgr;
 
     Converter rgb_y;
-    rgb_y.src = { Pixelformat::Color::RGB, Pixelformat::Color::BGR };
-    rgb_y.dst = { Pixelformat::Color::GRAY };
+    rgb_y.src = { Pixelformat::Pattern::RGB, Pixelformat::Pattern::BGR };
+    rgb_y.dst = { Pixelformat::Pattern::MONO };
     rgb_y.function = rgb_to_y;
 
     Converter y_rgb;
-    y_rgb.src = { Pixelformat::Color::GRAY };
-    y_rgb.dst = { Pixelformat::Color::RGB, Pixelformat::Color::BGR };
+    y_rgb.src = { Pixelformat::Pattern::MONO };
+    y_rgb.dst = { Pixelformat::Pattern::RGB, Pixelformat::Pattern::BGR };
     y_rgb.function = y_to_rgb;
 
     Converter yuy2_rgb;
-    yuy2_rgb.src = { Pixelformat::Color::YUV };
-    yuy2_rgb.dst = { Pixelformat::Color::RGB, Pixelformat::Color::BGR };
+    yuy2_rgb.src = { Pixelformat::Pattern::YUYV };
+    yuy2_rgb.dst = { Pixelformat::Pattern::RGB, Pixelformat::Pattern::BGR };
     yuy2_rgb.function = yuy2_to_rgb;
 
     register_converter(rgb_bgr, 0 /* prio */);
@@ -314,8 +314,8 @@ bool ImageConverter::convert(const Image &src, CoreImage &dst, const sph::Pixelf
     for (const auto &candidate : m_converters) {
         // check source and target format support
         if (std::find(candidate.second.src.begin(), candidate.second.src.end(),
-                      src.pixfmt().color) != candidate.second.src.end() &&
-            std::find(candidate.second.dst.begin(), candidate.second.dst.end(), fmt.color) !=
+                      src.pixfmt().pattern) != candidate.second.src.end() &&
+            std::find(candidate.second.dst.begin(), candidate.second.dst.end(), fmt.pattern) !=
                 candidate.second.dst.end()) {
             if (!conv.function || prio < candidate.first) {
                 conv = candidate.second;

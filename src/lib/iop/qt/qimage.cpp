@@ -28,8 +28,8 @@ QImage iop::qt::from_image(const Image &img) {
     }
 
     // https://doc.qt.io/qt-5/qvideoframe.html#PixelFormat-enum
-    switch (img.pixfmt().color) {
-    case Pixelformat::Color::GRAY:
+    switch (img.pixfmt().pattern) {
+    case Pixelformat::Pattern::MONO:
         switch (img.pixfmt().size) {
         case 1:
             fmt = QImage::Format_Grayscale8;
@@ -39,8 +39,8 @@ QImage iop::qt::from_image(const Image &img) {
             //    break;
         }
         break;
-    case Pixelformat::Color::BGR:
-    case Pixelformat::Color::RGB:
+    case Pixelformat::Pattern::BGR:
+    case Pixelformat::Pattern::RGB:
         switch (img.pixfmt().size) {
         case 1:
             fmt = QImage::Format_RGB888;
@@ -55,7 +55,7 @@ QImage iop::qt::from_image(const Image &img) {
     }
 
     qimg = QImage(bytes, static_cast<int>(img.width()), static_cast<int>(img.height()), fmt);
-    if (img.pixfmt().color == Pixelformat::Color::BGR) {
+    if (img.pixfmt().pattern == Pixelformat::Pattern::BGR) {
         qimg = qimg.rgbSwapped();
     }
 
@@ -71,11 +71,11 @@ CoreImage iop::qt::to_image(const QImage &qimg) {
 
     switch (qimg.format()) {
     case QImage::Format_Grayscale8:
-        pixfmt.color = Pixelformat::Color::GRAY;
+        pixfmt.pattern = Pixelformat::Pattern::MONO;
         pixfmt.size = 1;
         break;
     case QImage::Format_RGB888:
-        pixfmt.color = Pixelformat::Color::RGB;
+        pixfmt.pattern = Pixelformat::Pattern::RGB;
         pixfmt.size = 3;
         break;
     default:

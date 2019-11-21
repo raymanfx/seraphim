@@ -46,13 +46,15 @@
     auto data = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(img.data()));
 
     // https://github.com/opencv/opencv/blob/master/modules/videoio/src/cap_v4l.cpp
-    switch (img.pixfmt().color) {
-    case sph::Pixelformat::Color::GRAY:
-    case sph::Pixelformat::Color::BGR:
-    case sph::Pixelformat::Color::RGB:
+    switch (img.pixfmt().pattern) {
+    case sph::Pixelformat::Pattern::MONO:
+    case sph::Pixelformat::Pattern::BGR:
+    case sph::Pixelformat::Pattern::RGB:
         mat = ::cv::Mat(static_cast<int>(img.height()), static_cast<int>(img.width()), type, data,
                         img.stride());
         break;
+    default:
+        return ::cv::Mat();
     }
 
     return mat;
@@ -69,7 +71,7 @@ sph::CoreImage sph::iop::cv::to_image(const ::cv::Mat &mat) {
     }
 
     // OpenCV images are always BGR
-    pixfmt.color = Pixelformat::Color::BGR;
+    pixfmt.pattern = Pixelformat::Pattern::BGR;
     pixfmt.size = mat.elemSize();
 
     width = static_cast<uint32_t>(mat.step / mat.elemSize());
