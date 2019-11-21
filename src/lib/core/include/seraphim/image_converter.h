@@ -40,39 +40,20 @@ public:
     void operator=(ImageConverter const &) = delete;
 
     /**
-     * @brief Source buffer description.
-     */
-    struct Source {
-        /// image representation
-        const Image *img = nullptr;
-        /// pixelformat
-        uint32_t fourcc = 0;
-    };
-
-    /**
-     * @brief Target buffer description.
-     */
-    struct Target {
-        /// image representation
-        CoreImage *img = nullptr;
-        /// pixelformat
-        sph::Pixelformat fmt;
-    };
-
-    /**
      * @brief Convert arbitrary pixel data into a supported format.
      */
-    typedef std::function<bool(const Source &src, Target &dst)> ConverterFunction;
+    typedef std::function<bool(const Image &src, CoreImage &dst, const Pixelformat &fmt)>
+        ConverterFunction;
 
     /**
      * @brief Converter entity that converts between image buffer formats.
      */
     struct Converter {
-        /// source pixelformats as four character code
-        std::vector<uint32_t> source_fmts;
-        /// target pixelformats as four character code
-        std::vector<uint32_t> target_fmts;
-        /// converter function that transforms pixel buffers
+        /// source color space
+        std::vector<Pixelformat::Color> src;
+        /// target color space
+        std::vector<Pixelformat::Color> dst;
+        /// converter function that transforms images
         ConverterFunction function;
     };
 
@@ -87,20 +68,12 @@ public:
 
     /**
      * @brief Create a new image buffer.
-     * @param src Source buffer description.
-     * @param dst Target buffer description.
-     * @return True on success, false otherwise.
-     */
-    bool convert(const Source &src, Target &dst);
-
-    /**
-     * @brief Create a new image buffer.
      * @param src Source image.
      * @param dst Target image.
-     * @param fmt Target image format.
+     * @param fmt Target format.
      * @return True on success, false otherwise.
      */
-    bool convert(const Image &src, CoreImage &dst, const sph::Pixelformat &fmt);
+    bool convert(const Image &src, CoreImage &dst, const Pixelformat &fmt);
 
 private:
     ImageConverter();
