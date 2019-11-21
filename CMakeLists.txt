@@ -18,3 +18,14 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/seraphim.pc.cmakein
 
 # Install cmake config
 install(FILES seraphim-config.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/seraphim)
+
+# CPack setup
+set(CPACK_PACKAGE_NAME "seraphim")
+set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
+set(CPACK_PACKAGE_CONTACT "raymanfx@gmail.com")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Computer Vision interoperability platform")
+set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE.txt")
+
+include(CPack)
