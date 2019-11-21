@@ -48,7 +48,8 @@ struct Pixelformat {
         /* Defined formats */
         GRAY,
         BGR,
-        RGB
+        RGB,
+        YUV
     };
 
     /// Color scheme of the pixel.
@@ -95,6 +96,11 @@ struct Pixelformat {
         case sph::fourcc('R', 'G', 'B', '4'):
             color = Color::RGB;
             size = 4;
+            break;
+        case sph::fourcc('Y', 'U', 'Y', '2'):
+        case sph::fourcc('Y', 'U', 'Y', 'V'):
+            color = Color::YUV;
+            size = 2;
             break;
         }
     }
@@ -162,6 +168,12 @@ struct Pixelformat {
                 return sph::fourcc('R', 'G', 'B', '4');
             }
             break;
+        case Color::YUV:
+            switch (size) {
+            case 2:
+                return sph::fourcc('Y', 'U', 'Y', 'V');
+            }
+            break;
         default:
             return 0;
         }
@@ -185,6 +197,7 @@ struct Pixelformat {
             return 1;
         case Color::BGR:
         case Color::RGB:
+        case Color::YUV:
             return 3;
         default:
             return 0;
