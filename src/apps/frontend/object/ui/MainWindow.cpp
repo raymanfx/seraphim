@@ -2,9 +2,9 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include <ImageUtilsQt.h>
 #include <QCameraCaptureStream/QCameraCaptureStream.h>
 #include <seraphim/image.h>
+#include <seraphim/iop.h>
 #include <seraphim/ipc/transport_factory.h>
 
 #include <ObjectDetector.pb.h>
@@ -200,13 +200,8 @@ void MainWindow::updateBuffer(const ICaptureStream::Buffer &buf) {
 
     img = sph::CoreImage(static_cast<unsigned char *>(buf.start), buf.format.width,
                          buf.format.height, pixfmt, buf.format.stride);
-    if (!img) {
-        return;
-    }
 
-    if (!sph::frontend::Image2QImage(img, mFrame)) {
-        return;
-    }
+    mFrame = sph::iop::qt::from_image(img);
 }
 
 void MainWindow::objectRecognitionButtonClicked() {

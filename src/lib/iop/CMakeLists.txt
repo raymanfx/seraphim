@@ -30,8 +30,18 @@ if (OpenCV_FOUND)
     target_sources(${MODULE_NAME} PRIVATE
         opencv/mat.cpp
         include/seraphim/iop/opencv/mat.h)
+    target_compile_definitions(${MODULE_NAME} PUBLIC "-DWITH_IOP_OPENCV")
     target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_imgproc)
-    set_target_properties(${MODULE_NAME} PROPERTIES COMPILE_FLAGS "-DWITH_OPENCV")
+endif ()
+
+# Qt
+find_package(Qt5 COMPONENTS Multimedia)
+if (Qt5_FOUND)
+    target_sources(${MODULE_NAME} PRIVATE
+        qt/qimage.cpp
+        include/seraphim/iop/qt/qimage.h)
+    target_compile_definitions(${MODULE_NAME} PUBLIC "-DWITH_IOP_QT")
+    target_link_libraries(${MODULE_NAME} PUBLIC Qt5::Multimedia)
 endif ()
 
 target_link_libraries(${MODULE_NAME} PUBLIC seraphim::core)

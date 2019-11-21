@@ -10,7 +10,6 @@ set(SOURCES
 
 set(HEADERS
     ICaptureStream/ICaptureStream.h
-    ImageUtilsQt.h
     QCameraCaptureStream/QCameraCaptureStream.h
     QImageProvider/QImageProvider.h
     QVideoCaptureStream/QVideoCaptureStream.h)
