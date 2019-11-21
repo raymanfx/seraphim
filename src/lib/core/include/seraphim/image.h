@@ -67,6 +67,12 @@ public:
     virtual Pixelformat pixfmt() const = 0;
 
     /**
+     * @brief Resize the image.
+     * @param size New image size.
+     */
+    virtual void resize(const sph::Size2s &size) = 0;
+
+    /**
      * @brief Image size in 2D.
      * @return Width, height tuple.
      */
@@ -131,10 +137,10 @@ public:
      * @param width Target width.
      * @param height Target height.
      */
-    void resize(uint32_t width, uint32_t height) {
-        m_buffer.resize(height, stride());
-        m_width = width;
-        m_height = height;
+    void resize(const sph::Size2s &size) override {
+        m_buffer.resize(size.height, stride());
+        m_width = static_cast<uint32_t>(size.width);
+        m_height = static_cast<uint32_t>(size.height);
     }
 
     /**

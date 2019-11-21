@@ -181,7 +181,7 @@ TEST_CASE( "CoreImage runtime behavior", "[CoreImage]" ) {
             1, 3
         };
         CoreImage i1(bytes, 2, 3, Pixelformat::Enum::GRAY8);
-        i1.resize(2, 1);
+        i1.resize(sph::Size2s(2, 1));
 
         REQUIRE( i1.width() == 2 );
         REQUIRE( i1.height() == 1 );
