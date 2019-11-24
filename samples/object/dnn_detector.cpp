@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
     std::string model_path;
     std::string model_config_path;
     sph::object::DNNDetector detector;
-    std::vector<sph::object::Classifier::Prediction> predictions;
+    std::vector<sph::object::Detector::Prediction> predictions;
     sph::CoreImage image;
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;
@@ -170,7 +170,7 @@ int main(int argc, char **argv) {
 
     auto process_thread = std::thread([&] {
         sph::CoreImage img;
-        std::vector<sph::object::Classifier::Prediction> preds;
+        std::vector<sph::object::Detector::Prediction> preds;
         std::chrono::high_resolution_clock::time_point t0;
 
         while (main_loop) {
@@ -220,7 +220,7 @@ int main(int argc, char **argv) {
             }
         }
 
-        std::vector<sph::object::Classifier::Prediction> preds;
+        std::vector<sph::object::Detector::Prediction> preds;
         {
             std::unique_lock<std::mutex> lock(overlay_mutex);
             preds = predictions;

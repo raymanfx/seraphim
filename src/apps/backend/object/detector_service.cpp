@@ -8,15 +8,15 @@
 #include <seraphim/iop/opencv/mat.h>
 #include <utils.h>
 
-#include "classifier_service.h"
+#include "detector_service.h"
 
 using namespace sph::object;
 
-ClassifierService::ClassifierService(std::shared_ptr<sph::object::Classifier> recognizer) {
+DetectorService::DetectorService(std::shared_ptr<sph::object::Detector> recognizer) {
     m_recognizer = recognizer;
 }
 
-bool ClassifierService::handle_request(const Seraphim::Request &req, Seraphim::Response &res) {
+bool DetectorService::handle_request(const Seraphim::Request &req, Seraphim::Response &res) {
     if (req.inner().Is<Seraphim::Object::Detector::DetectionRequest>()) {
         Seraphim::Object::Detector::DetectionRequest inner_req;
         Seraphim::Object::Detector::DetectionResponse inner_res;
@@ -31,13 +31,13 @@ bool ClassifierService::handle_request(const Seraphim::Request &req, Seraphim::R
     return false;
 }
 
-bool ClassifierService::handle_detection_request(
+bool DetectorService::handle_detection_request(
     const Seraphim::Object::Detector::DetectionRequest &req,
     Seraphim::Object::Detector::DetectionResponse &res) {
     sph::CoreImage image;
     cv::Mat mat;
     cv::Rect2i roi;
-    std::vector<sph::object::Classifier::Prediction> predictions;
+    std::vector<sph::object::Detector::Prediction> predictions;
 
     if (!sph::backend::Image2DtoMat(req.image(), mat)) {
         return false;

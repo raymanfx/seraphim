@@ -8,7 +8,7 @@
 #ifndef SPH_OBJECT_DETECTOR_DNN_H
 #define SPH_OBJECT_DETECTOR_DNN_H
 
-#include "classifier.h"
+#include "detector.h"
 #include <mutex>
 #include <opencv2/dnn.hpp>
 #include <opencv2/opencv.hpp>
@@ -19,13 +19,13 @@ namespace sph {
 namespace object {
 
 /**
- * @brief Deep neural network object classifier.
+ * @brief Deep neural network object detector.
  *
  * Using the OpenCV dnn backend under the hood, this class allows you to load
  * models from Caffe, TensorFlow and many more frameworks.
  * The computation target can be set to CPU, OPENCL, VPU and more.
  */
-class DNNDetector : public Classifier, public sph::Computable {
+class DNNDetector : public Detector, public sph::Computable {
 public:
     DNNDetector() = default;
 

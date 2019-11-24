@@ -1,10 +1,10 @@
 set(MODULE_NAME object_service)
 
 set(SOURCES
-    classifier_service.cpp)
+    detector_service.cpp)
 
 set(HEADERS
-    classifier_service.h)
+    detector_service.h)
 
 add_library(${MODULE_NAME} STATIC ${SOURCES} ${HEADERS})
 

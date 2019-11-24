@@ -8,7 +8,7 @@
 #ifndef SPH_OBJECT_H
 #define SPH_OBJECT_H
 
-#include <seraphim/object/classifier.h>
-#include <seraphim/object/dnn_classifier.h>
+#include <seraphim/object/detector.h>
+#include <seraphim/object/dnn_detector.h>
 
 #endif // SPH_OBJECT_H

@@ -28,7 +28,7 @@
 #include "face/face_detector_service.h"
 #include "face/face_recognizer_service.h"
 #include "face/facemark_detector_service.h"
-#include "object/classifier_service.h"
+#include "object/detector_service.h"
 #include "shm_server.h"
 #include "tcp_server.h"
 
@@ -49,8 +49,8 @@ static auto face_recognizer_service = std::make_shared<sph::face::FaceRecognizer
     face_detector, facemark_detector, face_recognizer);
 static auto facemark_detector_service =
     std::make_shared<sph::face::FacemarkDetectorService>(face_detector, facemark_detector);
-static auto object_classifier_service =
-    std::make_shared<sph::object::ClassifierService>(object_detector);
+static auto object_detector_service =
+    std::make_shared<sph::object::DetectorService>(object_detector);
 
 void signal_handler(int signal) {
     switch (signal) {
@@ -206,7 +206,7 @@ int main(int argc, char **argv) {
             std::cout << "[WARN] Failed to set Face Recognizer target to: " << val << std::endl;
         }
         if (!object_detector->set_target(target)) {
-            std::cout << "[WARN] Failed to set Object Classifier target to: " << val << std::endl;
+            std::cout << "[WARN] Failed to set Object Detector target to: " << val << std::endl;
         }
     }
 
@@ -286,7 +286,7 @@ int main(int argc, char **argv) {
         server->register_service(face_detector_service);
         server->register_service(face_recognizer_service);
         server->register_service(facemark_detector_service);
-        server->register_service(object_classifier_service);
+        server->register_service(object_detector_service);
     }
 
     // start the servers

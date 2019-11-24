@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
     std::string model_path;
     std::string model_config_path;
     sph::object::DNNDetector detector;
-    std::vector<sph::object::Classifier::Prediction> predictions;
+    std::vector<sph::object::Detector::Prediction> predictions;
     sph::CoreImage image;
     cv::Mat frame;
     std::chrono::high_resolution_clock::time_point t_loop_start;

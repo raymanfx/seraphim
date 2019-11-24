@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SPH_OBJECT_CLASSIFIER_H
-#define SPH_OBJECT_CLASSIFIER_H
+#ifndef SPH_OBJECT_DETECTOR_H
+#define SPH_OBJECT_DETECTOR_H
 
 #include <seraphim/image.h>
 #include <seraphim/polygon.h>
@@ -16,15 +16,15 @@ namespace sph {
 namespace object {
 
 /**
- * @brief Object classifier interface.
+ * @brief Object detector interface.
  *
- * Derive from this class to implement an object classifier.
+ * Derive from this class to implement an object detector.
  * The interface provides a basic prediction data type and requires you to
  * implement the abstract @ref predict method.
  */
-class Classifier {
+class Detector {
 public:
-    virtual ~Classifier() = default;
+    virtual ~Detector() = default;
 
     /**
      * @brief Object prediction data struct.
@@ -50,4 +50,4 @@ public:
 } // namespace object
 } // namespace sph
 
-#endif // SPH_OBJECT_CLASSIFIER_H
+#endif // SPH_OBJECT_DETECTOR_H

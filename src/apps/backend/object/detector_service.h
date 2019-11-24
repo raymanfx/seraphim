@@ -5,30 +5,30 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SPH_OBJECT_CLASSIFIER_SERVICE_H
-#define SPH_OBJECT_CLASSIFIER_SERVICE_H
+#ifndef SPH_OBJECT_DETECTOR_SERVICE_H
+#define SPH_OBJECT_DETECTOR_SERVICE_H
 
 #include <ObjectDetector.pb.h>
-#include <seraphim/object/classifier.h>
+#include <seraphim/object/detector.h>
 
 #include "../service.h"
 
 namespace sph {
 namespace object {
 
-class ClassifierService : public sph::backend::Service {
+class DetectorService : public sph::backend::Service {
 public:
-    explicit ClassifierService(std::shared_ptr<sph::object::Classifier> recognizer);
+    explicit DetectorService(std::shared_ptr<sph::object::Detector> recognizer);
 
     bool handle_request(const Seraphim::Request &req, Seraphim::Response &res) override;
     bool handle_detection_request(const Seraphim::Object::Detector::DetectionRequest &req,
                                   Seraphim::Object::Detector::DetectionResponse &res);
 
 private:
-    std::shared_ptr<sph::object::Classifier> m_recognizer;
+    std::shared_ptr<sph::object::Detector> m_recognizer;
 };
 
 } // namespace object
 } // namespace sph
 
-#endif // SPH_OBJECT_CLASSIFIER_SERVICE_H
+#endif // SPH_OBJECT_DETECTOR_SERVICE_H
