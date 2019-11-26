@@ -50,12 +50,11 @@ inline void glfw_init() {
  *
  * This only ever runs once during the lifetime of the process.
  * After this has been called, all GLFW ops will fail until glfw_init() is called again.
- *
- * Throws sph::RuntimeException in case of errors.
  */
 inline void glfw_terminate() {
     if (glfw_initialized && glfw_windows == 0) {
         glfwTerminate();
+        glfw_initialized = false;
     }
 }
 
