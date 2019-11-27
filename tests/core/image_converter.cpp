@@ -89,4 +89,60 @@ TEST_CASE( "Image conversions", "[ImageConverter]" ) {
             }
         }
     }
+    SECTION( "YUYV -> RGB" ) {
+        // 2x3 YUYV image
+        unsigned char bytes[] = {
+            41, 110, 41, 189, 53, 1, 53, 75,
+            50, 100, 50, 243, 3, 6, 167, 64,
+            100, 50, 16, 43, 42, 47, 88, 62
+        };
+        Pixelformat yuyv (Pixelformat::Pattern::YUYV, 2);
+        CoreImage i1(bytes, 2, 3, yuyv);
+        bool success = ImageConverter::Instance().convert(i1, i1, Pixelformat::Enum::RGB24);
+
+        REQUIRE( success );
+        REQUIRE( i1.stride() == 2 /* width */ * 3 /* 24bpp */);
+
+        for (uint32_t i = 0; i < i1.height(); i++) {
+            for (uint32_t j = 0; j < i1.width(); j += 2) {
+                uint8_t r1, g1, b1;
+                uint8_t r2, g2, b2;
+                uint8_t y0, u0, y1, v0;
+                int8_t c, d, e;
+
+                y0 = bytes[i /* row */ * 4 /* stride */ + j /* column */ * 2];
+                u0 = bytes[i /* row */ * 4 /* stride */ + j /* column */ * 2 + 1];
+                y1 = bytes[i /* row */ * 4 /* stride */ + j /* column */ * 2 + 2];
+                v0 = bytes[i /* row */ * 4 /* stride */ + j /* column */ * 2 + 3];
+
+                c = static_cast<int8_t>(y0 - 16);
+                d = static_cast<int8_t>(u0 - 128);
+                e = static_cast<int8_t>(v0 - 128);
+
+                // the first RGB pixel
+                r1 =
+                    static_cast<uint8_t>(clamp(((298 * c + 409 * e + 128) >> 8), 0, 255));
+                g1 = static_cast<uint8_t>(
+                    clamp(((298 * c - 100 * d - 208 * e + 128) >> 8), 0, 255));
+                b1 =
+                    static_cast<uint8_t>(clamp(((298 * c + 516 * d + 128) >> 8), 0, 255));
+
+                // the second RGB pixel
+                c = static_cast<int8_t>(y1 - 16);
+                r2 =
+                    static_cast<uint8_t>(clamp(((298 * c + 409 * e + 128) >> 8), 0, 255));
+                g2 = static_cast<uint8_t>(
+                    clamp(((298 * c - 100 * d - 208 * e + 128) >> 8), 0, 255));
+                b2 =
+                    static_cast<uint8_t>(clamp(((298 * c + 516 * d + 128) >> 8), 0, 255));
+
+                REQUIRE( i1.pixel(j, i)[0] == r1 );
+                REQUIRE( i1.pixel(j, i)[1] == g1 );
+                REQUIRE( i1.pixel(j, i)[2] == b1 );
+                REQUIRE( i1.pixel(j + 1, i)[0] == r2 );
+                REQUIRE( i1.pixel(j + 1, i)[1] == g2 );
+                REQUIRE( i1.pixel(j + 1, i)[2] == b2 );
+            }
+        }
+    }
 }

@@ -238,10 +238,16 @@ static size_t yuy2_to_rgb(const Image &src, CoreImage &dst, const Pixelformat &f
         return false;
     }
 
+    // YUY2 requires the width to be even because two image pixels make a macropixel and a pixel
+    // row may only contain full macropixels
+    if (src.width() % 2 != 0) {
+        return false;
+    }
+
     CoreImage _dst(src.width(), src.height(), fmt);
     auto data = reinterpret_cast<const unsigned char *>(src.data());
-    uint16_t y0, u0, y1, v0;
-    uint16_t c, d, e;
+    uint8_t y0, u0, y1, v0;
+    int8_t c, d, e;
 
     // https://stackoverflow.com/a/4494004
     for (uint32_t y = 0; y < src.height(); y++) {
@@ -253,9 +259,9 @@ static size_t yuy2_to_rgb(const Image &src, CoreImage &dst, const Pixelformat &f
             u0 = (data + src_offset)[1];
             y1 = (data + src_offset)[2];
             v0 = (data + src_offset)[3];
-            c = y0 - 16;
-            d = u0 - 128;
-            e = v0 - 128;
+            c = static_cast<int8_t>(y0 - 16);
+            d = static_cast<int8_t>(u0 - 128);
+            e = static_cast<int8_t>(v0 - 128);
 
             // the first RGB pixel
             _dst.pixel(x, y)[dst_r_off] =
@@ -266,7 +272,7 @@ static size_t yuy2_to_rgb(const Image &src, CoreImage &dst, const Pixelformat &f
                 static_cast<uint8_t>(clamp(((298 * c + 516 * d + 128) >> 8), 0, 255)); // b
 
             // the second RGB pixel
-            c = y1 - 16;
+            c = static_cast<int8_t>(y1 - 16);
             _dst.pixel(x + 1, y)[dst_r_off] =
                 static_cast<uint8_t>(clamp(((298 * c + 409 * e + 128) >> 8), 0, 255)); // r
             _dst.pixel(x + 1, y)[dst_g_off] = static_cast<uint8_t>(
