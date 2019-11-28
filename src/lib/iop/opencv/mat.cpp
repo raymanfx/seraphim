@@ -10,7 +10,7 @@
 
 ::cv::Mat sph::iop::cv::from_image(const sph::Image &img) {
     ::cv::Mat mat;
-    int type = 0;
+    int type = -1;
 
     if (img.empty()) {
         return ::cv::Mat();
@@ -29,17 +29,14 @@
         break;
     case 3:
         switch (img.pixfmt().size) {
-        case 1:
+        case 3:
             type = CV_8UC3;
-            break;
-        case 2:
-            type = CV_16UC3;
             break;
         }
         break;
     }
 
-    if (type == 0) {
+    if (type == -1) {
         return ::cv::Mat();
     }
 
