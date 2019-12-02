@@ -73,7 +73,9 @@ public:
      * @return Point as set of coordinates with type T.
      */
     Point2<T> bl() const {
-        assert(!empty());
+        if (empty()) {
+            return Point2<T>(0, 0);
+        }
 
         Point2<T> p = m_points[0];
         Polygon rect = bounding_rect();
@@ -96,7 +98,9 @@ public:
      * @return Point as set of coordinates with type T.
      */
     Point2<T> tl() const {
-        assert(!empty());
+        if (empty()) {
+            return Point2<T>(0, 0);
+        }
 
         Point2<T> p = m_points[0];
         Polygon rect = bounding_rect();
@@ -119,7 +123,9 @@ public:
      * @return Point as set of coordinates with type T.
      */
     Point2<T> tr() const {
-        assert(!empty());
+        if (empty()) {
+            return Point2<T>(0, 0);
+        }
 
         Point2<T> p = m_points[0];
         Polygon rect = bounding_rect();
@@ -142,7 +148,9 @@ public:
      * @return Point as set of coordinates with type T.
      */
     Point2<T> br() const {
-        assert(!empty());
+        if (empty()) {
+            return Point2<T>(0, 0);
+        }
 
         Point2<T> p = m_points[0];
         Polygon rect = bounding_rect();
@@ -177,10 +185,8 @@ public:
      * @return Rectangle as polygon with type T.
      */
     Polygon bounding_rect() const {
-        assert(!empty());
-
-        T min_x, max_x;
-        T min_y, max_y;
+        T min_x = 0, max_x = 0;
+        T min_y = 0, max_y = 0;
 
         min_x = max_x = m_points[0].x;
         min_y = max_y = m_points[0].y;
