@@ -93,8 +93,8 @@ public:
      */
     Matrix(const Matrix m, size_t i, size_t j, size_t rows, size_t cols) : Matrix(rows, cols) {
         assert((i + rows) <= m.rows() && (j + cols) <= m.cols());
-        for (size_t i_ = 1; i_ <= rows; i_++) {
-            for (size_t j_ = 1; j_ <= cols; j_++) {
+        for (size_t i_ = 0; i_ < rows; i_++) {
+            for (size_t j_ = 0; j_ < cols; j_++) {
                 (*this)(i_, j_) = m(i_ + i, j_ + j);
             }
         }
@@ -149,31 +149,31 @@ public:
     /**
      * @brief Subscript operator retrieving a single matrix element reference.
      *
-     * Note that element indexing is used, i.e. the first element is at (1, 1).
+     * Note that array indexing is used, i.e. the first element is at (0, 0).
      *
      * @param i Matrix row index.
      * @param j Matrix column index.
      * @return The Matrix element at the specified offsets.
      */
     T &operator()(size_t i, size_t j) {
-        assert(i > 0 && j > 0);
-        assert(i <= m_rows && j <= m_cols);
-        return data(i - 1)[j - 1];
+        assert(i >= 0 && j >= 0);
+        assert(i < m_rows && j < m_cols);
+        return data(i)[j];
     }
 
     /**
      * @brief Subscript operator retrieving a single matrix element reference.
      *
-     * Note that element indexing is used, i.e. the first element is at (1, 1).
+     * Note that array indexing is used, i.e. the first element is at (0, 0).
      *
      * @param i Matrix row index.
      * @param j Matrix column index.
      * @return The Matrix element at the specified offsets.
      */
     T operator()(size_t i, size_t j) const {
-        assert(i > 0 && j > 0);
-        assert(i <= m_rows && j <= m_cols);
-        return data(i - 1)[j - 1];
+        assert(i >= 0 && j >= 0);
+        assert(i < m_rows && j < m_cols);
+        return data(i)[j];
     }
 
     /**
@@ -198,19 +198,19 @@ public:
      */
     friend std::ostream &operator<<(std::ostream &os, Matrix &m) {
         os << std::endl << "[";
-        for (size_t i = 1; i <= m.rows(); i++) {
-            if (i > 1) {
+        for (size_t i = 0; i < m.rows(); i++) {
+            if (i > 0) {
                 os << " ";
             }
             os << "[";
-            for (size_t j = 1; j <= m.cols(); j++) {
+            for (size_t j = 0; j < m.cols(); j++) {
                 os << m(i, j);
-                if (j < m.cols()) {
+                if (j < m.cols() - 1) {
                     os << " ";
                 }
             }
             os << "]";
-            if (i < m.rows()) {
+            if (i < m.rows() - 1) {
                 os << std::endl;
             }
         }
@@ -389,29 +389,29 @@ public:
         typedef T *pointer;
         typedef std::forward_iterator_tag iterator_category;
         iterator(Matrix &m, size_t i, size_t j) : m_mat(m), m_row(i), m_col(j) {
-            assert(i > 0 && j > 0);
+            assert(i >= 0 && j >= 0);
         }
         self_type operator++() {
             m_col++;
-            if (m_col > m_mat.cols()) {
-                m_col = 1;
+            if (m_col >= m_mat.cols()) {
+                m_col = 0;
                 m_row++;
             }
-            assert(m_col <= m_mat.cols() && m_row <= m_mat.rows());
+            assert(m_col < m_mat.cols() && m_row < m_mat.rows());
             return *this;
         }
         self_type operator++(int) {
             self_type i = *this;
             m_col++;
-            if (m_col > m_mat.cols()) {
-                m_col = 1;
+            if (m_col >= m_mat.cols()) {
+                m_col = 0;
                 m_row++;
             }
-            assert(m_col <= m_mat.cols() && m_row <= m_mat.rows());
+            assert(m_col < m_mat.cols() && m_row < m_mat.rows());
             return i;
         }
         value_type &operator*() { return m_mat(m_row, m_col); }
-        value_type *operator->() { return m_mat.data(m_row - 1) + (m_col - 1); }
+        value_type *operator->() { return m_mat.data(m_row) + m_col; }
         bool operator==(const self_type &rhs) { return m_mat == rhs.m_mat; }
         bool operator!=(const self_type &rhs) { return !(m_mat == rhs.m_mat); }
 
@@ -429,29 +429,29 @@ public:
         typedef T *pointer;
         typedef std::forward_iterator_tag iterator_category;
         const_iterator(const Matrix &m, size_t i, size_t j) : m_mat(m), m_row(i), m_col(j) {
-            assert(i > 0 && j > 0);
+            assert(i >= 0 && j >= 0);
         }
         self_type operator++() {
             m_col++;
-            if (m_col > m_mat.cols()) {
-                m_col = 1;
+            if (m_col >= m_mat.cols()) {
+                m_col = 0;
                 m_row++;
             }
-            assert(m_col <= m_mat.cols() && m_row <= m_mat.rows());
+            assert(m_col < m_mat.cols() && m_row < m_mat.rows());
             return *this;
         }
         self_type operator++(int) {
             self_type i = *this;
             m_col++;
-            if (m_col > m_mat.cols()) {
-                m_col = 1;
+            if (m_col >= m_mat.cols()) {
+                m_col = 0;
                 m_row++;
             }
-            assert(m_col <= m_mat.cols() && m_row <= m_mat.rows());
+            assert(m_col < m_mat.cols() && m_row < m_mat.rows());
             return i;
         }
         const value_type &operator*() { return m_mat(m_row, m_col); }
-        const value_type *operator->() { return m_mat.data(m_row - 1) + (m_col - 1); }
+        const value_type *operator->() { return m_mat.data(m_row) + m_col; }
         bool operator==(const self_type &rhs) { return m_mat == rhs.m_mat; }
         bool operator!=(const self_type &rhs) { return !(m_mat == rhs.m_mat); }
 
@@ -468,7 +468,7 @@ public:
      *
      * @return Forward iterator.
      */
-    iterator begin() { return iterator(*this, 1, 1); }
+    iterator begin() { return iterator(*this, 0, 0); }
 
     /**
      * @brief End of the matrix, points to its last element.
@@ -483,7 +483,7 @@ public:
      * @brief Begin of the matrix, points to its first element.
      * @return Constant forward iterator.
      */
-    const_iterator begin() const { return const_iterator(*this, 1, 1); }
+    const_iterator begin() const { return const_iterator(*this, 0, 0); }
 
     /**
      * @brief End of the matrix, points to its last element.
