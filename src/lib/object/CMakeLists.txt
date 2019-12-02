@@ -7,12 +7,15 @@ set(MODULE_VERSION_MINOR 0)
 set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
-    dnn_detector.cpp)
+    dnn_detector.cpp
+    kcf_tracker.cpp)
 
 set(HEADERS
     include/seraphim/object.h
     include/seraphim/object/detector.h
-    include/seraphim/object/dnn_detector.h)
+    include/seraphim/object/dnn_detector.h
+    include/seraphim/object/kcf_tracker.h
+    include/seraphim/object/tracker.h)
 
 add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})
 add_library(seraphim::${MODULE_NAME} ALIAS ${MODULE_NAME})
@@ -33,9 +36,9 @@ target_include_directories(${MODULE_NAME} PUBLIC
                            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 # OpenCV dependency
-find_package(OpenCV COMPONENTS opencv_core REQUIRED)
+find_package(OpenCV COMPONENTS opencv_core opencv_dnn opencv_tracking REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
-target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_dnn)
+target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_dnn opencv_tracking)
 if (${OpenCV_VERSION} GREATER_EQUAL 4)
     set_target_properties(${MODULE_NAME} PROPERTIES COMPILE_FLAGS "-DWITH_VULKAN")
 endif ()

@@ -1,5 +1,6 @@
 set(SAMPLES
-    dnn_detector)
+    dnn_detector
+    dnn_detector_kcf_tracker)
 
 # OpenCV dependency
 find_package(OpenCV COMPONENTS opencv_core opencv_imgproc REQUIRED)
