@@ -11,7 +11,7 @@
 #include <opencv2/videoio.hpp>
 #include <optparse.h>
 #include <seraphim/image.h>
-#include <seraphim/gui/gl_window.h>
+#include <seraphim/gui.h>
 #include <seraphim/iop/opencv/mat.h>
 
 static bool main_loop = true;
@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
     helpOpt.shortname = "h";
     helpOpt.description = "Show help";
     optparse.add(helpOpt, [&](const std::string&) {
-        std::cout << "gl_window [args]" << std::endl << std::endl;
+        std::cout << "glfw_window [args]" << std::endl << std::endl;
         for (const auto &str : optparse.help(true)) {
             std::cout << str << std::endl;
         }
@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    sph::gui::GLWindow window("GL Window");
+    auto window = sph::gui::WindowFactory::create("GL Window", sph::gui::WindowFactory::Impl::GLFW);
 
     while (main_loop) {
         t_loop_start = std::chrono::high_resolution_clock::now();
@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        window.show(image);
+        window->show(image);
         process_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                            std::chrono::high_resolution_clock::now() - t_frame_captured)
                            .count();

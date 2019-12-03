@@ -10,7 +10,7 @@
 #include <optparse.h>
 #include <seraphim/car/linear_lane_detector.h>
 #include <seraphim/polygon.h>
-#include <seraphim/gui/gl_window.h>
+#include <seraphim/gui.h>
 #include <seraphim/iop/opencv/mat.h>
 
 static bool main_loop = true;
@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    sph::gui::GLWindow viewer("Linear Lane Detector");
+    auto viewer = sph::gui::WindowFactory::create("Linear Lane Detector");
 
     // initialize parameters for lane detector
     sph::car::LinearLaneDetector::Parameters params = {};
@@ -170,6 +170,6 @@ int main(int argc, char **argv) {
             elapsed = 0;
         }
 
-        viewer.show(image);
+        viewer->show(image);
     }
 }

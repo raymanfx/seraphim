@@ -8,8 +8,6 @@
 #ifndef SPH_GUI_H
 #define SPH_GUI_H
 
-#include <seraphim/gui/module.h>
-
-#include <seraphim/gui/gl_window.h>
+#include <seraphim/gui/window_factory.h>
 
 #endif // SPH_GUI_H

@@ -11,7 +11,7 @@
 #include <optparse.h>
 #include <seraphim/image.h>
 #include <seraphim/image_converter.h>
-#include <seraphim/gui/gl_window.h>
+#include <seraphim/gui.h>
 #include <seraphim/iop/opencv/mat.h>
 
 static bool main_loop = true;
@@ -82,8 +82,8 @@ int main(int argc, char **argv) {
         }
     }
 
-    sph::gui::GLWindow rgb("RGB");
-    sph::gui::GLWindow gray("Grayscale");
+    auto rgb = sph::gui::WindowFactory::create("RGB");
+    auto gray = sph::gui::WindowFactory::create("Grayscale");
 
     while (main_loop) {
         t_loop_start = std::chrono::high_resolution_clock::now();
@@ -129,7 +129,7 @@ int main(int argc, char **argv) {
             elapsed = 0;
         }
 
-        rgb.show(rgb_image);
-        gray.show(gray_image);
+        rgb->show(rgb_image);
+        gray->show(gray_image);
     }
 }

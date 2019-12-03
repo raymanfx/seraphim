@@ -4,16 +4,12 @@ set(MODULE_VERSION_MINOR 0)
 set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
-    gl_window.cpp
-    glad.c)
+    window_factory.cpp)
 
 set(HEADERS
-    include/KHR/khrplatform.h
     include/seraphim/gui.h
-    include/seraphim/gui/glad/glad.h
     include/seraphim/gui/window.h
-    include/seraphim/gui/glfw.h
-    include/seraphim/gui/gl_window.h)
+    include/seraphim/gui/window_factory.h)
 
 add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})
 add_library(seraphim::${MODULE_NAME} ALIAS ${MODULE_NAME})
@@ -28,8 +24,18 @@ set_target_properties(${MODULE_NAME} PROPERTIES SOVERSION
                       ${MODULE_VERSION_MAJOR})
 
 # GLFW dependency
-find_package(glfw3 REQUIRED)
-target_link_libraries(${MODULE_NAME} PUBLIC glfw)
+find_package(glfw3)
+if (glfw3_FOUND)
+    target_sources(${MODULE_NAME} PRIVATE
+        glad.c
+        glfw_window.cpp
+        include/KHR/khrplatform.h
+        include/seraphim/gui/glad/glad.h
+        include/seraphim/gui/glfw.h
+        include/seraphim/gui/glfw_window.h)
+    target_compile_definitions(${MODULE_NAME} PUBLIC "-DWITH_GLFW")
+    target_link_libraries(${MODULE_NAME} PUBLIC glfw)
+endif ()
 
 target_link_libraries(${MODULE_NAME} PUBLIC seraphim::core)
 

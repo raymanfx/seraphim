@@ -9,12 +9,12 @@
 #include <thread>
 
 #include "seraphim/except.h"
-#include "seraphim/gui/gl_window.h"
+#include "seraphim/gui/glfw_window.h"
 
 using namespace sph;
 using namespace sph::gui;
 
-GLWindow::GLWindow(const std::string &title) : m_ui_active(false) {
+GLFWWindow::GLFWWindow(const std::string &title) : m_ui_active(false) {
     glfw_init();
 
     m_window = glfw_create_window(1, 1, title.c_str());
@@ -53,7 +53,7 @@ GLWindow::GLWindow(const std::string &title) : m_ui_active(false) {
     });
 }
 
-GLWindow::~GLWindow() {
+GLFWWindow::~GLFWWindow() {
     m_ui_active = false;
     if (m_ui_thread.joinable()) {
         m_ui_thread.join();
@@ -65,7 +65,7 @@ GLWindow::~GLWindow() {
     glfw_terminate();
 }
 
-void GLWindow::show(const sph::Image &img) {
+void GLFWWindow::show(const sph::Image &img) {
     static bool setup_texture = true;
     int w = static_cast<int>(img.width());
     int h = static_cast<int>(img.height());
@@ -171,7 +171,7 @@ void GLWindow::show(const sph::Image &img) {
     glfwSwapBuffers(m_window);
 }
 
-void GLWindow::init_gl() {
+void GLFWWindow::init_gl() {
     const char *vertex_shader_source =
         "#version 300 es\n"
         // input vertex data, different for all executions of this shader
@@ -307,7 +307,7 @@ void GLWindow::init_gl() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
-void GLWindow::terminate_gl() {
+void GLFWWindow::terminate_gl() {
     glDeleteTextures(1, &m_texture);
     glDeleteVertexArrays(1, &m_vao);
     glDeleteBuffers(1, &m_vbo);

@@ -10,7 +10,7 @@
 #include <opencv2/videoio.hpp>
 #include <optparse.h>
 #include <seraphim/polygon.h>
-#include <seraphim/gui/gl_window.h>
+#include <seraphim/gui.h>
 #include <seraphim/iop/opencv/mat.h>
 #include <seraphim/object/dnn_detector.h>
 
@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
     }
     detector.set_target(sph::Computable::Target::CPU);
 
-    sph::gui::GLWindow viewer("DNN classifier");
+    auto viewer = sph::gui::WindowFactory::create("DNN Detector");
 
     // parameters from:
     // https://becominghuman.ai/face-detection-with-opencv-and-deep-learning-90b84735f421
@@ -201,6 +201,6 @@ int main(int argc, char **argv) {
             elapsed = 0;
         }
 
-        viewer.show(image);
+        viewer->show(image);
     }
 }

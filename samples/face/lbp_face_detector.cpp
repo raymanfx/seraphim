@@ -11,7 +11,7 @@
 #include <optparse.h>
 #include <seraphim/polygon.h>
 #include <seraphim/face/lbp_face_detector.h>
-#include <seraphim/gui/gl_window.h>
+#include <seraphim/gui.h>
 #include <seraphim/iop/opencv/mat.h>
 
 using namespace sph::face;
@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
     }
     detector.set_target(sph::Computable::Target::OPENCL);
 
-    sph::gui::GLWindow viewer("LBP Face Detector");
+    auto viewer = sph::gui::WindowFactory::create("LBP Face Detector");
 
     while (main_loop) {
         t_loop_start = std::chrono::high_resolution_clock::now();
@@ -154,6 +154,6 @@ int main(int argc, char **argv) {
             elapsed = 0;
         }
 
-        viewer.show(image);
+        viewer->show(image);
     }
 }

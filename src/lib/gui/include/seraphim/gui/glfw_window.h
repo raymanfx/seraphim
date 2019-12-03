@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SPH_GUI_GL_WINDOW_H
-#define SPH_GUI_GL_WINDOW_H
+#ifndef SPH_GUI_GLFW_WINDOW_H
+#define SPH_GUI_GLFW_WINDOW_H
 
 #include <atomic>
 #include <mutex>
@@ -23,15 +23,15 @@ namespace gui {
  *
  * Frames are rendered using GLES.
  */
-class GLWindow : public Window {
+class GLFWWindow : public Window {
 public:
     /**
      * @brief GL window implementation.
      *        Throws sph::RuntimeException if GL initialization fails.
      * @param title Window title (for UX).
      */
-    explicit GLWindow(const std::string &title);
-    ~GLWindow() override;
+    explicit GLFWWindow(const std::string &title);
+    ~GLFWWindow() override;
 
     void show(const sph::Image &img) override;
 
@@ -78,4 +78,4 @@ private:
 } // namespace gui
 } // namespace sph
 
-#endif // SPH_GUI_GL_WINDOW_H
+#endif // SPH_GUI_GLFW_WINDOW_H
