@@ -9,8 +9,8 @@ set(SOURCES
 
 set(HEADERS
     include/KHR/khrplatform.h
-    include/glad/glad.h
     include/seraphim/gui.h
+    include/seraphim/gui/glad/glad.h
     include/seraphim/gui/window.h
     include/seraphim/gui/glfw.h
     include/seraphim/gui/gl_window.h)
@@ -40,7 +40,6 @@ target_include_directories(${MODULE_NAME} PUBLIC
                            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 # install shared lib and headers
-install(DIRECTORY include/glad DESTINATION include)
 install(DIRECTORY include/seraphim DESTINATION include)
 install(TARGETS ${MODULE_NAME} EXPORT ${MODULE_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR})
 

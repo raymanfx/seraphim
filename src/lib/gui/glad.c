@@ -19,10 +19,11 @@
         https://glad.dav1d.de/#profile=core&language=c&specification=gl&loader=on&api=gles2%3D3.0
 */
 
-#include <glad/glad.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "seraphim/gui/glad/glad.h"
 
 struct gladGLversionStruct GLVersion = { 0, 0 };
 
