@@ -46,8 +46,11 @@ GLFWWindow::GLFWWindow(const std::string &title) : m_ui_active(false) {
     m_ui_active = true;
     m_ui_thread = std::thread([&]() {
         while (m_ui_active) {
-            // TODO: check glfwWindowShouldClose(m_window) and act accordingly
             glfwPollEvents();
+            if (glfwWindowShouldClose(m_window)) {
+                publish(Event::CLOSE);
+            }
+
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     });

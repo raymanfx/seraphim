@@ -83,6 +83,13 @@ int main(int argc, char **argv) {
 
     auto window = sph::gui::WindowFactory::create("GL Window", sph::gui::WindowFactory::Impl::GLFW);
 
+    auto event_cb = [&](sph::gui::Window::Event event) {
+        if (event & sph::gui::Window::Event::CLOSE) {
+            main_loop = 0;
+        }
+    };
+    window->subscribe(event_cb, sph::gui::Window::Event::CLOSE);
+
     while (main_loop) {
         t_loop_start = std::chrono::high_resolution_clock::now();
 
