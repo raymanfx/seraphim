@@ -31,11 +31,11 @@ public:
      */
     struct Prediction {
         /// class id (taken from the dataset that was used in @ref predict)
-        int class_id;
+        int class_id = -1;
         /// bounding polygon, relative to the input image
         sph::Polygon<int> poly;
         /// confidence (value between 0 and 1)
-        float confidence;
+        float confidence = 0.0f;
     };
 
     /**
