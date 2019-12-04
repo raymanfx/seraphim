@@ -64,8 +64,8 @@ bool FaceDetectorService::handle_detection_request(
 
     for (const auto &poly : faces) {
         Seraphim::Types::Region2D *face = res.add_faces();
-        face->set_x(poly.bl().x);
-        face->set_y(poly.bl().y);
+        face->set_x(poly.brect().tl().x);
+        face->set_y(poly.brect().tl().y);
         face->set_w(poly.width());
         face->set_h(poly.height());
     }

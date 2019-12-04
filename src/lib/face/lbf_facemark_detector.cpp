@@ -72,7 +72,8 @@ bool LBFFacemarkDetector::detect(const sph::Image &img, const std::vector<sph::P
     }
 
     for (const auto &poly : faces) {
-        faces_.emplace_back(cv::Rect(poly.tl().x, poly.tl().y, poly.width(), poly.height()));
+        faces_.emplace_back(
+            cv::Rect(poly.brect().tl().x, poly.brect().tl().y, poly.width(), poly.height()));
     }
 
     // perform the actual detection

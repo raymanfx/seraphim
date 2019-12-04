@@ -78,7 +78,7 @@ bool LinearLaneDetector::detect(const Image &img, std::vector<Polygon<int>> &lan
         return false;
     }
 
-    for (const auto &p : m_roi.points()) {
+    for (const auto &p : m_roi.vertices()) {
         roi.emplace_back(cv::Point(p.x, p.y));
     }
 

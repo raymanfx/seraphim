@@ -55,9 +55,8 @@ bool KazemiFacemarkDetector::detect(const sph::Image &img,
 
     // convert faces to dlib rectangles
     for (const auto &face : faces) {
-        faces_.emplace_back(
-            face.bounding_rect().tl().x, static_cast<unsigned long>(face.bounding_rect().tl().y),
-            face.bounding_rect().br().x, static_cast<unsigned long>(face.bounding_rect().br().y));
+        faces_.emplace_back(face.brect().tl().x, static_cast<unsigned long>(face.brect().tl().y),
+                            face.brect().br().x, static_cast<unsigned long>(face.brect().br().y));
     }
 
     // clear the output vector

@@ -108,15 +108,10 @@ int main(int argc, char **argv) {
     // tune the ROI according to your input video
     // in this case, use a 4-point polygon shape to match the "project_video.mp4"
     // clip of the udacity course at https://github.com/udacity/CarND-Vehicle-Detection
-    sph::Polygon<int> roi;
-    // bottom left
-    roi.add_point({ 210, frame.rows });
-    // top left
-    roi.add_point({ 550, 450 });
-    // top right
-    roi.add_point({ 717, 450 });
-    // bottom right
-    roi.add_point({ frame.cols, frame.rows });
+    sph::Polygon<int> roi(sph::Point2<int>(210, frame.rows),            // BL
+                          sph::Point2<int>(550, 450),                   // TL
+                          sph::Point2<int>(717, 450),                   // TR
+                          sph::Point2<int>(frame.cols, frame.rows));    // BR
     lane_detector.set_roi(roi);
 
     while (main_loop) {
@@ -146,11 +141,11 @@ int main(int argc, char **argv) {
 
         if (lanes.size() > 0) {
             for (auto &lane : lanes) {
-                cv::line(frame, cv::Point(lane.points()[0].x, lane.points()[0].y),
-                         (cv::Point(lane.points()[1].x, lane.points()[1].y)), cv::Scalar(0, 0, 255),
+                cv::line(frame, cv::Point(lane.vertices()[0].x, lane.vertices()[0].y),
+                         (cv::Point(lane.vertices()[1].x, lane.vertices()[1].y)), cv::Scalar(0, 0, 255),
                          3);
-                cv::line(frame, cv::Point(lane.points()[2].x, lane.points()[2].y),
-                         (cv::Point(lane.points()[3].x, lane.points()[3].y)), cv::Scalar(0, 0, 255),
+                cv::line(frame, cv::Point(lane.vertices()[2].x, lane.vertices()[2].y),
+                         (cv::Point(lane.vertices()[3].x, lane.vertices()[3].y)), cv::Scalar(0, 0, 255),
                          3);
             }
         }

@@ -40,8 +40,8 @@ void KCFTracker::init(const sph::Image &img, const sph::Polygon<int> &rect) {
         SPH_THROW(RuntimeException, "Failed to convert image");
     }
 
-    _rect.x = rect.tl().x;
-    _rect.y = rect.tl().y;
+    _rect.x = rect.brect().tl().x;
+    _rect.y = rect.brect().tl().y;
     _rect.width = rect.width();
     _rect.height = rect.height();
 
@@ -85,10 +85,9 @@ sph::Polygon<int> KCFTracker::predict(const sph::Image &img) {
     }
 
     m_tracker[m_tracker_index]->update(_img, _rect);
-    rect.add_point(Point2i(_rect.tl().x, _rect.tl().y));
-    rect.add_point(Point2i(_rect.tl().x + _rect.width, _rect.tl().y));
-    rect.add_point(Point2i(_rect.br().x, _rect.br().y));
-    rect.add_point(Point2i(_rect.br().x - _rect.width, _rect.br().y));
+    rect = sph::Polygon<int>(
+        Point2i(_rect.tl().x, _rect.tl().y), Point2i(_rect.tl().x + _rect.width, _rect.tl().y),
+        Point2i(_rect.br().x, _rect.br().y), Point2i(_rect.br().x - _rect.width, _rect.br().y));
 
     return rect;
 }

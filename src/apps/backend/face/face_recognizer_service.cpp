@@ -87,8 +87,8 @@ bool FaceRecognizerService::handle_training_request(
     } else {
         Seraphim::Types::Region2D *face = res.mutable_face();
 
-        face->set_x(faces.at(0).bl().x);
-        face->set_y(faces.at(0).bl().y);
+        face->set_x(faces.at(0).brect().tl().x);
+        face->set_y(faces.at(0).brect().tl().y);
         face->set_w(faces.at(0).width());
         face->set_h(faces.at(0).height());
 
@@ -123,8 +123,8 @@ bool FaceRecognizerService::handle_training_request(
         std::cout << "rot angle: " << angle << std::endl;
 
         // rotate the face ROI by the same angle
-        alignedROI = cv::RotatedRect((cv::Point(faces[0].br().x, faces[0].br().y) +
-                                      cv::Point(faces[0].tl().x, faces[0].tl().y)) *
+        alignedROI = cv::RotatedRect((cv::Point(faces[0].brect().br().x, faces[0].brect().br().y) +
+                                      cv::Point(faces[0].brect().tl().x, faces[0].brect().tl().y)) *
                                          0.5,
                                      cv::Size(faces[0].width(), faces[0].height()),
                                      static_cast<float>(angle));
@@ -181,7 +181,8 @@ bool FaceRecognizerService::handle_recognition_request(
 
     m_face_detector->detect(image, faces);
     for (size_t i = 0; i < faces.size(); i++) {
-        cv::Rect face_region(faces[i].bl().x, faces[i].bl().y, faces[i].width(), faces[i].height());
+        cv::Rect face_region(faces[i].brect().tl().x, faces[i].brect().tl().y, faces[i].width(),
+                             faces[i].height());
         image = sph::iop::cv::to_image(mat(face_region));
         if (image.empty()) {
             return false;
@@ -198,8 +199,8 @@ bool FaceRecognizerService::handle_recognition_request(
 
             res.add_labels(preds.at(j).label);
             res.add_distances(preds.at(j).confidence);
-            roi->set_x(faces.at(0).bl().x);
-            roi->set_y(faces.at(0).bl().y);
+            roi->set_x(faces.at(0).brect().tl().x);
+            roi->set_y(faces.at(0).brect().tl().y);
             roi->set_w(faces.at(0).width());
             roi->set_h(faces.at(0).height());
         }

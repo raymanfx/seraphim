@@ -45,9 +45,11 @@ bool LaneDetectorService::handle_detection_request(
     }
 
     if (req.has_polyroi()) {
+        std::vector<Point2<int>> points;
         for (const auto &point : req.polyroi().points()) {
-            polyroi.add_point(Point2i(point.x(), point.y()));
+            points.emplace_back(point.x(), point.y());
         }
+        polyroi = Polygon<int>(points);
         m_detector->set_roi(polyroi);
     } else {
         m_detector->set_roi({});
@@ -56,14 +58,14 @@ bool LaneDetectorService::handle_detection_request(
     m_detector->detect(image, lanes);
     for (const auto &lane : lanes) {
         Seraphim::Car::LaneDetector::Lane *lane_ = res.add_lanes();
-        lane_->mutable_bottomleft()->set_x(lane.points()[0].x);
-        lane_->mutable_bottomleft()->set_y(lane.points()[0].y);
-        lane_->mutable_topleft()->set_x(lane.points()[1].x);
-        lane_->mutable_topleft()->set_y(lane.points()[1].y);
-        lane_->mutable_topright()->set_x(lane.points()[2].x);
-        lane_->mutable_topright()->set_y(lane.points()[2].y);
-        lane_->mutable_bottomright()->set_x(lane.points()[3].x);
-        lane_->mutable_bottomright()->set_y(lane.points()[3].y);
+        lane_->mutable_bottomleft()->set_x(lane.vertices()[0].x);
+        lane_->mutable_bottomleft()->set_y(lane.vertices()[0].y);
+        lane_->mutable_topleft()->set_x(lane.vertices()[1].x);
+        lane_->mutable_topleft()->set_y(lane.vertices()[1].y);
+        lane_->mutable_topright()->set_x(lane.vertices()[2].x);
+        lane_->mutable_topright()->set_y(lane.vertices()[2].y);
+        lane_->mutable_bottomright()->set_x(lane.vertices()[3].x);
+        lane_->mutable_bottomright()->set_y(lane.vertices()[3].y);
     }
 
     return true;

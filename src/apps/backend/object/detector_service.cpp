@@ -68,8 +68,8 @@ bool DetectorService::handle_detection_request(
         res.add_labels(predictions[i].class_id);
         res.add_confidences(predictions[i].confidence);
         Seraphim::Types::Region2D *roi = res.add_rois();
-        roi->set_x(predictions[i].poly.bl().x);
-        roi->set_y(predictions[i].poly.bl().y);
+        roi->set_x(predictions[i].poly.brect().tl().x);
+        roi->set_y(predictions[i].poly.brect().tl().y);
         roi->set_w(predictions[i].poly.width());
         roi->set_h(predictions[i].poly.height());
     }

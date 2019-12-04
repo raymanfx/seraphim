@@ -247,7 +247,7 @@ int main(int argc, char **argv) {
                 }
 
                 cv::rectangle(frame,
-                              cv::Rect(pred.poly.tl().x, pred.poly.tl().y, pred.poly.width(),
+                              cv::Rect(pred.poly.brect().tl().x, pred.poly.brect().tl().y, pred.poly.width(),
                                        pred.poly.height()),
                               cv::Scalar(0, 255, 0), 2);
                 std::string label = cv::format("%.2f", pred.confidence);
@@ -256,8 +256,8 @@ int main(int argc, char **argv) {
                 //    label = MOBILENET_V2_COCO_2018_03_29.at(classId) + ": " + label;
                 //}
                 int baseLine;
-                int top = pred.poly.tl().y;
-                int left = pred.poly.tl().x;
+                int top = pred.poly.brect().tl().y;
+                int left = pred.poly.brect().tl().x;
                 cv::Size labelSize =
                     cv::getTextSize(label, cv::FONT_HERSHEY_DUPLEX, 1.0, 1, &baseLine);
                 top = cv::max(top, labelSize.height);
