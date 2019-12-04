@@ -43,6 +43,9 @@ private:
     /// initialization.
     std::array<cv::Ptr<cv::TrackerKCF>, 2> m_tracker;
 
+    /// Tracker parameters.
+    cv::TrackerKCF::Params m_tracker_params;
+
     /// Index of the currently active tracker.
     std::atomic<size_t> m_tracker_index = 0;
 

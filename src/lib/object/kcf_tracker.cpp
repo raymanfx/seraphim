@@ -14,6 +14,13 @@ using namespace sph;
 using namespace sph::object;
 
 KCFTracker::KCFTracker() {
+    // three channel input
+    // merge gray (1d) and color-name (10d) features into an 11d feature
+    m_tracker_params.desc_pca = cv::TrackerKCF::GRAY | cv::TrackerKCF::CN;
+    // compress features
+    m_tracker_params.compress_feature = true;
+    m_tracker_params.compressed_size = 2;
+
     // initialize one tracker instance upfront
     m_tracker_swap = std::async(std::launch::deferred, &KCFTracker::allocate_tracker, this);
 }
@@ -21,7 +28,7 @@ KCFTracker::KCFTracker() {
 void KCFTracker::allocate_tracker() {
     size_t next_index = (m_tracker_index + 1) % 2;
 
-    m_tracker[next_index] = cv::TrackerKCF::create();
+    m_tracker[next_index] = cv::TrackerKCF::create(m_tracker_params);
 }
 
 void KCFTracker::init(const sph::Image &img, const sph::Polygon<int> &rect) {
