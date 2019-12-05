@@ -15,6 +15,10 @@
 #include "seraphim/gui/glfw_window.h"
 #endif
 
+#ifdef WITH_OPENCV
+#include "seraphim/gui/opencv_window.h"
+#endif
+
 using namespace sph;
 using namespace sph::gui;
 
@@ -28,6 +32,10 @@ std::unique_ptr<Window> WindowFactory::create(const std::string &title, Impl imp
 #ifdef WITH_GLFW
     case Impl::GLFW:
         return std::unique_ptr<Window>(new GLFWWindow(title));
+#endif
+#ifdef WITH_OPENCV
+    case Impl::OPENCV:
+        return std::unique_ptr<Window>(new OpenCVWindow(title));
 #endif
     default:
         break;

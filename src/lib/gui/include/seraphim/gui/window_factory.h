@@ -39,7 +39,7 @@ public:
     WindowFactory(WindowFactory const &) = delete;
     void operator=(WindowFactory const &) = delete;
 
-    enum class Impl { AUTO, GLFW };
+    enum class Impl { AUTO, GLFW, OPENCV };
 
     /**
      * @brief GL window implementation.

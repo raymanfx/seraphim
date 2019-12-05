@@ -1,5 +1,6 @@
 set(SAMPLES
-    glfw_window)
+    glfw_window
+    opencv_window)
 
 # OpenCV dependency
 find_package(OpenCV COMPONENTS opencv_core opencv_videoio REQUIRED)

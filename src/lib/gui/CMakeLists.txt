@@ -33,8 +33,18 @@ if (glfw3_FOUND)
         include/seraphim/gui/glad/glad.h
         include/seraphim/gui/glfw.h
         include/seraphim/gui/glfw_window.h)
-    target_compile_definitions(${MODULE_NAME} PUBLIC "-DWITH_GLFW")
+    target_compile_definitions(${MODULE_NAME} PRIVATE "-DWITH_GLFW")
     target_link_libraries(${MODULE_NAME} PUBLIC glfw)
+endif ()
+
+# OpenCV dependency
+find_package(OpenCV COMPONENTS opencv_core opencv_highgui)
+if (OpenCV_FOUND)
+    target_sources(${MODULE_NAME} PRIVATE
+        opencv_window.cpp
+        include/seraphim/gui/opencv_window.h)
+    target_compile_definitions(${MODULE_NAME} PRIVATE "-DWITH_OPENCV")
+    target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_highgui seraphim::iop)
 endif ()
 
 target_link_libraries(${MODULE_NAME} PUBLIC seraphim::core)
