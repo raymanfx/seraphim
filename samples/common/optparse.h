@@ -67,31 +67,36 @@ public:
      * @return Options mapped to their values.
      */
     std::map<std::string, std::string> parse(const std::string &input) {
+        std::string _input = input;
         std::map<std::string, std::string> opts;
         size_t start = 0;
         size_t end;
         std::string name_or_shortname;
 
+        // ensure there is a leading whitespace char before the first arg
+        _input.insert(0, " ");
+
         while (true) {
             Option current;
 
             // get the option
-            start = input.find("-", start);
+            start = _input.find(" -", start);
             if (start == std::string::npos) {
                 break;
             }
 
-            while (input[start] == '-') {
+            start++;
+            while (_input[start] == '-') {
                 start++;
             }
 
-            end = input.find(' ', start);
+            end = _input.find(' ', start);
             if (end == std::string::npos) {
-                end = input.length();
+                end = _input.length();
             }
 
             // found the option (or its shortname)
-            name_or_shortname = input.substr(start, end - start);
+            name_or_shortname = _input.substr(start, end - start);
 
             // check our arg table for validity
             for (const auto &opt : m_opts) {
@@ -108,14 +113,14 @@ public:
 
             // now get the value, if any
             start = ++end;
-            end = input.find(" ", start);
+            end = _input.find(" -", start);
             if (end == std::string::npos) {
-                end = input.length();
+                end = _input.length();
             }
 
             if (end > start) {
                 // read the value as string
-                opts[current.name] = input.substr(start, end - start);
+                opts[current.name] = _input.substr(start, end - start);
             }
 
             // check whether the opt requires an argument
@@ -151,7 +156,7 @@ public:
         std::string args;
         for (int i = 1; i < argc; i++) {
             args += std::string(argv[i]);
-            if (i < argc -1) {
+            if (i < argc - 1) {
                 args += ' ';
             }
         }
