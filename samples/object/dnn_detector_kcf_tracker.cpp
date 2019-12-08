@@ -220,6 +220,40 @@ int main(int argc, char **argv) {
         }
     });
 
+    auto tracker_thread = std::thread([&] {
+        sph::CoreImage img;
+        sph::Polygon<int> _track;
+        std::chrono::high_resolution_clock::time_point t0;
+
+        while (main_loop) {
+            if (!tracker_initialized) {
+                continue;
+            }
+
+            {
+                std::unique_lock<std::mutex> lock(frame_mutex);
+                img = sph::CoreImage(image);
+                if (image.empty()) {
+                    continue;
+                }
+            }
+
+            t0 = std::chrono::high_resolution_clock::now();
+            {
+                std::unique_lock<std::mutex> lock(tracker_mutex);
+                _track = tracker.predict(image);
+            }
+            track_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                                std::chrono::high_resolution_clock::now() - t0)
+                                .count();
+
+            {
+                std::unique_lock<std::mutex> lock(overlay_mutex);
+                track = _track;
+            }
+        }
+    });
+
     while (main_loop) {
         t_loop_start = std::chrono::high_resolution_clock::now();
 
@@ -241,11 +275,6 @@ int main(int argc, char **argv) {
             }
         }
 
-        if (!tracker_initialized) {
-            // busy loop, the tracker should be initialized soon
-            continue;
-        }
-
         sph::object::Detector::Prediction pred;
         sph::Polygon<int> trackz;
         {
@@ -255,16 +284,6 @@ int main(int argc, char **argv) {
         }
 
         if (pred.confidence >= confidence_threshold && pred.class_id != 0) {
-            // get the object position from the tracker
-            {
-                std::unique_lock<std::mutex> lock(tracker_mutex);
-                auto t0 = std::chrono::high_resolution_clock::now();
-                trackz = tracker.predict(image);
-                track_time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                                 std::chrono::high_resolution_clock::now() - t0)
-                                 .count();
-            }
-
             // draw the prediction
             cv::rectangle(frame,
                           cv::Rect(pred.poly.brect().tl().x, pred.poly.brect().tl().y, pred.poly.width(),
@@ -315,5 +334,8 @@ int main(int argc, char **argv) {
 
     if (detection_thread.joinable()) {
         detection_thread.join();
+    }
+    if (tracker_thread.joinable()) {
+        tracker_thread.join();
     }
 }
