@@ -50,6 +50,12 @@ public:
      */
     static std::unique_ptr<Window> create(const std::string &title, Impl impl = Impl::AUTO);
 
+    /**
+     * @brief Default window impl for the platform.
+     * @return Window impl enum.
+     */
+    static Impl default_impl();
+
 private:
     WindowFactory() = default;
 };

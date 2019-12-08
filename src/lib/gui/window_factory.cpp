@@ -24,8 +24,7 @@ using namespace sph::gui;
 
 std::unique_ptr<Window> WindowFactory::create(const std::string &title, Impl impl) {
     if (impl == Impl::AUTO) {
-        // TODO: implement platform detection logic
-        impl = Impl::GLFW;
+        impl = WindowFactory::default_impl();
     }
 
     switch (impl) {
@@ -42,4 +41,14 @@ std::unique_ptr<Window> WindowFactory::create(const std::string &title, Impl imp
     }
 
     SPH_THROW(RuntimeException, "No suitable backend for window");
+}
+
+WindowFactory::Impl WindowFactory::default_impl() {
+#if defined(WITH_GLFW)
+    return Impl::GLFW;
+#elif defined(WITH_OPENCV)
+    return Impl::OPENCV;
+#else
+    SPH_THROW(RuntimeException, "No window implementation available");
+#endif
 }
