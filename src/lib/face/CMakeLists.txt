@@ -7,24 +7,13 @@ set(MODULE_VERSION_MINOR 0)
 set(MODULE_VERSION_PATCH 0)
 
 set(SOURCES
-    hog_face_detector.cpp
-    kazemi_facemark_detector.cpp
-    lbp_face_detector.cpp
-    lbp_face_recognizer.cpp
-    lbf_facemark_detector.cpp
-    utils.cpp)
+    )
 
 set(HEADERS
     include/seraphim/face.h
     include/seraphim/face/face_detector.h
     include/seraphim/face/face_recognizer.h
-    include/seraphim/face/facemark_detector.h
-    include/seraphim/face/hog_face_detector.h
-    include/seraphim/face/kazemi_facemark_detector.h
-    include/seraphim/face/lbf_facemark_detector.h
-    include/seraphim/face/lbp_face_detector.h
-    include/seraphim/face/lbp_face_recognizer.h
-    include/seraphim/face/utils.h)
+    include/seraphim/face/facemark_detector.h)
 
 add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})
 add_library(seraphim::${MODULE_NAME} ALIAS ${MODULE_NAME})
@@ -44,14 +33,33 @@ target_include_directories(${MODULE_NAME} PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
-# OpenCV dependency
-find_package(OpenCV COMPONENTS opencv_core opencv_face opencv_imgproc REQUIRED)
-include_directories(${OpenCV_INCLUDE_DIRS})
-target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_face opencv_imgproc)
+# OpenCV
+find_package(OpenCV COMPONENTS opencv_core opencv_face)
+if (OpenCV_FOUND)
+    target_sources(${MODULE_NAME} PRIVATE
+        lbp_face_detector.cpp
+        lbp_face_recognizer.cpp
+        lbf_facemark_detector.cpp
+        utils.cpp
+        include/seraphim/face/lbf_facemark_detector.h
+        include/seraphim/face/lbp_face_detector.h
+        include/seraphim/face/lbp_face_recognizer.h
+        include/seraphim/face/utils.h)
+    target_compile_definitions(${MODULE_NAME} PUBLIC "-DWITH_OPENCV")
+    target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_face)
+endif ()
 
-# dlib dependency
+# dlib
 find_library(DLIB_LIBRARY dlib)
-target_link_libraries(${MODULE_NAME} PUBLIC dlib)
+if (DLIB_LIBRARY_FOUND)
+    target_sources(${MODULE_NAME} PRIVATE
+        hog_face_detector.cpp
+        kazemi_facemark_detector.cpp
+        include/seraphim/face/hog_face_detector.h
+        include/seraphim/face/kazemi_facemark_detector.h)
+    target_compile_definitions(${MODULE_NAME} PUBLIC "-DWITH_DLIB")
+    target_link_libraries(${MODULE_NAME} PUBLIC dlib)
+endif ()
 
 target_link_libraries(${MODULE_NAME} PUBLIC seraphim::core seraphim::iop)
 
