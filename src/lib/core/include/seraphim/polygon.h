@@ -153,11 +153,7 @@ public:
      * @brief Rectangle from polygon with four vertices.
      * @param p Source polygon to transform.
      */
-    Rectangle(const Polygon<T> &p) : Polygon<T>::m_vertices(p.vertices()) {
-        if (Polygon<T>::m_vertices.size() != 4) {
-            SPH_THROW(RuntimeException, "Rectangle requires exactly four points");
-        }
-    }
+    Rectangle(const Polygon<T> &p) : Polygon<T>(p.brect().vertices()) {}
 
     /**
      * @brief Create a new rectangular shape.

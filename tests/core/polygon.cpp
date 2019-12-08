@@ -110,3 +110,19 @@ TEST_CASE( "Polygon runtime behavior", "[Polygon<T,N>]" ) {
         REQUIRE( p1.height() == 4 );
     }
 }
+
+TEST_CASE( "Rectangle constructor", "[Rectangle<T>]" ) {
+    SECTION( "Rectangle can be created from polygons" ) {
+        Polygon<int> p1(Point2i(0, 0), Point2i(3, 1), Point2i(4, 3), Point2i(0, 2));
+        Rectangle<int> r1(p1);
+
+        REQUIRE( r1.tl().x == 0 );
+        REQUIRE( r1.tl().y == 0 );
+        REQUIRE( r1.tr().x == 4 );
+        REQUIRE( r1.tr().y == 0 );
+        REQUIRE( r1.br().x == 4 );
+        REQUIRE( r1.br().y == 3 );
+        REQUIRE( r1.bl().x == 0 );
+        REQUIRE( r1.bl().y == 3 );
+    }
+}
