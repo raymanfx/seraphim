@@ -5,7 +5,7 @@ using namespace sph;
 
 CoreImage::CoreImage(uint32_t width, uint32_t height, const Pixelformat &pixfmt)
     : m_width(width), m_height(height), m_pixfmt(pixfmt) {
-    Matrix<std::byte>(m_height, m_width * m_pixfmt.size).copy(m_buffer);
+    m_buffer = CoreMatrix<std::byte>(m_height, m_width * m_pixfmt.size);
 }
 
 CoreImage::CoreImage(std::byte *data, uint32_t width, uint32_t height, const Pixelformat &pixfmt,
@@ -15,16 +15,10 @@ CoreImage::CoreImage(std::byte *data, uint32_t width, uint32_t height, const Pix
         stride = m_width * m_pixfmt.size;
     }
 
-    m_buffer = Matrix<std::byte>(data, m_height, m_width * m_pixfmt.size, stride);
+    m_buffer = CoreMatrix<std::byte>(data, m_height, m_width * m_pixfmt.size, stride);
 }
 
 CoreImage::CoreImage(const Image &img) {
-    m_buffer =
-        Matrix<std::byte>(img.data(), img.height(), img.width() * img.pixfmt().size, img.stride());
-}
-
-void CoreImage::clear() {
-    m_width = 0;
-    m_height = 0;
-    m_buffer.clear();
+    m_buffer = CoreMatrix<std::byte>(img.data(), img.height(), img.width() * img.pixfmt().size,
+                                     img.stride());
 }

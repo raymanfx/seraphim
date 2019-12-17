@@ -145,20 +145,6 @@ TEST_CASE( "CoreImage runtime behavior", "[CoreImage]" ) {
         REQUIRE( i2.pixfmt().depth() == 0 );
         REQUIRE( i2.pixfmt().valid() == false );
     }
-    SECTION( "clear() clears the image back buffer" ) {
-        unsigned char bytes[] = {
-            1, 2, 3
-        };
-        CoreImage i1(bytes, 3, 1, Pixelformat::Enum::GRAY8);
-
-        REQUIRE( !i1.empty() );
-        REQUIRE( i1.data() != nullptr );
-
-        i1.clear();
-
-        REQUIRE( i1.empty() );
-        REQUIRE( i1.data() == nullptr );
-    }
     SECTION( "valid() checks whether the image contains pixels and has a valid format" ) {
         unsigned char bytes[] = {
             1, 2, 3

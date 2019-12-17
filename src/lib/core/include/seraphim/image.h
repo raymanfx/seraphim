@@ -127,16 +127,11 @@ public:
     CoreImage(const Image &img);
 
     std::byte *data(size_t i = 0) const override { return m_buffer.data(i); }
-    bool empty() const override { return m_buffer.empty(); }
+    bool empty() const override { return !m_buffer; }
     uint32_t width() const override { return m_width; }
     uint32_t height() const override { return m_height; }
     size_t stride() const override { return m_buffer.step(); }
     Pixelformat pixfmt() const override { return m_pixfmt; }
-
-    /**
-     * @brief Clear the internal buffer contents.
-     */
-    void clear();
 
     /**
      * @brief Resize the internal buffer.
@@ -297,7 +292,7 @@ public:
 
 private:
     /// matrix back buffer holding pixel data
-    Matrix<std::byte> m_buffer;
+    CoreMatrix<std::byte> m_buffer;
 
     /// width in pixels
     uint32_t m_width = 0;
