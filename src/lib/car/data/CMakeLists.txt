@@ -38,5 +38,15 @@ target_include_directories(${MODULE_NAME} PUBLIC
 # shared libraries need PIC
 set_property(TARGET ${MODULE_NAME} PROPERTY POSITION_INDEPENDENT_CODE 1)
 
-# Install generated headers
-install(FILES ${PROTO_HDRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/seraphim/face/data)
+# install generated headers and libs
+install(FILES ${PROTO_HDRS}
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/seraphim/car/data
+    COMPONENT headers)
+install(TARGETS ${MODULE_NAME} EXPORT ${MODULE_NAME}
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT libraries)
+
+# add cmake install target
+install(EXPORT ${MODULE_NAME} NAMESPACE seraphim::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/seraphim
+    COMPONENT libraries)

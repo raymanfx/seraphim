@@ -32,4 +32,6 @@ target_link_libraries(${COMPONENT_NAME} PRIVATE frontend_common)
 target_link_libraries(${COMPONENT_NAME} PRIVATE seraphim::core seraphim::iop seraphim::ipc
                                                 seraphim::face_messages)
 
-install(TARGETS ${COMPONENT_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS ${COMPONENT_NAME}
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    COMPONENT applications)

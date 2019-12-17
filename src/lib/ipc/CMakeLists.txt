@@ -54,11 +54,17 @@ target_include_directories(${MODULE_NAME} PUBLIC
                            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 # install shared lib and headers
-install(DIRECTORY include/seraphim DESTINATION include)
-install(TARGETS ${MODULE_NAME} EXPORT ${MODULE_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(DIRECTORY include/seraphim
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    COMPONENT headers)
+install(TARGETS ${MODULE_NAME} EXPORT ${MODULE_NAME}
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT libraries)
 
 # see https://gitlab.kitware.com/cmake/cmake/issues/17357
 install(TARGETS ipc_messages EXPORT ${MODULE_NAME})
 
 # add cmake install target
-install(EXPORT ${MODULE_NAME} NAMESPACE seraphim:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/seraphim)
+install(EXPORT ${MODULE_NAME} NAMESPACE seraphim::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/seraphim
+    COMPONENT libraries)

@@ -38,5 +38,10 @@ target_include_directories(${MODULE_NAME} PUBLIC
 # shared libraries need PIC
 set_property(TARGET ${MODULE_NAME} PROPERTY POSITION_INDEPENDENT_CODE 1)
 
-# Install generated headers
-install(FILES ${PROTO_HDRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/seraphim/ipc/data)
+# install generated headers and libs
+install(FILES ${PROTO_HDRS}
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/seraphim/ipc/data
+    COMPONENT headers)
+install(TARGETS ${MODULE_NAME}
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT libraries)

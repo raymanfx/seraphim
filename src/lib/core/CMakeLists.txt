@@ -41,8 +41,14 @@ target_include_directories(${MODULE_NAME} PUBLIC
                            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 # install shared lib and headers
-install(DIRECTORY include/seraphim DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(TARGETS ${MODULE_NAME} EXPORT ${MODULE_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(DIRECTORY include/seraphim
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    COMPONENT headers)
+install(TARGETS ${MODULE_NAME} EXPORT ${MODULE_NAME}
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT libraries)
 
 # add cmake install target
-install(EXPORT ${MODULE_NAME} NAMESPACE seraphim:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/seraphim)
+install(EXPORT ${MODULE_NAME} NAMESPACE seraphim::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/seraphim
+    COMPONENT libraries)

@@ -7,6 +7,7 @@ set(SERAPHIM_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
 set(SERAPHIM_LIBRARIES core)
 include(${SELF_DIR}/core.cmake)
 
+# interface and implementation modules
 if (EXISTS ${SELF_DIR}/iop.cmake)
     set(SERAPHIM_LIBRARIES ${SERAPHIM_LIBRARIES} iop)
     include(${SELF_DIR}/iop.cmake)
@@ -30,4 +31,15 @@ endif ()
 if (EXISTS ${SELF_DIR}/object.cmake)
     set(SERAPHIM_LIBRARIES ${SERAPHIM_LIBRARIES} object)
     include(${SELF_DIR}/object.cmake)
+endif ()
+
+# message protocol layer
+if (EXISTS ${SELF_DIR}/car_messages.cmake)
+    include(${SELF_DIR}/car_messages.cmake)
+endif ()
+if (EXISTS ${SELF_DIR}/face_messages.cmake)
+    include(${SELF_DIR}/face_messages.cmake)
+endif ()
+if (EXISTS ${SELF_DIR}/object_messages.cmake)
+    include(${SELF_DIR}/object_messages.cmake)
 endif ()

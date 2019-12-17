@@ -39,3 +39,6 @@ tidy: build
 
 docs:
 	make -C doc
+
+rpm: build
+	cd build && cpack -G RPM
