@@ -187,32 +187,6 @@ TEST_CASE( "Matrix runtime behavior", "[CoreMatrix<T>]" ) {
         REQUIRE( m1_bottom(1, 0) == 7 );
         REQUIRE( m1_bottom(1, 1) == 8 );
     }
-    SECTION( "ostream operator gives a human readable representation of the elements" ) {
-        CoreMatrix<int> m1({
-            { 1, 2 },
-            { 9, 8 }
-        });
-        std::stringstream m1_strstr;
-        std::string m1_str;
-        m1_strstr << m1;
-        m1_str = m1_strstr.str();
-
-        REQUIRE( m1_str[0] == '\n' );
-        REQUIRE( m1_str[1] == '[' );
-        REQUIRE( m1_str[2] == '[' );
-        REQUIRE( m1_str[3] == '1' );
-        REQUIRE( m1_str[4] == ' ' );
-        REQUIRE( m1_str[5] == '2' );
-        REQUIRE( m1_str[6] == ']' );
-        REQUIRE( m1_str[7] == '\n' );
-        REQUIRE( m1_str[8] == ' ' );
-        REQUIRE( m1_str[9] == '[' );
-        REQUIRE( m1_str[10] == '9' );
-        REQUIRE( m1_str[11] == ' ' );
-        REQUIRE( m1_str[12] == '8' );
-        REQUIRE( m1_str[13] == ']' );
-        REQUIRE( m1_str[14] == ']' );
-    }
     SECTION( "rows() returns the number of matrix rows" ) {
         CoreMatrix<int> m1({
             { 1, 2 },

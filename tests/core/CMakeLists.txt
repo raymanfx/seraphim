@@ -5,6 +5,7 @@ set(SOURCES
     image_converter.cpp
     main.cpp
     matrix.cpp
+    matrix_ops.cpp
     memory.cpp
     point.cpp
     polygon.cpp

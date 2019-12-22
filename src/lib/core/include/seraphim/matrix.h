@@ -10,10 +10,10 @@
 
 #include <cassert>
 #include <cmath>
-#include <iostream>
 #include <memory>
 #include <vector>
 
+#include "except.h"
 #include "size.h"
 
 namespace sph {
@@ -139,6 +139,13 @@ public:
 
         m_data = elements;
     }
+
+    /**
+     * @brief Transform a matrix into a RAM-backed matrix.
+     * @param mat Input matrix.
+     */
+    CoreMatrix(const Matrix<T> &mat)
+        : CoreMatrix(CoreMatrix(mat.data(), mat.rows(), mat.cols(), mat.step())) {}
 
     /**
      * @brief Copy matrix elements from a two dimensional array living on the stack.
@@ -303,36 +310,6 @@ public:
      */
     inline void resize(size_t rows, size_t cols) { resize(sph::Size2s(cols, rows)); }
 
-    /**
-     * @brief Ostream operator.
-     *        Prints the matrix elements organized as rows.
-     * @param os Source ostream.
-     * @param m Matrix instance.
-     * @return Modified ostream.
-     */
-    friend std::ostream &operator<<(std::ostream &os, CoreMatrix &m) {
-        os << std::endl << "[";
-        for (size_t i = 0; i < m.rows(); i++) {
-            if (i > 0) {
-                os << " ";
-            }
-            os << "[";
-            for (size_t j = 0; j < m.cols(); j++) {
-                os << m(i, j);
-                if (j < m.cols() - 1) {
-                    os << " ";
-                }
-            }
-            os << "]";
-            if (i < m.rows() - 1) {
-                os << std::endl;
-            }
-        }
-        os << "]";
-
-        return os;
-    }
-
     class iterator {
     public:
         typedef iterator self_type;
@@ -462,5 +439,7 @@ private:
 };
 
 } // namespace sph
+
+#include "matrix_ops.h"
 
 #endif // SPH_CORE_MATRIX_H
