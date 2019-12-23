@@ -35,6 +35,13 @@ set_target_properties(${MODULE_NAME} PROPERTIES VERSION
 set_target_properties(${MODULE_NAME} PROPERTIES SOVERSION
                       ${MODULE_VERSION_MAJOR})
 
+# BLAS acceleration
+find_package(BLAS)
+if (BLAS_FOUND)
+    target_compile_definitions(${MODULE_NAME} PUBLIC "-DWITH_BLAS")
+    target_link_libraries(${MODULE_NAME} PUBLIC ${BLAS_LIBRARIES})
+endif ()
+
 # Make sure the compiler can find include files for our library
 # when other libraries or executables link to it
 target_include_directories(${MODULE_NAME} PUBLIC

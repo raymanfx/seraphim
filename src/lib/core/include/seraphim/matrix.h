@@ -144,8 +144,18 @@ public:
      * @brief Transform a matrix into a RAM-backed matrix.
      * @param mat Input matrix.
      */
-    CoreMatrix(const Matrix<T> &mat)
-        : CoreMatrix(CoreMatrix(mat.data(), mat.rows(), mat.cols(), mat.step())) {}
+    template <typename _T> CoreMatrix(const Matrix<_T> &mat) {
+        if constexpr (std::is_same_v<_T, T>) {
+            *this = CoreMatrix(mat.data(), mat.rows(), mat.cols(), mat.step());
+        } else {
+            *this = CoreMatrix(mat.rows(), mat.cols());
+            for (size_t i = 0; i < mat.rows(); i++) {
+                for (size_t j = 0; j < mat.cols(); j++) {
+                    (*this)(i, j) = mat(i, j);
+                }
+            }
+        }
+    }
 
     /**
      * @brief Copy matrix elements from a two dimensional array living on the stack.

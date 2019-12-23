@@ -1,5 +1,6 @@
 set(SAMPLES
-    grayscale)
+    grayscale
+    matrix_ops)
 
 # OpenCV dependency
 find_package(OpenCV COMPONENTS opencv_videoio REQUIRED)

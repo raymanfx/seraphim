@@ -10,6 +10,10 @@
 
 #include <iostream>
 
+#ifdef WITH_BLAS
+#include <openblas/cblas.h>
+#endif
+
 namespace sph {
 
 /**
@@ -136,6 +140,29 @@ template <typename T> CoreMatrix<T> &operator*=(CoreMatrix<T> &lhs, const Matrix
         SPH_THROW(InvalidArgumentException, "lhs.cols() != rhs.rows()");
     }
 
+#ifdef WITH_BLAS
+    if constexpr (std::is_same_v<T, double>) {
+        CoreMatrix<double> _lhs(lhs);
+        CoreMatrix<double> _rhs(rhs);
+        CoreMatrix<double> result(lhs.rows(), rhs.cols());
+
+        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, _lhs.rows(), _rhs.cols(),
+                    _rhs.rows(), 1.0, _lhs.data(), _lhs.cols(), _rhs.data(), _rhs.cols(), 0.0,
+                    result.data(), result.cols());
+
+        lhs = result;
+    } else {
+        CoreMatrix<float> _lhs(lhs);
+        CoreMatrix<float> _rhs(rhs);
+        CoreMatrix<float> result(lhs.rows(), rhs.cols());
+
+        cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, _lhs.rows(), _rhs.cols(),
+                    _rhs.rows(), 1.0, _lhs.data(), _lhs.cols(), _rhs.data(), _rhs.cols(), 0.0,
+                    result.data(), result.cols());
+
+        lhs = result;
+    }
+#else
     CoreMatrix<T> result(lhs.rows(), lhs.cols());
 
     // avoid cache misses by first transposing rhs
@@ -147,11 +174,12 @@ template <typename T> CoreMatrix<T> &operator*=(CoreMatrix<T> &lhs, const Matrix
     const size_t M = lhs.rows();
     const size_t N = lhs.cols();
     const size_t K = rhs.cols();
+    size_t i, j, l;
 
-    for (size_t i = 0; i < M; i++) {
-        for (size_t j = 0; j < K; j++) {
+    for (i = 0; i < M; i++) {
+        for (j = 0; j < K; j++) {
             T tmp = 0;
-            for (size_t l = 0; l < N; l++) {
+            for (l = 0; l < N; l++) {
                 tmp += lhs(i, l) * rhs_t(j, l);
             }
             result(i, j) = tmp;
@@ -159,6 +187,8 @@ template <typename T> CoreMatrix<T> &operator*=(CoreMatrix<T> &lhs, const Matrix
     }
 
     lhs = result;
+#endif
+
     return lhs;
 }
 
