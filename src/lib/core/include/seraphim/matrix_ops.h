@@ -33,6 +33,82 @@ template <typename T> CoreMatrix<T> transpose(const Matrix<T> &mat) {
     return result;
 }
 
+enum class EdgeHandling {
+    /// Padding mode, fill 'missing' input values with zeros
+    ZERO,
+    /// Extension mode, the nearest border values are replicated
+    CLAMP
+};
+
+/**
+ * @brief Perform kernel convolution.
+ * @param mat Input matrix.
+ * @param kernel Convolution kernel, must be square.
+ * @return Output matrix.
+ */
+template <typename MT, typename KT>
+CoreMatrix<MT> convolve(const Matrix<MT> &mat, const Matrix<KT> &kernel, EdgeHandling mode) {
+    CoreMatrix<MT> result(mat.rows(), mat.cols());
+    MT in;
+    MT out;
+
+    // check precondition: square kernel
+    if (kernel.rows() != kernel.cols()) {
+        SPH_THROW(InvalidArgumentException, "kernel.rows() != kernel.cols()");
+    }
+
+    // check precondition: anchor is kernel center element
+    if (kernel.rows() % 2 == 0) {
+        SPH_THROW(InvalidArgumentException, "kernel size must be uneven");
+    }
+
+    // iterate through all input elements
+    for (size_t i = 0; i < mat.rows(); i++) {
+        for (size_t j = 0; j < mat.cols(); j++) {
+            out = 0;
+
+            // for each input element, apply the kernel convolution
+            for (size_t k_i = 0; k_i < kernel.rows(); k_i++) {
+                for (size_t k_j = 0; k_j < kernel.cols(); k_j++) {
+                    ssize_t in_row = i - kernel.rows() / 2 + k_i;
+                    ssize_t in_col = j - kernel.cols() / 2 + k_j;
+
+                    // perform edge handling in-place instead of recreating the input matrix
+                    if ((in_row < 0 || in_row > mat.rows() - 1) ||
+                        (in_col < 0 || in_col > mat.cols() - 1)) {
+                        switch (mode) {
+                        case EdgeHandling::ZERO:
+                            continue;
+                        case EdgeHandling::CLAMP:
+                            if (in_row < 0) {
+                                in_row = 0;
+                            } else if (in_row >= mat.rows()) {
+                                in_row = mat.rows() - 1;
+                            }
+                            if (in_col < 0) {
+                                in_col = 0;
+                            } else if (in_col >= mat.cols()) {
+                                in_col = mat.cols() - 1;
+                            }
+                            break;
+                        }
+                    }
+
+                    // load the input element from the input matrix
+                    in = mat(in_row, in_col);
+
+                    // accumulate computed values
+                    out += static_cast<MT>(in * kernel(k_i, k_j));
+                }
+            }
+
+            result(i, j) = out;
+        }
+    }
+
+    return result;
+}
+
 /**
  * @brief Ostream operator.
  *        Prints the matrix elements organized as rows.

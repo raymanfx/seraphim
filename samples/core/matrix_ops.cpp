@@ -95,4 +95,34 @@ int main(int, char **) {
         auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(t1 - t0).count();
         std::cout << size.first << "x" << size.second << ": " << timestamp_str(ns) << std::endl;
     }
+
+    std::cout << std::endl;
+    std::cout << "=== CONVOLUTION (3x3) ===" << std::endl;
+    for (const auto &size : sizes) {
+        mat1 = sph::CoreMatrix<uint8_t>(size.first, size.second);
+        mat2 = sph::CoreMatrix<uint8_t>(3, 3);
+        mat1 = 1;
+        mat2 = 1;
+        t0 = std::chrono::high_resolution_clock::now();
+        sph::convolve(mat1, mat2, sph::EdgeHandling::CLAMP);
+        t1 = std::chrono::high_resolution_clock::now();
+
+        auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(t1 - t0).count();
+        std::cout << size.first << "x" << size.second << ": " << timestamp_str(ns) << std::endl;
+    }
+
+    std::cout << std::endl;
+    std::cout << "=== CONVOLUTION (5x5) ===" << std::endl;
+    for (const auto &size : sizes) {
+        mat1 = sph::CoreMatrix<uint8_t>(size.first, size.second);
+        mat2 = sph::CoreMatrix<uint8_t>(5, 5);
+        mat1 = 1;
+        mat2 = 1;
+        t0 = std::chrono::high_resolution_clock::now();
+        sph::convolve(mat1, mat2, sph::EdgeHandling::CLAMP);
+        t1 = std::chrono::high_resolution_clock::now();
+
+        auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(t1 - t0).count();
+        std::cout << size.first << "x" << size.second << ": " << timestamp_str(ns) << std::endl;
+    }
 }
