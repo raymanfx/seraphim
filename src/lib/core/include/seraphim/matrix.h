@@ -58,23 +58,10 @@ public:
     virtual size_t step() const = 0;
 
     /**
-     * @brief Number of elements.
-     * @return 2D size of the matrix.
-     */
-    sph::Size2s size() const { return sph::Size2s(cols(), rows()); }
-
-    /**
      * @brief operator !
      * @return True if empty, false otherwise.
      */
     virtual bool operator!() const = 0;
-
-    /**
-     * @brief operator ==
-     * @param rhs Right hand side.
-     * @return True if equal, false otherwise.
-     */
-    virtual bool operator==(const Matrix &rhs) const = 0;
 
     /**
      * @brief Subscript operator retrieving a single matrix element reference.
@@ -90,12 +77,6 @@ public:
         assert(i < rows() && j < cols());
         return data(i)[j];
     }
-
-    /**
-     * @brief operator =
-     * @param value Scalar initializer.
-     */
-    virtual void operator=(T value) = 0;
 };
 
 /**
@@ -259,7 +240,12 @@ public:
 
     bool operator!() const override { return m_data == nullptr; }
 
-    bool operator==(const Matrix<T> &rhs) const override { return data() == rhs.data(); }
+    /**
+     * @brief operator ==
+     * @param rhs Right hand side.
+     * @return True if equal, false otherwise.
+     */
+    bool operator==(const Matrix<T> &rhs) const { return data() == rhs.data(); }
 
     T &operator()(size_t i, size_t j) {
         assert(i >= 0 && j >= 0);
@@ -280,7 +266,11 @@ public:
         return tmp;
     }
 
-    void operator=(T value) override {
+    /**
+     * @brief operator =
+     * @param value Scalar initializer.
+     */
+    void operator=(T value) {
         resize(m_cols, m_rows);
         m_buffer.assign(m_buffer.size(), value);
     }
