@@ -25,11 +25,13 @@ clean:
 	rm -rf build
 
 format:
-	clang-format -i -style=file $(SOURCES) $(HEADERS)
+	@clang-format -i -style=file $(SOURCES) $(HEADERS)
+	$(eval MODIFIED := $(shell git ls-files -m))
+	$(if $(strip $(MODIFIED)), @echo $(MODIFIED))
 
 lint: format
 	$(eval MODIFIED := $(shell git ls-files -m))
-	$(if $(strip $(MODIFIED)), echo $(MODIFIED) && exit 1, exit 0)
+	$(if $(strip $(MODIFIED)), @exit 1, @exit 0)
 
 test: build
 	find build/tests -type f -executable | xargs -L 1 sh -c
