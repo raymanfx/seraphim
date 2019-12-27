@@ -7,6 +7,7 @@ set(SOURCES
     matrix.cpp
     matrix_ops.cpp
     memory.cpp
+    pixel.cpp
     point.cpp
     polygon.cpp
     threading.cpp)

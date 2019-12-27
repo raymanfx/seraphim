@@ -17,6 +17,7 @@ set(HEADERS
     include/seraphim/matrix_ops.h
     include/seraphim/memory.h
     include/seraphim/module.h
+    include/seraphim/pixel.h
     include/seraphim/pixelformat.h
     include/seraphim/point.h
     include/seraphim/polygon.h
