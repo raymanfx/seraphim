@@ -28,7 +28,7 @@ template <typename T>::cv::Mat_<T> from_matrix(const Matrix<T> &mat);
  * @param mat The source Matrix.
  * @return The converted Matrix, which is empty if the conversion failed.
  */
-template <typename T> Matrix<T> to_matrix(const ::cv::Mat &mat);
+template <typename T> Matrix<T> to_matrix(const ::cv::Mat_<T> &mat);
 
 /**
  * @brief Convert a Seraphim Image to an OpenCV Matrix.

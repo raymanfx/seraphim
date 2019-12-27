@@ -8,6 +8,14 @@
 #include <opencv2/imgproc.hpp>
 #include <seraphim/iop/opencv/mat.h>
 
+template <typename T>::cv::Mat_<T> from_matrix(const sph::Matrix<T> &mat) {
+    return cv::Mat_<T>(mat.rows(), mat.cols(), mat.data(), mat.step());
+}
+
+template <typename T> sph::CoreMatrix<T> to_matrix(const ::cv::Mat &mat) {
+    return sph::CoreMatrix<T>(mat.data, mat.rows, mat.cols, mat.step);
+}
+
 ::cv::Mat sph::iop::cv::from_image(const sph::Image &img) {
     ::cv::Mat mat;
     int type = -1;
