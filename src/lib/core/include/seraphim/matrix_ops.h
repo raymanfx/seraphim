@@ -16,6 +16,8 @@
 
 namespace sph {
 
+template <typename T> class CoreMatrix;
+
 /**
  * @brief Transpose the matrix (rows become columns).
  * @param mat Input matrix.
@@ -173,6 +175,42 @@ template <typename T> CoreMatrix<T> operator+(const CoreMatrix<T> &lhs, const Ma
 }
 
 /**
+ * @brief operator +=
+ * @param lhs Left hand side, will be modified.
+ * @param val Value added to each matrix element.
+ * @return Modified lhs holding the result.
+ */
+template <typename MT, typename VT>
+// typename std::enable_if_t<!std::is_same_v<MT, VT>>
+// typename std::enable_if<!std::is_floating_point<MT>::value, MT>::type
+// typename std::enable_if<!std::is_same<MT, VT>::value, MT>::type
+typename std::enable_if_t<!std::is_same_v<CoreMatrix<MT>, VT>, CoreMatrix<MT>> &
+operator+=(CoreMatrix<MT> &lhs, VT val) {
+    for (size_t i = 0; i < lhs.rows(); i++) {
+        for (size_t j = 0; j < lhs.cols(); j++) {
+            lhs(i, j) = static_cast<MT>(lhs(i, j) + val);
+        }
+    }
+
+    return lhs;
+}
+
+/**
+ * @brief operator +
+ * @param lhs Left hand side, left untouched.
+ * @param val Value added to each matrix element.
+ * @return Newly allocated matrix instance holding the result.
+ */
+template <typename MT, typename VT>
+typename std::enable_if_t<!std::is_same_v<CoreMatrix<MT>, VT>, CoreMatrix<MT>>
+operator+(const CoreMatrix<MT> &lhs, VT val) {
+    CoreMatrix<MT> result(lhs);
+
+    result += val;
+    return result;
+}
+
+/**
  * @brief operator -=
  * @param lhs Left hand side, will be modified.
  * @param rhs Right hand side, left untouched.
@@ -202,6 +240,39 @@ template <typename T> CoreMatrix<T> operator-(const CoreMatrix<T> &lhs, const Ma
     CoreMatrix result(lhs);
 
     result -= rhs;
+    return result;
+}
+
+/**
+ * @brief operator -=
+ * @param lhs Left hand side, will be modified.
+ * @param val Value substracted from each matrix element.
+ * @return Modified lhs holding the result.
+ */
+template <typename MT, typename VT>
+typename std::enable_if_t<!std::is_same_v<CoreMatrix<MT>, VT>, CoreMatrix<MT>> &
+operator-=(CoreMatrix<MT> &lhs, VT val) {
+    for (size_t i = 0; i < lhs.rows(); i++) {
+        for (size_t j = 0; j < lhs.cols(); j++) {
+            lhs(i, j) = static_cast<MT>(lhs(i, j) - val);
+        }
+    }
+
+    return lhs;
+}
+
+/**
+ * @brief operator -
+ * @param lhs Left hand side, left untouched.
+ * @param val Value substracted from each matrix element.
+ * @return Newly allocated matrix instance holding the result.
+ */
+template <typename MT, typename VT>
+typename std::enable_if_t<!std::is_same_v<CoreMatrix<MT>, VT>, CoreMatrix<MT>>
+operator-(const CoreMatrix<MT> &lhs, VT val) {
+    CoreMatrix<MT> result(lhs);
+
+    result -= val;
     return result;
 }
 
@@ -278,6 +349,72 @@ template <typename T> CoreMatrix<T> operator*(const CoreMatrix<T> &lhs, const Ma
     CoreMatrix result(lhs);
 
     result *= rhs;
+    return result;
+}
+
+/**
+ * @brief operator *=
+ * @param lhs Left hand side, will be modified.
+ * @param val Value multiplied with each matrix element.
+ * @return Modified lhs holding the result.
+ */
+template <typename MT, typename VT>
+typename std::enable_if_t<!std::is_same_v<CoreMatrix<MT>, VT>, CoreMatrix<MT>> &
+operator*=(CoreMatrix<MT> &lhs, VT val) {
+    for (size_t i = 0; i < lhs.rows(); i++) {
+        for (size_t j = 0; j < lhs.cols(); j++) {
+            lhs(i, j) = static_cast<MT>(lhs(i, j) * val);
+        }
+    }
+
+    return lhs;
+}
+
+/**
+ * @brief operator *
+ * @param lhs Left hand side, left untouched.
+ * @param val Value multiplied with each matrix element.
+ * @return Newly allocated matrix instance holding the result.
+ */
+template <typename MT, typename VT>
+typename std::enable_if_t<!std::is_same_v<CoreMatrix<MT>, VT>, CoreMatrix<MT>>
+operator*(const CoreMatrix<MT> &lhs, VT val) {
+    CoreMatrix<MT> result(lhs);
+
+    result *= val;
+    return result;
+}
+
+/**
+ * @brief operator /=
+ * @param lhs Left hand side, will be modified.
+ * @param val Value used to divide each matrix element.
+ * @return Modified lhs holding the result.
+ */
+template <typename MT, typename VT>
+typename std::enable_if_t<!std::is_same_v<CoreMatrix<MT>, VT>, CoreMatrix<MT>> &
+operator/=(CoreMatrix<MT> &lhs, VT val) {
+    for (size_t i = 0; i < lhs.rows(); i++) {
+        for (size_t j = 0; j < lhs.cols(); j++) {
+            lhs(i, j) = static_cast<MT>(lhs(i, j) / val);
+        }
+    }
+
+    return lhs;
+}
+
+/**
+ * @brief operator /
+ * @param lhs Left hand side, left untouched.
+ * @param val Value used to divide each matrix element.
+ * @return Newly allocated matrix instance holding the result.
+ */
+template <typename MT, typename VT>
+typename std::enable_if_t<!std::is_same_v<CoreMatrix<MT>, VT>, CoreMatrix<MT>>
+operator/(const CoreMatrix<MT> &lhs, VT val) {
+    CoreMatrix<MT> result(lhs);
+
+    result /= val;
     return result;
 }
 

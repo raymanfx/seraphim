@@ -50,6 +50,30 @@ TEST_CASE( "Matrix operators", "[CoreMatrix<T>]" ) {
         REQUIRE( m3(1, 0) == 12 );
         REQUIRE( m3(1, 1) == 12 );
     }
+    SECTION( "+= operator adds a scalar value to each element" ) {
+        CoreMatrix<int> m1({
+            { 1, 2 },
+            { 9, 8 }
+        });
+        m1 += 2;
+
+        REQUIRE( m1(0, 0) == 3 );
+        REQUIRE( m1(0, 1) == 4 );
+        REQUIRE( m1(1, 0) == 11 );
+        REQUIRE( m1(1, 1) == 10 );
+    }
+    SECTION( "+ operator adds a scalar value to each element" ) {
+        CoreMatrix<int> m1({
+            { 1, 2 },
+            { 9, 8 }
+        });
+        CoreMatrix<int> m3 = m1 + 2;
+
+        REQUIRE( m3(0, 0) == 3 );
+        REQUIRE( m3(0, 1) == 4 );
+        REQUIRE( m3(1, 0) == 11 );
+        REQUIRE( m3(1, 1) == 10 );
+    }
     SECTION( "-= operator performs element substraction" ) {
         CoreMatrix<int> m1({
             { 1, 2 },
@@ -82,6 +106,30 @@ TEST_CASE( "Matrix operators", "[CoreMatrix<T>]" ) {
         REQUIRE( m3(1, 0) == 6 );
         REQUIRE( m3(1, 1) == 4 );
     }
+    SECTION( "-= operator substracts a scalar value from each element" ) {
+        CoreMatrix<int> m1({
+            { 1, 2 },
+            { 9, 8 }
+        });
+        m1 -= 2;
+
+        REQUIRE( m1(0, 0) == -1 );
+        REQUIRE( m1(0, 1) == 0 );
+        REQUIRE( m1(1, 0) == 7 );
+        REQUIRE( m1(1, 1) == 6 );
+    }
+    SECTION( "- operator substracts a scalar value from each element" ) {
+        CoreMatrix<int> m1({
+            { 1, 2 },
+            { 9, 8 }
+        });
+        CoreMatrix<int> m3 = m1 - 2;
+
+        REQUIRE( m3(0, 0) == -1 );
+        REQUIRE( m3(0, 1) == 0 );
+        REQUIRE( m3(1, 0) == 7 );
+        REQUIRE( m3(1, 1) == 6 );
+    }
     SECTION( "*= operator performs matrix multiplication" ) {
         CoreMatrix<int> m1({
             { 1, 2 },
@@ -113,6 +161,54 @@ TEST_CASE( "Matrix operators", "[CoreMatrix<T>]" ) {
         REQUIRE( m3(0, 1) == 10 );
         REQUIRE( m3(1, 0) == 33 );
         REQUIRE( m3(1, 1) == 50 );
+    }
+    SECTION( "*= operator multiplies each element with a scalar value" ) {
+        CoreMatrix<int> m1({
+            { 1, 2 },
+            { 9, 8 }
+        });
+        m1 *= 2;
+
+        REQUIRE( m1(0, 0) == 2 );
+        REQUIRE( m1(0, 1) == 4 );
+        REQUIRE( m1(1, 0) == 18 );
+        REQUIRE( m1(1, 1) == 16 );
+    }
+    SECTION( "* operator multiplies each element with a scalar value" ) {
+        CoreMatrix<int> m1({
+            { 1, 2 },
+            { 9, 8 }
+        });
+        CoreMatrix<int> m3 = m1 * 2;
+
+        REQUIRE( m3(0, 0) == 2 );
+        REQUIRE( m3(0, 1) == 4 );
+        REQUIRE( m3(1, 0) == 18 );
+        REQUIRE( m3(1, 1) == 16 );
+    }
+    SECTION( "/= operator divides each element by a scalar value" ) {
+        CoreMatrix<int> m1({
+            { 1, 2 },
+            { 9, 8 }
+        });
+        m1 /= 2;
+
+        REQUIRE( m1(0, 0) == 0 );
+        REQUIRE( m1(0, 1) == 1 );
+        REQUIRE( m1(1, 0) == 4 );
+        REQUIRE( m1(1, 1) == 4 );
+    }
+    SECTION( "/ operator divides each element by a scalar value" ) {
+        CoreMatrix<int> m1({
+            { 1, 2 },
+            { 9, 8 }
+        });
+        CoreMatrix<int> m3 = m1 / 2;
+
+        REQUIRE( m3(0, 0) == 0 );
+        REQUIRE( m3(0, 1) == 1 );
+        REQUIRE( m3(1, 0) == 4 );
+        REQUIRE( m3(1, 1) == 4 );
     }
     SECTION( "ostream operator gives a human readable representation of the elements" ) {
         CoreMatrix<int> m1({
