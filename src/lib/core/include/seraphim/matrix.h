@@ -310,6 +310,32 @@ public:
      */
     inline void resize(size_t rows, size_t cols) { resize(sph::Size2s(cols, rows)); }
 
+    /**
+     * @brief Clone a matrix instance.
+     * The cloned instance will own a deep copy of the data of the current instance.
+     * @return New instance with copied elements.
+     */
+    inline CoreMatrix clone() const {
+        CoreMatrix tmp(*this);
+        return tmp;
+    }
+
+    /**
+     * @brief Eliminate padding in the data.
+     * Will copy the buffer contents if not already owned.
+     */
+    void pack() {
+        // Nothing to do if there is no padding.
+        if (step() == cols() * sizeof(T)) {
+            return;
+        }
+
+        // If we are just wrapping external data, copy it so we own it.
+        // The copy operation will automatically enforce step == cols * sizeof(T), meaning it will
+        // elimate any padding.
+        *this = this->clone();
+    }
+
     class iterator {
     public:
         typedef iterator self_type;

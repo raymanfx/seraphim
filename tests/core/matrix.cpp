@@ -389,6 +389,23 @@ TEST_CASE( "Matrix runtime behavior", "[CoreMatrix<T>]" ) {
         REQUIRE( m3(2, 0) == data[4] );
         REQUIRE( m3(2, 1) == data[5] );
     }
+    SECTION( "pack() eliminates padding in the matrix rows" ) {
+        // padded data
+        int data[] = {
+            3, 4, 0 ,
+            1, 9, 0,
+            4, 5, 0
+        };
+        CoreMatrix<int> m1(data, 3, 2, 3 * sizeof(data[0]));
+
+        REQUIRE( m1.data() == data );
+        REQUIRE( m1.step() != m1.cols() * sizeof(data[0]) );
+
+        m1.pack();
+
+        REQUIRE( m1.data() != data );
+        REQUIRE( m1.step() == m1.cols() * sizeof(data[0]) );
+    }
     SECTION( "forward iterator moves through all elements" ) {
         // padded data
         int data[] = {
