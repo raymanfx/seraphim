@@ -7,8 +7,16 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# expose build information as macros
+string(TIMESTAMP PROJECT_BUILD_TIMESTAMP "%Y-%m-%d %H:%M:%S")
+add_definitions(-DSPH_VERSION_MAJOR="${PROJECT_VERSION_MAJOR}")
+add_definitions(-DSPH_VERSION_MINOR="${PROJECT_VERSION_MINOR}")
+add_definitions(-DSPH_VERSION_PATCH="${PROJECT_VERSION_PATCH}")
+add_definitions(-DSPH_TIMESTAMP="${PROJECT_BUILD_TIMESTAMP}")
+
 add_subdirectory(src)
 add_subdirectory(tests)
+add_subdirectory(benchmarks)
 add_subdirectory(samples)
 add_subdirectory(deploy)
 
