@@ -178,21 +178,57 @@ public:
         return *this;
     }
 
+    // Matrix<T> interface ////////////////////////////////////////////////////////////////////////
+
+    T *data(size_t i = 0) const override {
+        if (i > 0) {
+            assert(i < m_rows);
+        }
+        return reinterpret_cast<T *>(reinterpret_cast<std::byte *>(m_data) + i * m_step);
+    }
+
+    size_t rows() const override { return m_rows; }
+    size_t cols() const override { return m_cols; }
+    size_t step() const override { return m_step; }
+
+    void resize(size_t rows, size_t cols) override {
+        if (m_buffer.capacity() > 0 && (rows * cols == m_rows * m_cols)) {
+            return;
+        }
+
+        m_rows = rows;
+        m_cols = cols;
+        m_step = cols * sizeof(T);
+        m_buffer.resize(m_rows * m_step);
+        m_data = m_buffer.data();
+    }
+
     bool operator!() const override { return m_data == nullptr; }
 
-    /**
-     * @brief operator ==
-     * @param rhs Right hand side.
-     * @return True if equal, false otherwise.
-     */
-    bool operator==(const Matrix<T> &rhs) const { return data() == rhs.data(); }
+    void operator=(T value) override {
+        resize(m_cols, m_rows);
+        m_buffer.assign(m_buffer.size(), value);
+    }
 
-    T &operator()(size_t i, size_t j) {
+    T &operator()(size_t i, size_t j) override {
         assert(i >= 0 && j >= 0);
         assert(i < m_rows && j < m_cols);
         return data(i)[j];
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * @brief Subscript operator retrieving a matrix region.
+     *
+     * Note that array indexing is used, i.e. the first element is at (0, 0).
+     *
+     * @param i Matrix row index.
+     * @param j Matrix column index.
+     * @param rows Number of rows to copy.
+     * @param cols Number of cols to copy.
+     * @return The Matrix region with copied elements.
+     */
     CoreMatrix operator()(size_t i, size_t j, size_t rows, size_t cols) const {
         assert((i + rows) <= m_rows && (j + cols) <= m_cols);
 
@@ -204,43 +240,6 @@ public:
         }
 
         return tmp;
-    }
-
-    /**
-     * @brief operator =
-     * @param value Scalar initializer.
-     */
-    void operator=(T value) {
-        resize(m_cols, m_rows);
-        m_buffer.assign(m_buffer.size(), value);
-    }
-
-    size_t rows() const override { return m_rows; }
-    size_t cols() const override { return m_cols; }
-    size_t step() const override { return m_step; }
-
-    T *data(size_t i = 0) const override {
-        if (i > 0) {
-            assert(i < m_rows);
-        }
-        return reinterpret_cast<T *>(reinterpret_cast<std::byte *>(m_data) + i * m_step);
-    }
-
-    /**
-     * @brief Resize the backing memory store to the specified size.
-     *        Causes a reallocation if the current size does not match the requested one.
-     * @param size The new size.
-     */
-    inline void resize(size_t rows, size_t cols) {
-        if (m_buffer.capacity() > 0 && (rows * cols == m_rows * m_cols)) {
-            return;
-        }
-
-        m_rows = rows;
-        m_cols = cols;
-        m_step = cols * sizeof(T);
-        m_buffer.resize(m_rows * m_step);
-        m_data = m_buffer.data();
     }
 
     /**
@@ -268,116 +267,6 @@ public:
         // elimate any padding.
         *this = this->clone();
     }
-
-    class iterator {
-    public:
-        typedef iterator self_type;
-        typedef T value_type;
-        typedef T &reference;
-        typedef T *pointer;
-        typedef std::forward_iterator_tag iterator_category;
-        iterator(CoreMatrix &m, size_t i, size_t j) : m_mat(m), m_row(i), m_col(j) {
-            assert(i >= 0 && j >= 0);
-        }
-        self_type operator++() {
-            m_col++;
-            if (m_col >= m_mat.cols()) {
-                m_col = 0;
-                m_row++;
-            }
-            assert(m_col < m_mat.cols() && m_row < m_mat.rows());
-            return *this;
-        }
-        self_type operator++(int) {
-            self_type i = *this;
-            m_col++;
-            if (m_col >= m_mat.cols()) {
-                m_col = 0;
-                m_row++;
-            }
-            assert(m_col < m_mat.cols() && m_row < m_mat.rows());
-            return i;
-        }
-        value_type &operator*() { return m_mat(m_row, m_col); }
-        value_type *operator->() { return m_mat.data(m_row) + m_col; }
-        bool operator==(const self_type &rhs) { return m_mat == rhs.m_mat; }
-        bool operator!=(const self_type &rhs) { return !(m_mat == rhs.m_mat); }
-
-    private:
-        CoreMatrix &m_mat;
-        size_t m_row;
-        size_t m_col;
-    };
-
-    class const_iterator {
-    public:
-        typedef const_iterator self_type;
-        typedef T value_type;
-        typedef T &reference;
-        typedef T *pointer;
-        typedef std::forward_iterator_tag iterator_category;
-        const_iterator(const CoreMatrix &m, size_t i, size_t j) : m_mat(m), m_row(i), m_col(j) {
-            assert(i >= 0 && j >= 0);
-        }
-        self_type operator++() {
-            m_col++;
-            if (m_col >= m_mat.cols()) {
-                m_col = 0;
-                m_row++;
-            }
-            assert(m_col < m_mat.cols() && m_row < m_mat.rows());
-            return *this;
-        }
-        self_type operator++(int) {
-            self_type i = *this;
-            m_col++;
-            if (m_col >= m_mat.cols()) {
-                m_col = 0;
-                m_row++;
-            }
-            assert(m_col < m_mat.cols() && m_row < m_mat.rows());
-            return i;
-        }
-        const value_type &operator*() { return m_mat(m_row, m_col); }
-        const value_type *operator->() { return m_mat.data(m_row) + m_col; }
-        bool operator==(const self_type &rhs) { return m_mat == rhs.m_mat; }
-        bool operator!=(const self_type &rhs) { return !(m_mat == rhs.m_mat); }
-
-    private:
-        const CoreMatrix &m_mat;
-        size_t m_row;
-        size_t m_col;
-    };
-
-    /**
-     * @brief Begin of the matrix, points to its first element.
-     *
-     * May modify the current element.
-     *
-     * @return Forward iterator.
-     */
-    iterator begin() { return iterator(*this, 0, 0); }
-
-    /**
-     * @brief End of the matrix, points to its last element.
-     *
-     * May modify the current element.
-     *
-     * @return Forward iterator.
-     */
-    iterator end() { return iterator(*this, rows(), cols()); }
-
-    /**
-     * @brief Begin of the matrix, points to its first element.
-     * @return Constant forward iterator.
-     */
-    const_iterator begin() const { return const_iterator(*this, 0, 0); }
-
-    /**
-     * @brief End of the matrix, points to its last element.
-     * @return Constant forward iterator.
-     */
-    const_iterator end() const { return const_iterator(*this, rows(), cols()); }
 
 private:
     /// Matrix rows.
