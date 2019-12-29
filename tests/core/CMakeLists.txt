@@ -4,8 +4,9 @@ set(SOURCES
     image.cpp
     image_converter.cpp
     main.cpp
-    matrix.cpp
-    matrix_ops.cpp
+    matrix_core.cpp
+    matrix_core_conv.cpp
+    matrix_core_ops.cpp
     memory.cpp
     pixel.cpp
     point.cpp

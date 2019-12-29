@@ -14,7 +14,9 @@ set(HEADERS
     include/seraphim/image.h
     include/seraphim/image_converter.h
     include/seraphim/matrix.h
-    include/seraphim/matrix_ops.h
+    include/seraphim/matrix/matrix_core.h
+    include/seraphim/matrix/matrix_core_conv.h
+    include/seraphim/matrix/matrix_core_ops.h
     include/seraphim/memory.h
     include/seraphim/module.h
     include/seraphim/pixel.h

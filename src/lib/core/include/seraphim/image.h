@@ -14,6 +14,7 @@
 
 #include "matrix.h"
 #include "pixelformat.h"
+#include "size.h"
 
 namespace sph {
 
