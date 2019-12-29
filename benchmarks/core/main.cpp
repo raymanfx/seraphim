@@ -70,6 +70,16 @@ int main(int, char **) {
     std::cout << preamble() << std::endl;
     std::cout << ">>> Runs per benchmark: " << runs << std::endl << std::endl;
 
+    std::cout << " * Matrix transpose" << std::endl;
+    elapsed_ns = 0;
+    for (const auto &size : sizes) {
+        for (int i = 0; i < runs; i++) {
+            elapsed_ns += matrix_transpose<int>(size).count();
+        }
+        std::cout << size << "x" << size << ": " << timestamp_str(elapsed_ns / runs) << std::endl;
+    }
+
+    std::cout << std::endl;
     std::cout << " * Matrix addition" << std::endl;
     elapsed_ns = 0;
     for (const auto &size : sizes) {
