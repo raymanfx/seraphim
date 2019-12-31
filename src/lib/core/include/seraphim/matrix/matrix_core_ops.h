@@ -41,6 +41,62 @@ template <typename T> CoreMatrix<T> transpose(const Matrix<T> &mat) {
 }
 
 /**
+ * @brief Transpose the matrix (rows become columns).
+ * @param mat Input matrix.
+ * @return Output matrix.
+ */
+template <size_t BLOCK_SIZE = 16, typename T> CoreMatrix<T> transpose_block(const Matrix<T> &mat) {
+    CoreMatrix<T> result(mat.cols(), mat.rows());
+    size_t block_rows;
+    size_t block_cols;
+
+    for (size_t i = 0; i < mat.rows(); i += BLOCK_SIZE) {
+        for (size_t j = 0; j < mat.cols(); j += BLOCK_SIZE) {
+            block_rows = mat.rows() - i > BLOCK_SIZE ? BLOCK_SIZE : mat.rows() - i;
+            block_cols = mat.cols() - j > BLOCK_SIZE ? BLOCK_SIZE : mat.cols() - j;
+
+            for (size_t _i = 0; _i < block_rows; _i++) {
+                for (size_t _j = 0; _j < block_cols; _j++) {
+                    result(j + _j, i + _i) = mat(i + _i, j + _j);
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+/**
+ * @brief Cache oblivious matrix transpose.
+ * Inspired by: http://wgropp.cs.illinois.edu/courses/cs598-s16/lectures/lecture08.pdf.
+ *
+ * @param src Input matrix.
+ * @param dst Output matrix.
+ * @param row_offset Source matrix row offset.
+ * @param rows Number of rows to process.
+ * @param col_offset Source matrix column offset.
+ * @param cols Number of columns to process.
+ */
+template <size_t TILE_SIZE = 16, typename T>
+void transpose_co(const Matrix<T> &src, CoreMatrix<T> &dst, size_t row_offset, size_t rows,
+                  size_t col_offset, size_t cols) {
+    if (rows <= TILE_SIZE && cols <= TILE_SIZE) {
+        for (size_t i = row_offset; i < rows + row_offset; i++) {
+            for (size_t j = col_offset; j < cols + col_offset; j++) {
+                dst(j, i) = src(i, j);
+            }
+        }
+    } else if (rows >= cols) {
+        // subdivide the long side to keep the submatrices reasonably square
+        transpose_co<TILE_SIZE>(src, dst, row_offset, rows / 2, col_offset, cols);
+        transpose_co<TILE_SIZE>(src, dst, row_offset + rows / 2, rows - rows / 2, col_offset, cols);
+    } else {
+        transpose_co<TILE_SIZE>(src, dst, row_offset, rows, col_offset, cols / 2);
+        transpose_co<TILE_SIZE>(src, dst, row_offset, rows, col_offset + cols / 2, cols - cols / 2);
+    }
+}
+
+/**
  * @brief operator +=
  * @param lhs Left hand side, will be modified.
  * @param rhs Right hand side, left untouched.

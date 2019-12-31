@@ -18,6 +18,89 @@ TEST_CASE( "Matrix operators", "[CoreMatrix<T>]" ) {
         REQUIRE( m2(1, 0) == 2 );
         REQUIRE( m2(1, 1) == 8 );
     }
+    SECTION( "transpose_block() returns the transposed matrix" ) {
+        CoreMatrix<int> m1({
+            { 1, 2 },
+            { 9, 8 }
+        });
+        CoreMatrix<int> m2 = transpose_block(m1);
+
+        REQUIRE( m2(0, 0) == 1 );
+        REQUIRE( m2(0, 1) == 9 );
+        REQUIRE( m2(1, 0) == 2 );
+        REQUIRE( m2(1, 1) == 8 );
+
+        m1 = CoreMatrix<int>(100, 100);
+        m1 = 0;
+        m1(0, 0) = 1;
+        m1(0, 99) = 2;
+        m1(99, 0) = 3;
+        m1(99, 99) = 4;
+
+        m2 = transpose_block(m1);
+
+        REQUIRE( m2(0, 0) == 1 );
+        REQUIRE( m2(0, 99) == 3 );
+        REQUIRE( m2(99, 0) == 2 );
+        REQUIRE( m2(99, 99) == 4 );
+
+        m1 = CoreMatrix<int>(50, 29);
+        m1 = 0;
+        m1(0, 0) = 1;
+        m1(0, 28) = 2;
+        m1(49, 0) = 3;
+        m1(49, 28) = 4;
+
+        m2 = transpose_block(m1);
+
+        REQUIRE( m2(0, 0) == 1 );
+        REQUIRE( m2(0, 49) == 3 );
+        REQUIRE( m2(28, 0) == 2 );
+        REQUIRE( m2(28, 49) == 4 );
+    }
+    SECTION( "transpose_co() returns the transposed matrix" ) {
+        CoreMatrix<int> m1({
+            { 1, 2 },
+            { 9, 8 }
+        });
+        CoreMatrix<int> m2(m1.cols(), m1.rows());
+        transpose_co(m1, m2, 0, m1.rows(), 0, m1.cols());
+
+        REQUIRE( m2(0, 0) == 1 );
+        REQUIRE( m2(0, 1) == 9 );
+        REQUIRE( m2(1, 0) == 2 );
+        REQUIRE( m2(1, 1) == 8 );
+
+        m1 = CoreMatrix<int>(100, 100);
+        m2 = CoreMatrix<int>(100, 100);
+        m1 = 0;
+        m1(0, 0) = 1;
+        m1(0, 99) = 2;
+        m1(99, 0) = 3;
+        m1(99, 99) = 4;
+
+        transpose_co(m1, m2, 0, m1.rows(), 0, m1.cols());
+
+        REQUIRE( m2(0, 0) == 1 );
+        REQUIRE( m2(0, 99) == 3 );
+        REQUIRE( m2(99, 0) == 2 );
+        REQUIRE( m2(99, 99) == 4 );
+
+        m1 = CoreMatrix<int>(50, 29);
+        m2 = CoreMatrix<int>(29, 50);
+        m1 = 0;
+        m1(0, 0) = 1;
+        m1(0, 28) = 2;
+        m1(49, 0) = 3;
+        m1(49, 28) = 4;
+
+        transpose_co(m1, m2, 0, m1.rows(), 0, m1.cols());
+
+        REQUIRE( m2(0, 0) == 1 );
+        REQUIRE( m2(0, 49) == 3 );
+        REQUIRE( m2(28, 0) == 2 );
+        REQUIRE( m2(28, 49) == 4 );
+    }
     SECTION( "+= operator performs element addition" ) {
         CoreMatrix<int> m1({
             { 1, 2 },
