@@ -211,12 +211,13 @@ public:
     }
 
     T &operator()(size_t i, size_t j) override {
-        assert(i >= 0 && j >= 0);
         assert(i < m_rows && j < m_cols);
         return data(i)[j];
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    using sph::Matrix<T>::operator();
 
     /**
      * @brief Subscript operator retrieving a matrix region.
