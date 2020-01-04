@@ -389,6 +389,20 @@ TEST_CASE( "Matrix runtime behavior", "[CoreMatrix<T>]" ) {
         REQUIRE( m3(2, 0) == data[4] );
         REQUIRE( m3(2, 1) == data[5] );
     }
+    SECTION( "clone() performs a deep copy of matrix elements" ) {
+        int data[] = {
+            3, 4,
+            1, 9,
+            4, 5
+        };
+        CoreMatrix<int> m1(data, 3, 2);
+        CoreMatrix m2 = m1.clone();
+        CoreMatrix m3 = m2.clone();
+
+        REQUIRE( m1.data() == data );
+        REQUIRE( m2.data() != data );
+        REQUIRE( m2.data() != data );
+    }
     SECTION( "pack() eliminates padding in the matrix rows" ) {
         // padded data
         int data[] = {
