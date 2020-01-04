@@ -6,9 +6,9 @@ set(SOURCES
     facemark_detector_service.cpp)
 
 set(HEADERS
-    face_detector_service.h
-    face_recognizer_service.h
-    facemark_detector_service.h)
+    face_detector_service.hpp
+    face_recognizer_service.hpp
+    facemark_detector_service.hpp)
 
 add_library(${MODULE_NAME} STATIC ${SOURCES} ${HEADERS})
 

@@ -5,10 +5,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <seraphim/except.h>
-#include <seraphim/iop/opencv/mat.h>
+#include <seraphim/except.hpp>
+#include <seraphim/iop/opencv/mat.hpp>
 
-#include "seraphim/object/kcf_tracker.h"
+#include "seraphim/object/kcf_tracker.hpp"
 
 using namespace sph;
 using namespace sph::object;

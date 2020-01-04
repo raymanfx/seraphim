@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
 #include <sstream>
 
-#include <seraphim/pixel.h>
+#include <seraphim/pixel.hpp>
 
 using namespace sph;
 

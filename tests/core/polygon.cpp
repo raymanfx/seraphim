@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 
-#include <seraphim/polygon.h>
+#include <seraphim/polygon.hpp>
 
 using namespace sph;
 

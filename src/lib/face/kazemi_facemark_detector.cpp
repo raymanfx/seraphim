@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "seraphim/face/kazemi_facemark_detector.h"
+#include "seraphim/face/kazemi_facemark_detector.hpp"
 
 using namespace sph;
 using namespace sph::face;

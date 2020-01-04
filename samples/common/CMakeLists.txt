@@ -2,7 +2,7 @@ set(SOURCES
     )
 
 set(HEADERS
-    optparse.h)
+    optparse.hpp)
 
 add_library(common STATIC ${SOURCES} ${HEADERS})
 

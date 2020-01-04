@@ -8,15 +8,15 @@
 #include <iostream>
 #include <thread>
 
-#include "seraphim/except.h"
-#include "seraphim/gui/window_factory.h"
+#include "seraphim/except.hpp"
+#include "seraphim/gui/window_factory.hpp"
 
 #ifdef WITH_GLFW
-#include "seraphim/gui/glfw_window.h"
+#include "seraphim/gui/glfw_window.hpp"
 #endif
 
 #ifdef WITH_OPENCV
-#include "seraphim/gui/opencv_window.h"
+#include "seraphim/gui/opencv_window.hpp"
 #endif
 
 using namespace sph;

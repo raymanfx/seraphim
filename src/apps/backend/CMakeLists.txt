@@ -35,11 +35,11 @@ set(SOURCES
     tcp_server.cpp)
 
 set(HEADERS
-    config_store.h
-    server.h
-    service.h
-    shm_server.h
-    tcp_server.h)
+    config_store.hpp
+    server.hpp
+    service.hpp
+    shm_server.hpp
+    tcp_server.hpp)
 
 add_executable(${COMPONENT_NAME} ${SOURCES} ${HEADERS})
 

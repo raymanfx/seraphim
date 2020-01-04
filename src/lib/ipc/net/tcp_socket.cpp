@@ -12,9 +12,9 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include "seraphim/except.h"
-#include "seraphim/ipc/except.h"
-#include "seraphim/ipc/net/tcp_socket.h"
+#include "seraphim/except.hpp"
+#include "seraphim/ipc/except.hpp"
+#include "seraphim/ipc/net/tcp_socket.hpp"
 
 using namespace sph;
 using namespace sph::ipc::net;

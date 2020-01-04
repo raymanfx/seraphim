@@ -5,9 +5,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <seraphim/iop/opencv/mat.h>
+#include <seraphim/iop/opencv/mat.hpp>
 
-#include "seraphim/face/lbp_face_detector.h"
+#include "seraphim/face/lbp_face_detector.hpp"
 
 using namespace sph;
 using namespace sph::face;

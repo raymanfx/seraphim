@@ -14,23 +14,23 @@
 #include <vector>
 
 #include <Seraphim.pb.h>
-#include <seraphim/car/linear_lane_detector.h>
-#include <seraphim/face/lbf_facemark_detector.h>
-#include <seraphim/face/lbp_face_detector.h>
-#include <seraphim/face/lbp_face_recognizer.h>
-#include <seraphim/face/utils.h>
-#include <seraphim/ipc.h>
-#include <seraphim/memory.h>
-#include <seraphim/object/dnn_detector.h>
+#include <seraphim/car/linear_lane_detector.hpp>
+#include <seraphim/face/lbf_facemark_detector.hpp>
+#include <seraphim/face/lbp_face_detector.hpp>
+#include <seraphim/face/lbp_face_recognizer.hpp>
+#include <seraphim/face/utils.hpp>
+#include <seraphim/ipc.hpp>
+#include <seraphim/memory.hpp>
+#include <seraphim/object/dnn_detector.hpp>
 
-#include "car/lane_detector_service.h"
-#include "config_store.h"
-#include "face/face_detector_service.h"
-#include "face/face_recognizer_service.h"
-#include "face/facemark_detector_service.h"
-#include "object/detector_service.h"
-#include "shm_server.h"
-#include "tcp_server.h"
+#include "car/lane_detector_service.hpp"
+#include "config_store.hpp"
+#include "face/face_detector_service.hpp"
+#include "face/face_recognizer_service.hpp"
+#include "face/facemark_detector_service.hpp"
+#include "object/detector_service.hpp"
+#include "shm_server.hpp"
+#include "tcp_server.hpp"
 
 using namespace sph::backend;
 using namespace sph::ipc;

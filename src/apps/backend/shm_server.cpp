@@ -5,9 +5,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <seraphim/except.h>
+#include <seraphim/except.hpp>
 
-#include "shm_server.h"
+#include "shm_server.hpp"
 
 using namespace sph;
 using namespace sph::backend;

@@ -8,23 +8,23 @@ set(SOURCES
     image_converter.cpp)
 
 set(HEADERS
-    include/seraphim/computable.h
-    include/seraphim/core.h
-    include/seraphim/except.h
-    include/seraphim/image.h
-    include/seraphim/image_converter.h
-    include/seraphim/matrix.h
-    include/seraphim/matrix/matrix_core.h
-    include/seraphim/matrix/matrix_core_conv.h
-    include/seraphim/matrix/matrix_core_ops.h
-    include/seraphim/memory.h
-    include/seraphim/module.h
-    include/seraphim/pixel.h
-    include/seraphim/pixelformat.h
-    include/seraphim/point.h
-    include/seraphim/polygon.h
-    include/seraphim/size.h
-    include/seraphim/threading.h)
+    include/seraphim/computable.hpp
+    include/seraphim/core.hpp
+    include/seraphim/except.hpp
+    include/seraphim/image.hpp
+    include/seraphim/image_converter.hpp
+    include/seraphim/matrix.hpp
+    include/seraphim/matrix/matrix_core.hpp
+    include/seraphim/matrix/matrix_core_conv.hpp
+    include/seraphim/matrix/matrix_core_ops.hpp
+    include/seraphim/memory.hpp
+    include/seraphim/module.hpp
+    include/seraphim/pixel.hpp
+    include/seraphim/pixelformat.hpp
+    include/seraphim/point.hpp
+    include/seraphim/polygon.hpp
+    include/seraphim/size.hpp
+    include/seraphim/threading.hpp)
 
 add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})
 add_library(seraphim::${MODULE_NAME} ALIAS ${MODULE_NAME})

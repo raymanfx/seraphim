@@ -5,11 +5,11 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <seraphim/image.h>
-#include <seraphim/polygon.h>
-#include <utils.h>
+#include <seraphim/image.hpp>
+#include <seraphim/polygon.hpp>
+#include <utils.hpp>
 
-#include "lane_detector_service.h"
+#include "lane_detector_service.hpp"
 
 using namespace sph;
 using namespace sph::car;

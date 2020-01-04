@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
 #include <sstream>
 
-#include <seraphim/matrix.h>
+#include <seraphim/matrix.hpp>
 
 using namespace sph;
 

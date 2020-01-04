@@ -10,8 +10,8 @@ set(SOURCES
     ui/MainWindow.cpp)
 
 set(HEADERS
-    FaceStorage/FaceStorage.h
-    ui/MainWindow.h)
+    FaceStorage/FaceStorage.hpp
+    ui/MainWindow.hpp)
 
 # add resources
 set(SOURCES

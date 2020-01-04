@@ -9,10 +9,10 @@
 #include <csignal>
 #include <iostream>
 #include <opencv2/videoio.hpp>
-#include <optparse.h>
-#include <seraphim/image.h>
-#include <seraphim/gui.h>
-#include <seraphim/iop/opencv/mat.h>
+#include <optparse.hpp>
+#include <seraphim/image.hpp>
+#include <seraphim/gui.hpp>
+#include <seraphim/iop/opencv/mat.hpp>
 
 static bool main_loop = true;
 

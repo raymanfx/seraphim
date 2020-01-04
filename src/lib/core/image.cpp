@@ -1,5 +1,5 @@
-#include <seraphim/except.h>
-#include <seraphim/image.h>
+#include <seraphim/except.hpp>
+#include <seraphim/image.hpp>
 
 using namespace sph;
 

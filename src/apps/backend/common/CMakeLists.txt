@@ -4,7 +4,7 @@ set(SOURCES
     utils.cpp)
 
 set(HEADERS
-    utils.h)
+    utils.hpp)
 
 add_library(${MODULE_NAME} STATIC ${SOURCES} ${HEADERS})
 

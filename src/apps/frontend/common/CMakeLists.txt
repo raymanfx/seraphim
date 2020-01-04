@@ -9,10 +9,10 @@ set(SOURCES
     QVideoCaptureStream/QVideoCaptureStream.cpp)
 
 set(HEADERS
-    ICaptureStream/ICaptureStream.h
-    QCameraCaptureStream/QCameraCaptureStream.h
-    QImageProvider/QImageProvider.h
-    QVideoCaptureStream/QVideoCaptureStream.h)
+    ICaptureStream/ICaptureStream.hpp
+    QCameraCaptureStream/QCameraCaptureStream.hpp
+    QImageProvider/QImageProvider.hpp
+    QVideoCaptureStream/QVideoCaptureStream.hpp)
 
 # Linux specific classes
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
@@ -22,8 +22,8 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         V4L2CaptureStream/v4l2_device.cpp)
     set(HEADERS
         ${HEADERS}
-        V4L2CaptureStream/V4L2CaptureStream.h
-        V4L2CaptureStream/v4l2_device.h)
+        V4L2CaptureStream/V4L2CaptureStream.hpp
+        V4L2CaptureStream/v4l2_device.hpp)
 endif()
 
 add_library(${MODULE_NAME} STATIC ${SOURCES} ${HEADERS})

@@ -7,11 +7,11 @@
 
 #include <csignal>
 #include <opencv2/videoio.hpp>
-#include <optparse.h>
-#include <seraphim/car/linear_lane_detector.h>
-#include <seraphim/polygon.h>
-#include <seraphim/gui.h>
-#include <seraphim/iop/opencv/mat.h>
+#include <optparse.hpp>
+#include <seraphim/car/linear_lane_detector.hpp>
+#include <seraphim/polygon.hpp>
+#include <seraphim/gui.hpp>
+#include <seraphim/iop/opencv/mat.hpp>
 
 static bool main_loop = true;
 

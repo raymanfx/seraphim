@@ -6,13 +6,13 @@
  */
 
 #include <csignal>
-#include <optparse.h>
+#include <optparse.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/videoio.hpp>
-#include <seraphim/polygon.h>
-#include <seraphim/gui.h>
-#include <seraphim/iop/opencv/mat.h>
-#include <seraphim/object/dnn_detector.h>
+#include <seraphim/polygon.hpp>
+#include <seraphim/gui.hpp>
+#include <seraphim/iop/opencv/mat.hpp>
+#include <seraphim/object/dnn_detector.hpp>
 
 static bool main_loop = true;
 

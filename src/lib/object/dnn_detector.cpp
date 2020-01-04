@@ -5,9 +5,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <seraphim/iop/opencv/mat.h>
+#include <seraphim/iop/opencv/mat.hpp>
 
-#include "seraphim/object/dnn_detector.h"
+#include "seraphim/object/dnn_detector.hpp"
 
 using namespace sph;
 using namespace sph::object;

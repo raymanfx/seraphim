@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 
-#include <seraphim/point.h>
+#include <seraphim/point.hpp>
 
 using namespace sph;
 

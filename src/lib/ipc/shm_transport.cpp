@@ -12,8 +12,8 @@
 #include <thread>
 #include <unistd.h>
 
-#include "seraphim/except.h"
-#include "seraphim/ipc/shm_transport.h"
+#include "seraphim/except.hpp"
+#include "seraphim/ipc/shm_transport.hpp"
 
 using namespace sph;
 using namespace sph::ipc;

@@ -2,7 +2,7 @@
 #define BENCH_MATRIX_CORE_OPS_HPP
 
 #include <chrono>
-#include <seraphim/matrix.h>
+#include <seraphim/matrix.hpp>
 
 template <typename T>
 std::chrono::nanoseconds matrix_transpose(size_t size) {

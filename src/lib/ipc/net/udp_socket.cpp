@@ -12,7 +12,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include "seraphim/ipc/net/udp_socket.h"
+#include "seraphim/ipc/net/udp_socket.hpp"
 
 using namespace sph;
 using namespace sph::ipc::net;

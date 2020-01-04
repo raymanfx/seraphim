@@ -18,7 +18,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     include_directories("/usr/local/opt/protobuf/include")
 endif ()
 
-# Generate the .h and .cxx files
+# Generate the .hpp and .cxx files
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_FILES})
 
 add_custom_target(generated_messages DEPENDS ${PROTO_SRCS} ${PROTO_HDRS})

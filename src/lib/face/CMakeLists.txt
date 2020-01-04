@@ -10,10 +10,10 @@ set(SOURCES
     )
 
 set(HEADERS
-    include/seraphim/face.h
-    include/seraphim/face/face_detector.h
-    include/seraphim/face/face_recognizer.h
-    include/seraphim/face/facemark_detector.h)
+    include/seraphim/face.hpp
+    include/seraphim/face/face_detector.hpp
+    include/seraphim/face/face_recognizer.hpp
+    include/seraphim/face/facemark_detector.hpp)
 
 add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})
 add_library(seraphim::${MODULE_NAME} ALIAS ${MODULE_NAME})
@@ -41,10 +41,10 @@ if (OpenCV_FOUND)
         lbp_face_recognizer.cpp
         lbf_facemark_detector.cpp
         utils.cpp
-        include/seraphim/face/lbf_facemark_detector.h
-        include/seraphim/face/lbp_face_detector.h
-        include/seraphim/face/lbp_face_recognizer.h
-        include/seraphim/face/utils.h)
+        include/seraphim/face/lbf_facemark_detector.hpp
+        include/seraphim/face/lbp_face_detector.hpp
+        include/seraphim/face/lbp_face_recognizer.hpp
+        include/seraphim/face/utils.hpp)
     target_compile_definitions(${MODULE_NAME} PUBLIC "-DWITH_OPENCV")
     target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_face)
 endif ()
@@ -55,8 +55,8 @@ if (DLIB_LIBRARY_FOUND)
     target_sources(${MODULE_NAME} PRIVATE
         hog_face_detector.cpp
         kazemi_facemark_detector.cpp
-        include/seraphim/face/hog_face_detector.h
-        include/seraphim/face/kazemi_facemark_detector.h)
+        include/seraphim/face/hog_face_detector.hpp
+        include/seraphim/face/kazemi_facemark_detector.hpp)
     target_compile_definitions(${MODULE_NAME} PUBLIC "-DWITH_DLIB")
     target_link_libraries(${MODULE_NAME} PUBLIC dlib)
 endif ()

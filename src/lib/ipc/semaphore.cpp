@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "seraphim/ipc/semaphore.h"
+#include "seraphim/ipc/semaphore.hpp"
 
 using namespace sph::ipc;
 

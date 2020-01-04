@@ -5,11 +5,11 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <seraphim/face/utils.h>
-#include <seraphim/iop/opencv/mat.h>
-#include <utils.h>
+#include <seraphim/face/utils.hpp>
+#include <seraphim/iop/opencv/mat.hpp>
+#include <utils.hpp>
 
-#include "face_recognizer_service.h"
+#include "face_recognizer_service.hpp"
 
 using namespace sph;
 using namespace sph::face;

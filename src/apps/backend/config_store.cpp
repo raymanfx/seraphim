@@ -10,7 +10,7 @@
 #include <limits.h>
 #include <sstream>
 
-#include "config_store.h"
+#include "config_store.hpp"
 
 using namespace sph::backend;
 

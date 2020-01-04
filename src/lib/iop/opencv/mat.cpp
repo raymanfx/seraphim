@@ -6,7 +6,7 @@
  */
 
 #include <opencv2/imgproc.hpp>
-#include <seraphim/iop/opencv/mat.h>
+#include <seraphim/iop/opencv/mat.hpp>
 
 template <typename T>::cv::Mat_<T> from_matrix(const sph::Matrix<T> &mat) {
     return cv::Mat_<T>(mat.rows(), mat.cols(), mat.data(), mat.step());

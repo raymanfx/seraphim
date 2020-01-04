@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "seraphim/face/utils.h"
+#include "seraphim/face/utils.hpp"
 
 double sph::face::align_face(cv::InputOutputArray image, std::vector<cv::Point2f> &eyes) {
     cv::Point2f center;

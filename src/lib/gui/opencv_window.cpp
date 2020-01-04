@@ -10,9 +10,9 @@
 
 #include <opencv2/highgui.hpp>
 
-#include "seraphim/except.h"
-#include "seraphim/gui/opencv_window.h"
-#include "seraphim/iop/opencv/mat.h"
+#include "seraphim/except.hpp"
+#include "seraphim/gui/opencv_window.hpp"
+#include "seraphim/iop/opencv/mat.hpp"
 
 using namespace sph;
 using namespace sph::gui;

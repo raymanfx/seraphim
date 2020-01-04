@@ -1,4 +1,4 @@
-#include "FaceStorage.h"
+#include "FaceStorage.hpp"
 #include <iostream>
 
 FaceStorage::FaceStorage(QObject *parent) : QQuickImageProvider(QQuickImageProvider::Pixmap) {

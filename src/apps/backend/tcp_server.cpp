@@ -6,11 +6,11 @@
  */
 
 #include <poll.h>
-#include <seraphim/except.h>
-#include <seraphim/ipc/except.h>
-#include <seraphim/ipc/tcp_transport.h>
+#include <seraphim/except.hpp>
+#include <seraphim/ipc/except.hpp>
+#include <seraphim/ipc/tcp_transport.hpp>
 
-#include "tcp_server.h"
+#include "tcp_server.hpp"
 
 using namespace sph;
 using namespace sph::backend;

@@ -4,7 +4,7 @@ set(SOURCES
     lane_detector_service.cpp)
 
 set(HEADERS
-    lane_detector_service.h)
+    lane_detector_service.hpp)
 
 add_library(${MODULE_NAME} STATIC ${SOURCES} ${HEADERS})
 

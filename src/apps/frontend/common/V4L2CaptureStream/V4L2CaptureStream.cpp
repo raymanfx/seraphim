@@ -1,6 +1,6 @@
 #include <cstring>
 
-#include "V4L2CaptureStream.h"
+#include "V4L2CaptureStream.hpp"
 
 V4L2CaptureStream::V4L2CaptureStream() {
     mDevicePath = "/dev/video0";

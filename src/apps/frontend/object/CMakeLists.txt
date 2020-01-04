@@ -9,8 +9,8 @@ set(SOURCES
     ui/MainWindow.cpp)
 
 set(HEADERS
-    ui/coco.h
-    ui/MainWindow.h)
+    ui/coco.hpp
+    ui/MainWindow.hpp)
 
 # add resources
 set(SOURCES

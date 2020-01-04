@@ -2,15 +2,15 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include <QVideoCaptureStream/QVideoCaptureStream.h>
-#include <seraphim/image.h>
-#include <seraphim/iop.h>
-#include <seraphim/ipc/transport_factory.h>
+#include <QVideoCaptureStream/QVideoCaptureStream.hpp>
+#include <seraphim/image.hpp>
+#include <seraphim/iop.hpp>
+#include <seraphim/ipc/transport_factory.hpp>
 
 #include <LaneDetector.pb.h>
 #include <Seraphim.pb.h>
 
-#include "MainWindow.h"
+#include "MainWindow.hpp"
 
 static void draw_lanes(QImage &overlay, const Seraphim::Car::LaneDetector::DetectionResponse &res) {
     QPainter painter(&overlay);

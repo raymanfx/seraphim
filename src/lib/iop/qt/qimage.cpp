@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <seraphim/iop/qt/qimage.h>
+#include <seraphim/iop/qt/qimage.hpp>
 
 using namespace sph;
 

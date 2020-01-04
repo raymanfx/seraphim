@@ -7,9 +7,9 @@ set(SOURCES
     window_factory.cpp)
 
 set(HEADERS
-    include/seraphim/gui.h
-    include/seraphim/gui/window.h
-    include/seraphim/gui/window_factory.h)
+    include/seraphim/gui.hpp
+    include/seraphim/gui/window.hpp
+    include/seraphim/gui/window_factory.hpp)
 
 add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})
 add_library(seraphim::${MODULE_NAME} ALIAS ${MODULE_NAME})
@@ -29,10 +29,10 @@ if (glfw3_FOUND)
     target_sources(${MODULE_NAME} PRIVATE
         glad.c
         glfw_window.cpp
-        include/KHR/khrplatform.h
+        include/KHR/khrplatform.hpp
         include/seraphim/gui/glad/glad.h
-        include/seraphim/gui/glfw.h
-        include/seraphim/gui/glfw_window.h)
+        include/seraphim/gui/glfw.hpp
+        include/seraphim/gui/glfw_window.hpp)
     target_compile_definitions(${MODULE_NAME} PRIVATE "-DWITH_GLFW")
     target_link_libraries(${MODULE_NAME} PUBLIC glfw)
 endif ()
@@ -42,7 +42,7 @@ find_package(OpenCV COMPONENTS opencv_core opencv_highgui)
 if (OpenCV_FOUND)
     target_sources(${MODULE_NAME} PRIVATE
         opencv_window.cpp
-        include/seraphim/gui/opencv_window.h)
+        include/seraphim/gui/opencv_window.hpp)
     target_compile_definitions(${MODULE_NAME} PRIVATE "-DWITH_OPENCV")
     target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_highgui seraphim::iop)
 endif ()

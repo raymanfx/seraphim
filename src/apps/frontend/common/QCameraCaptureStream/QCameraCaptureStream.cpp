@@ -1,7 +1,7 @@
 #include <QCameraInfo>
 #include <atomic>
 
-#include "QCameraCaptureStream.h"
+#include "QCameraCaptureStream.hpp"
 
 QCameraCaptureStream::QCameraCaptureStream() {
     mCamera = nullptr;

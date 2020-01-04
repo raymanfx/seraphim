@@ -5,10 +5,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "seraphim/ipc/transport_factory.h"
-#include "seraphim/except.h"
-#include "seraphim/ipc/shm_transport.h"
-#include "seraphim/ipc/tcp_transport.h"
+#include "seraphim/ipc/transport_factory.hpp"
+#include "seraphim/except.hpp"
+#include "seraphim/ipc/shm_transport.hpp"
+#include "seraphim/ipc/tcp_transport.hpp"
 
 using namespace sph;
 using namespace sph::ipc;

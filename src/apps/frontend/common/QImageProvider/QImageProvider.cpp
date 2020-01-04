@@ -1,6 +1,6 @@
 #include <QPixmap>
 
-#include "QImageProvider.h"
+#include "QImageProvider.hpp"
 
 QImageProvider::QImageProvider(QObject *parent)
     : QObject(parent), QQuickImageProvider(QQuickImageProvider::Pixmap) {

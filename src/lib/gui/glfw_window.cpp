@@ -8,8 +8,8 @@
 #include <iostream>
 #include <thread>
 
-#include "seraphim/except.h"
-#include "seraphim/gui/glfw_window.h"
+#include "seraphim/except.hpp"
+#include "seraphim/gui/glfw_window.hpp"
 
 using namespace sph;
 using namespace sph::gui;

@@ -4,7 +4,7 @@ set(SOURCES
     detector_service.cpp)
 
 set(HEADERS
-    detector_service.h)
+    detector_service.hpp)
 
 add_library(${MODULE_NAME} STATIC ${SOURCES} ${HEADERS})
 

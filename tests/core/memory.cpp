@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 
-#include <seraphim/memory.h>
+#include <seraphim/memory.hpp>
 
 using namespace sph;
 

@@ -8,7 +8,7 @@
 #include <string.h>
 #include <sys/mman.h>
 
-#include "v4l2_device.h"
+#include "v4l2_device.hpp"
 
 static int xioctl(int fd, unsigned long request, void *arg) {
     int ret;

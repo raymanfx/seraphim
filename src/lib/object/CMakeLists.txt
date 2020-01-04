@@ -11,11 +11,11 @@ set(SOURCES
     kcf_tracker.cpp)
 
 set(HEADERS
-    include/seraphim/object.h
-    include/seraphim/object/detector.h
-    include/seraphim/object/dnn_detector.h
-    include/seraphim/object/kcf_tracker.h
-    include/seraphim/object/tracker.h)
+    include/seraphim/object.hpp
+    include/seraphim/object/detector.hpp
+    include/seraphim/object/dnn_detector.hpp
+    include/seraphim/object/kcf_tracker.hpp
+    include/seraphim/object/tracker.hpp)
 
 add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})
 add_library(seraphim::${MODULE_NAME} ALIAS ${MODULE_NAME})

@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 
-#include <seraphim/image.h>
+#include <seraphim/image.hpp>
 
 using namespace sph;
 

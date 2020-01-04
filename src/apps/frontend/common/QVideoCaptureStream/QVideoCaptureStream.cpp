@@ -1,6 +1,6 @@
 #include <atomic>
 
-#include "QVideoCaptureStream.h"
+#include "QVideoCaptureStream.hpp"
 
 QVideoCaptureStream::QVideoCaptureStream() {
     mPlayer.setVideoOutput(&mSurface);

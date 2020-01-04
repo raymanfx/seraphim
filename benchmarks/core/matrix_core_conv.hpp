@@ -2,7 +2,7 @@
 #define BENCH_MATRIX_CORE_CONV_HPP
 
 #include <chrono>
-#include <seraphim/matrix.h>
+#include <seraphim/matrix.hpp>
 
 template <typename T, size_t channels>
 std::chrono::nanoseconds matrix_convolve(size_t matrix_size, size_t kernel_size) {

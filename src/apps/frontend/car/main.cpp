@@ -1,6 +1,6 @@
 #include <QGuiApplication>
 
-#include <ui/MainWindow.h>
+#include <ui/MainWindow.hpp>
 
 int main(int argc, char *argv[]) {
     // Verify that the version of the library that we linked against is

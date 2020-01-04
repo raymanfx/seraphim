@@ -2,18 +2,18 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include <QCameraCaptureStream/QCameraCaptureStream.h>
+#include <QCameraCaptureStream/QCameraCaptureStream.hpp>
 #include <QPainter>
-#include <seraphim/image.h>
-#include <seraphim/iop.h>
-#include <seraphim/ipc/transport_factory.h>
+#include <seraphim/image.hpp>
+#include <seraphim/iop.hpp>
+#include <seraphim/ipc/transport_factory.hpp>
 
 #include <FaceDetector.pb.h>
 #include <FaceRecognizer.pb.h>
 #include <FacemarkDetector.pb.h>
 #include <Seraphim.pb.h>
 
-#include "MainWindow.h"
+#include "MainWindow.hpp"
 
 MainWindow::MainWindow(QObject *parent) : QObject(parent) {
     // register image provider

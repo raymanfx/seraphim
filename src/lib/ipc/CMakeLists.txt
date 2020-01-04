@@ -16,16 +16,16 @@ set(SOURCES
     transport_factory.cpp)
 
 set(HEADERS
-    include/seraphim/ipc.h
-    include/seraphim/ipc/net/socket.h
-    include/seraphim/ipc/net/tcp_socket.h
-    include/seraphim/ipc/net/udp_socket.h
-    include/seraphim/ipc/except.h
-    include/seraphim/ipc/transport.h
-    include/seraphim/ipc/transport_factory.h
-    include/seraphim/ipc/semaphore.h
-    include/seraphim/ipc/shm_transport.h
-    include/seraphim/ipc/tcp_transport.h)
+    include/seraphim/ipc.hpp
+    include/seraphim/ipc/net/socket.hpp
+    include/seraphim/ipc/net/tcp_socket.hpp
+    include/seraphim/ipc/net/udp_socket.hpp
+    include/seraphim/ipc/except.hpp
+    include/seraphim/ipc/transport.hpp
+    include/seraphim/ipc/transport_factory.hpp
+    include/seraphim/ipc/semaphore.hpp
+    include/seraphim/ipc/shm_transport.hpp
+    include/seraphim/ipc/tcp_transport.hpp)
 
 add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})
 add_library(seraphim::${MODULE_NAME} ALIAS ${MODULE_NAME})

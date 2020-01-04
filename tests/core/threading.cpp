@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
 #include <thread>
 
-#include <seraphim/threading.h>
+#include <seraphim/threading.hpp>
 
 using namespace sph;
 

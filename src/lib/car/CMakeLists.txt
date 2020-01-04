@@ -10,9 +10,9 @@ set(SOURCES
     linear_lane_detector.cpp)
 
 set(HEADERS
-    include/seraphim/car.h
-    include/seraphim/car/lane_detector.h
-    include/seraphim/car/linear_lane_detector.h)
+    include/seraphim/car.hpp
+    include/seraphim/car/lane_detector.hpp
+    include/seraphim/car/linear_lane_detector.hpp)
 
 add_library(${MODULE_NAME} SHARED ${SOURCES} ${HEADERS})
 add_library(seraphim::${MODULE_NAME} ALIAS ${MODULE_NAME})

@@ -8,10 +8,10 @@
 #include <cstring>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
-#include <seraphim/image.h>
-#include <seraphim/iop/opencv/mat.h>
+#include <seraphim/image.hpp>
+#include <seraphim/iop/opencv/mat.hpp>
 
-#include "utils.h"
+#include "utils.hpp"
 
 bool sph::backend::Image2DtoImage(const Seraphim::Types::Image2D &src, sph::CoreImage &dst) {
     sph::CoreImage img;

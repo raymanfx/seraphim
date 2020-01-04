@@ -9,7 +9,7 @@ set(SOURCES
     ui/MainWindow.cpp)
 
 set(HEADERS
-    ui/MainWindow.h)
+    ui/MainWindow.hpp)
 
 # add resources
 set(SOURCES

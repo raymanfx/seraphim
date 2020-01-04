@@ -8,9 +8,9 @@
 #include <algorithm>
 #include <cmath>
 
-#include "seraphim/except.h"
-#include "seraphim/image.h"
-#include "seraphim/image_converter.h"
+#include "seraphim/except.hpp"
+#include "seraphim/image.hpp"
+#include "seraphim/image_converter.hpp"
 
 using namespace sph;
 

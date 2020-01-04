@@ -9,10 +9,10 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
 #include <optparse.h>
-#include <seraphim/polygon.h>
-#include <seraphim/face/hog_face_detector.h>
-#include <seraphim/gui.h>
-#include <seraphim/iop/opencv/mat.h>
+#include <seraphim/polygon.hpp>
+#include <seraphim/face/hog_face_detector.hpp>
+#include <seraphim/gui.hpp>
+#include <seraphim/iop/opencv/mat.hpp>
 
 using namespace sph::face;
 

@@ -8,12 +8,12 @@
 #include <csignal>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
-#include <optparse.h>
-#include <seraphim/polygon.h>
-#include <seraphim/face/lbf_facemark_detector.h>
-#include <seraphim/face/lbp_face_detector.h>
-#include <seraphim/gui.h>
-#include <seraphim/iop/opencv/mat.h>
+#include <optparse.hpp>
+#include <seraphim/polygon.hpp>
+#include <seraphim/face/lbf_facemark_detector.hpp>
+#include <seraphim/face/lbp_face_detector.hpp>
+#include <seraphim/gui.hpp>
+#include <seraphim/iop/opencv/mat.hpp>
 
 using namespace sph::face;
 

@@ -4,7 +4,7 @@ set(MODULE_VERSION_MINOR 0)
 set(MODULE_VERSION_PATCH 0)
 
 set(HEADERS
-    include/seraphim/iop.h)
+    include/seraphim/iop.hpp)
 
 add_library(${MODULE_NAME} SHARED ${HEADERS})
 add_library(seraphim::${MODULE_NAME} ALIAS ${MODULE_NAME})
@@ -29,7 +29,7 @@ find_package(OpenCV COMPONENTS opencv_core)
 if (OpenCV_FOUND)
     target_sources(${MODULE_NAME} PRIVATE
         opencv/mat.cpp
-        include/seraphim/iop/opencv/mat.h)
+        include/seraphim/iop/opencv/mat.hpp)
     target_compile_definitions(${MODULE_NAME} PUBLIC "-DWITH_IOP_OPENCV")
     target_link_libraries(${MODULE_NAME} PUBLIC opencv_core opencv_imgproc)
 endif ()
@@ -39,7 +39,7 @@ find_package(Qt5 COMPONENTS Multimedia)
 if (Qt5_FOUND)
     target_sources(${MODULE_NAME} PRIVATE
         qt/qimage.cpp
-        include/seraphim/iop/qt/qimage.h)
+        include/seraphim/iop/qt/qimage.hpp)
     target_compile_definitions(${MODULE_NAME} PUBLIC "-DWITH_IOP_QT")
     target_link_libraries(${MODULE_NAME} PUBLIC Qt5::Multimedia)
 endif ()

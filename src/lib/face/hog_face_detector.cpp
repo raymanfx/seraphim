@@ -6,9 +6,9 @@
  */
 
 #include <dlib/image_io.h>
-#include <seraphim/polygon.h>
+#include <seraphim/polygon.hpp>
 
-#include "seraphim/face/hog_face_detector.h"
+#include "seraphim/face/hog_face_detector.hpp"
 
 using namespace sph;
 using namespace sph::face;

@@ -11,8 +11,8 @@
 #include <thread>
 #include <unistd.h>
 
-#include "seraphim/except.h"
-#include "seraphim/ipc/tcp_transport.h"
+#include "seraphim/except.hpp"
+#include "seraphim/ipc/tcp_transport.hpp"
 
 using namespace sph;
 using namespace sph::ipc;
